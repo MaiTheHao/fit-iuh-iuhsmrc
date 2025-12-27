@@ -106,7 +106,9 @@ public class TemperatureControllerV1 {
             @RequestParam(name = "startedAt") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startedAt,
             @RequestParam(name = "endedAt") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endedAt) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(temperatureService.cleanupDataByRange(id, startedAt, endedAt)));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, 
+                "Deleted successfully"));
     }
 
     // --- UTILITY ---

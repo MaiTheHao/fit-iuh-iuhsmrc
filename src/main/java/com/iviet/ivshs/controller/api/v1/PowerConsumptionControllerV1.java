@@ -118,8 +118,10 @@ public class PowerConsumptionControllerV1 {
                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startedAt,
             @RequestParam(name = "endedAt") 
                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endedAt) {
-        int count = powerConsumptionService.cleanupDataByRange(id, startedAt, endedAt);
-        return ResponseEntity.ok(ApiResponseV1.ok(count));
+        powerConsumptionService.cleanupDataByRange(id, startedAt, endedAt);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, 
+                "Deleted successfully"));
     }
 
     // --- UTILITY ---
