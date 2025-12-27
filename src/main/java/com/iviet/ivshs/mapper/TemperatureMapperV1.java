@@ -23,7 +23,7 @@ public interface TemperatureMapperV1 {
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "sensorLans", ignore = true)
+    @Mapping(target = "translations", ignore = true)
     @Mapping(target = "temperatureValues", ignore = true)
     @Mapping(target = "deviceControl", ignore = true)
     @Mapping(target = "room", ignore = true)
@@ -32,7 +32,7 @@ public interface TemperatureMapperV1 {
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "sensorLans", ignore = true)
+    @Mapping(target = "translations", ignore = true)
     @Mapping(target = "currentValue", ignore = true)
     @Mapping(target = "temperatureValues", ignore = true)
     @Mapping(target = "deviceControl", ignore = true)
@@ -42,7 +42,8 @@ public interface TemperatureMapperV1 {
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "sensorLans", ignore = true)
+    @Mapping(target = "naturalId", ignore = true)
+    @Mapping(target = "translations", ignore = true)
     @Mapping(target = "currentValue", ignore = true)
     @Mapping(target = "temperatureValues", ignore = true)
     @Mapping(target = "deviceControl", ignore = true)
