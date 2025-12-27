@@ -33,7 +33,7 @@ public abstract class BaseAuditEntityDaoV1<T extends BaseAuditEntityV1> extends 
         );
     }
 
-	public List<T> findCreatedBetween(Instant start, Instant end, int page, int size) {
+	public List<T> findByCreatedAtBetween(Instant start, Instant end, int page, int size) {
 		return findAll(
 			root -> entityManager.getCriteriaBuilder().between(root.get("createdAt"), start, end),
 			(root, cq) -> {
@@ -45,7 +45,7 @@ public abstract class BaseAuditEntityDaoV1<T extends BaseAuditEntityV1> extends 
 		);
 	}
 
-    public List<T> findUpdatedBetween(Instant start, Instant end, int page, int size) {
+    public List<T> findByUpdatedAtBetween(Instant start, Instant end, int page, int size) {
         return findAll(
             root -> entityManager.getCriteriaBuilder().between(root.get("updatedAt"), start, end),
             (root, cq) -> {
@@ -63,13 +63,13 @@ public abstract class BaseAuditEntityDaoV1<T extends BaseAuditEntityV1> extends 
 		);
 	}
 
-	public long countCreatedBetween(Instant start, Instant end) {
+	public long countByCreatedAtBetween(Instant start, Instant end) {
 		return count(
 			root -> entityManager.getCriteriaBuilder().between(root.get("createdAt"), start, end)
 		);
-	}
+        }
 
-	public long countUpdatedBetween(Instant start, Instant end) {
+	public long countByUpdatedAtBetween(Instant start, Instant end) {
 		return count(
 			root -> entityManager.getCriteriaBuilder().between(root.get("updatedAt"), start, end)
 		);
