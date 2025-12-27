@@ -89,10 +89,9 @@ public class PowerConsumptionServiceImplV1 implements PowerConsumptionServiceV1 
 		}
 
 		String langCode = LocaleContextHolder.getLocale().getLanguage();
-		PowerConsumptionDtoV1 dto = powerConsumptionDao.findById(powerSensorId, langCode);
-		if (dto == null) {
-			throw new NotFoundException("Power sensor not found");
-		}
+		PowerConsumptionDtoV1 dto = powerConsumptionDao.findById(powerSensorId, langCode).orElseThrow(
+			() -> new NotFoundException("Power sensor not found with ID: " + powerSensorId)
+		);
 
 		return dto;
 	}
@@ -127,13 +126,15 @@ public class PowerConsumptionServiceImplV1 implements PowerConsumptionServiceV1 
 		sensorLan.setLangCode(langCode);
 		sensorLan.setName(dto.getName());
 		sensorLan.setDescription(dto.getDescription());
-		sensorLan.setSensor(powerConsumption);
+		sensorLan.setOwner(powerConsumption);
 
-		powerConsumption.getSensorLans().add(sensorLan);
+		powerConsumption.getTranslations().add(sensorLan);
 
 		powerConsumptionDao.save(powerConsumption);
 
-		return powerConsumptionDao.findById(powerConsumption.getId(), langCode);
+		return powerConsumptionDao.findById(powerConsumption.getId(), langCode).orElseThrow(
+			() -> new NotFoundException("Power sensor not found with ID: " + powerConsumption.getId())
+		);
 	}
 
 	@Override
@@ -154,7 +155,7 @@ public class PowerConsumptionServiceImplV1 implements PowerConsumptionServiceV1 
 			throw new BadRequestException("Language with code " + langCode + " not found");
 		}
 
-		PowerConsumptionLanV1 sensorLan = powerConsumption.getSensorLans().stream()
+		PowerConsumptionLanV1 sensorLan = powerConsumption.getTranslations().stream()
 				.filter(lan -> lan.getLangCode().equals(langCode))
 				.findFirst()
 				.orElse(null);
@@ -162,8 +163,8 @@ public class PowerConsumptionServiceImplV1 implements PowerConsumptionServiceV1 
 		if (sensorLan == null) {
 			sensorLan = new PowerConsumptionLanV1();
 			sensorLan.setLangCode(langCode);
-			sensorLan.setSensor(powerConsumption);
-			powerConsumption.getSensorLans().add(sensorLan);
+			sensorLan.setOwner(powerConsumption);
+			powerConsumption.getTranslations().add(sensorLan);
 		}
 
 		if (dto.getName() != null) {
@@ -189,8 +190,9 @@ public class PowerConsumptionServiceImplV1 implements PowerConsumptionServiceV1 
 
 		powerConsumptionDao.update(powerConsumption);
 
-		return powerConsumptionDao.findById(powerSensorId,
-			LocaleContextHolder.getLocale().getLanguage());
+		return powerConsumptionDao.findById(powerSensorId,LocaleContextHolder.getLocale().getLanguage()).orElseThrow(
+				() -> new NotFoundException("Power sensor not found with ID: " + powerSensorId)
+			);
 	}
 
 	@Override
@@ -248,7 +250,7 @@ public class PowerConsumptionServiceImplV1 implements PowerConsumptionServiceV1 
 			sensor.setCurrentWattHour(dto.getWattHour());
 		}
 
-		powerConsumptionValueDao.saveAll(valuesToSave);
+		powerConsumptionValueDao.save(valuesToSave);
 		powerConsumptionDao.update(sensor);
 	}
 
@@ -346,7 +348,7 @@ public class PowerConsumptionServiceImplV1 implements PowerConsumptionServiceV1 
 
 	@Override
 	@Transactional
-	public int cleanupDataByRange(Long sensorId, Instant startedAt, Instant endedAt) {
+	public void cleanupDataByRange(Long sensorId, Instant startedAt, Instant endedAt) {
 		if (sensorId == null) {
 			throw new BadRequestException("Sensor ID is required");
 		}
@@ -354,7 +356,7 @@ public class PowerConsumptionServiceImplV1 implements PowerConsumptionServiceV1 
 			throw new BadRequestException("Date range is required");
 		}
 
-		return powerConsumptionValueDao.deleteByTimestampBetween(startedAt, endedAt);
+		powerConsumptionValueDao.deleteBySensorIdAndTimestampBetween(sensorId, startedAt, endedAt);
 	}
 
 	@Override

@@ -81,9 +81,9 @@ public class TemperatureServiceImplV1 implements TemperatureServiceV1 {
         lan.setLangCode(langCode);
         lan.setName(dto.name().trim());
         lan.setDescription(dto.description());
-        lan.setSensor(sensor);
+        lan.setOwner(sensor);
 
-        sensor.getSensorLans().add(lan);
+        sensor.getTranslations().add(lan);
         temperatureDao.save(sensor);
 
         return temperatureMapper.toDto(sensor, lan);
@@ -98,14 +98,14 @@ public class TemperatureServiceImplV1 implements TemperatureServiceV1 {
 
         if (dto.isActive() != null) sensor.setIsActive(dto.isActive());
 
-        TemperatureLanV1 lan = sensor.getSensorLans().stream()
+        TemperatureLanV1 lan = sensor.getTranslations().stream()
                 .filter(l -> langCode.equals(l.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
                     TemperatureLanV1 newLan = new TemperatureLanV1();
                     newLan.setLangCode(langCode);
-                    newLan.setSensor(sensor);
-                    sensor.getSensorLans().add(newLan);
+                    newLan.setOwner(sensor);
+                    sensor.getTranslations().add(newLan);
                     return newLan;
                 });
 
@@ -154,7 +154,7 @@ public class TemperatureServiceImplV1 implements TemperatureServiceV1 {
             return val;
         }).collect(Collectors.toList());
 
-        temperatureValueDao.saveAll(values);
+        temperatureValueDao.save(values);
 
         Double lastValue = dtos.get(dtos.size() - 1).tempC();
         sensor.setCurrentValue(lastValue);
@@ -177,9 +177,9 @@ public class TemperatureServiceImplV1 implements TemperatureServiceV1 {
 
     @Override
     @Transactional
-    public int cleanupDataByRange(Long sensorId, Instant startedAt, Instant endedAt) {
+    public void cleanupDataByRange(Long sensorId, Instant startedAt, Instant endedAt) {
         if (!temperatureDao.existsById(sensorId)) throw new NotFoundException("Sensor not found");
-        return temperatureValueDao.deleteByTimestampBetween(startedAt, endedAt);
+        temperatureValueDao.deleteBySensorIdAndTimestampBetween(sensorId, startedAt, endedAt);
     }
 
     // --- HEALTH CHECK ---
