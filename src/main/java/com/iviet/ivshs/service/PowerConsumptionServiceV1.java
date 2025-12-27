@@ -3,7 +3,6 @@ package com.iviet.ivshs.service;
 import com.iviet.ivshs.dto.AveragePowerConsumptionValueDtoV1;
 import com.iviet.ivshs.dto.CreatePowerConsumptionDtoV1;
 import com.iviet.ivshs.dto.CreatePowerConsumptionValueDtoV1;
-import com.iviet.ivshs.dto.HealthCheckRequestDtoV1;
 import com.iviet.ivshs.dto.HealthCheckResponseDtoV1;
 import com.iviet.ivshs.dto.PaginatedResponseV1;
 import com.iviet.ivshs.dto.PowerConsumptionDtoV1;
@@ -37,7 +36,7 @@ public interface PowerConsumptionServiceV1 {
 
     List<SumPowerConsumptionValueDtoV1> getSumValueHistoryByClientId(Long clientId, Instant startedAt, Instant endedAt);
 
-    int cleanupDataByRange(Long sensorId, Instant startedAt, Instant endedAt);
+    void cleanupDataByRange(Long sensorId, Instant startedAt, Instant endedAt);
 
     HealthCheckResponseDtoV1 healthCheck(Long sensorId);
 }

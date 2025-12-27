@@ -31,7 +31,7 @@ public interface TemperatureServiceV1 {
 
     List<AverageTemperatureValueDtoV1> getAverageValueHistoryByClientId(Long clientId, Instant startedAt, Instant endedAt);
 
-    int cleanupDataByRange(Long sensorId, Instant startedAt, Instant endedAt);
+    void cleanupDataByRange(Long sensorId, Instant startedAt, Instant endedAt);
 
     HealthCheckResponseDtoV1 healthCheck(Long sensorId);
 }
