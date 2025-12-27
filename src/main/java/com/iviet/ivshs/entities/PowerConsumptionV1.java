@@ -26,7 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PowerConsumptionV1 extends BaseIoTDeviceV1 {
+public class PowerConsumptionV1 extends BaseIoTDeviceV1<PowerConsumptionLanV1> {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,9 +35,6 @@ public class PowerConsumptionV1 extends BaseIoTDeviceV1 {
 
     @Column(name = "current_watt_hour")
     private Double currentWattHour;
-
-    @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<PowerConsumptionLanV1> sensorLans = new HashSet<>();
 
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<PowerConsumptionValueV1> consumptionValues = new HashSet<>();
