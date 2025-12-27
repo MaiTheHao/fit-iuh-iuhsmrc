@@ -11,7 +11,7 @@ import com.iviet.ivshs.enumeration.ClientTypeV1;
 import jakarta.persistence.criteria.JoinType;
 
 @Repository
-public class ClientDaoV1 extends AuditableEntityDaoV1<ClientV1> {
+public class ClientDaoV1 extends BaseAuditEntityDaoV1<ClientV1> {
     
     public ClientDaoV1() {
         super(ClientV1.class);

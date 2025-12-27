@@ -9,7 +9,7 @@ import com.iviet.ivshs.dto.FloorDtoV1;
 import com.iviet.ivshs.entities.FloorV1;
 
 @Repository
-public class FloorDaoV1 extends AuditableEntityDaoV1<FloorV1> {
+public class FloorDaoV1 extends BaseAuditEntityDaoV1<FloorV1> {
     
     public FloorDaoV1() {
         super(FloorV1.class);
