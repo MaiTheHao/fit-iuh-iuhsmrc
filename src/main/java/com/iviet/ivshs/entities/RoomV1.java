@@ -2,7 +2,6 @@ package com.iviet.ivshs.entities;
 
 import java.util.HashSet;
 import java.util.Set;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -27,7 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoomV1 extends BaseAuditEntityV1 {
+public class RoomV1 extends BaseTranslatableEntityV1<RoomLanV1> {
 
     private static final long serialVersionUID = 1L;
 
@@ -37,9 +36,6 @@ public class RoomV1 extends BaseAuditEntityV1 {
 
     @Column(name = "code", nullable = false, length = 256)
     private String code;
-
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<RoomLanV1> roomLans = new HashSet<>();
 
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private Set<LightV1> lights = new HashSet<>();
