@@ -30,10 +30,9 @@ public class SetupServiceImplV1 implements SetupServiceV1 {
             throw new BadRequestException("Invalid client credentials");
         }
         
-        ClientV1 client = clientDao.findByUsername(cname);
-        if (client == null || client.getClientType() != ClientTypeV1.HARDWARE_GATEWAY) {
-            throw new BadRequestException("Client not authorized for setup");
-        }
+        ClientV1 client = clientDao.findByUsername(cname)
+            .filter(c -> c.getClientType() == ClientTypeV1.HARDWARE_GATEWAY)
+            .orElseThrow(() -> new BadRequestException("Unauthorized or client not found: " + cname));
         
         return SetupDaoV1.setup(req, client.getId());
     }

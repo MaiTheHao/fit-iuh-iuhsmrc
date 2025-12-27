@@ -31,12 +31,10 @@ public class UserDetailsServiceImplV1 implements UserDetailsService {
             throw new UsernameNotFoundException("Username cannot be null or empty");
         }
 
-        ClientV1 client = clientDao.findByUsername(username);
-        
-        if (client == null) {
+        ClientV1 client = clientDao.findByUsername(username).orElseThrow(() -> {
             logger.warn("Authentication attempt for non-existent user: {}", username);
             throw new UsernameNotFoundException("User not found: " + username);
-        }
+        });
 
         return buildUserDetails(username, client);
     }
