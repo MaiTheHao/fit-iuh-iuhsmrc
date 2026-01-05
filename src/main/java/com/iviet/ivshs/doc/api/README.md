@@ -6,6 +6,8 @@
 -   [Floor (Quản lý tầng)](floor.md)
 -   [Room (Quản lý phòng)](room.md)
 -   [Language (Ngôn ngữ)](language.md)
+-   [Telemetry (Thu thập dữ liệu)](telemetry.md)
 -   [Temperature (Cảm biến nhiệt độ)](temperature.md)
 -   [Power Consumption (Cảm biến điện năng)](power_consumption.md)
+-   [Health Check (Kiểm tra trạng thái hệ thống)](health_check.md)
 -   [Setup (Thiết lập cấu hình thiết bị)](setup.md)

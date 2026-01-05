@@ -1,0 +1,64 @@
+package com.iviet.ivshs.exception.handler;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+@ControllerAdvice(annotations = Controller.class)
+@Order(Ordered.LOWEST_PRECEDENCE) 
+public class WebGlobalExceptionHandler {
+
+    private static final Logger log = LogManager.getLogger(WebGlobalExceptionHandler.class);
+
+    private boolean isApiRequest(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri != null && uri.contains("/api/");
+    }
+
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+    public ModelAndView handleNotFound(Exception ex, HttpServletRequest request) {
+        if (isApiRequest(request)) {
+            return null;
+        }
+        log.warn("Web 404 - Not Found: {}", request.getRequestURI());
+        
+        ModelAndView mav = new ModelAndView("error/404.html"); 
+        mav.setStatus(HttpStatus.NOT_FOUND);
+        return mav;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ModelAndView handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        if (isApiRequest(request)) {
+            return null;
+        }
+        log.warn("Web 403 - Access Denied: {}", request.getRequestURI());
+        
+        ModelAndView mav = new ModelAndView("error/403.html");
+        mav.setStatus(HttpStatus.FORBIDDEN);
+        return mav;
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ModelAndView handleGeneralError(Exception ex, HttpServletRequest request) {
+        if (isApiRequest(request)) {
+            return null;
+        }
+        log.error("Web 500 - System Error at {}: ", request.getRequestURI(), ex);
+        
+        ModelAndView mav = new ModelAndView("error/500.html");
+        mav.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        mav.addObject("errorMessage", "An unexpected error occurred. Please try again later.");
+        return mav;
+    }
+}
