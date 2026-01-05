@@ -9,10 +9,27 @@ import com.iviet.ivshs.dto.PowerConsumptionDtoV1;
 import com.iviet.ivshs.entities.PowerConsumptionV1;
 
 @Repository
-public class PowerConsumptionDaoV1 extends BaseEntityDaoV1<PowerConsumptionV1> {
+public class PowerConsumptionDaoV1 extends BaseIoTDeviceDaoV1<PowerConsumptionV1> {
 
 	public PowerConsumptionDaoV1() {
 		super(PowerConsumptionV1.class);
+	}
+
+	@Override
+	public Optional<PowerConsumptionDtoV1> findByNaturalId(String naturalId, String langCode) {
+		String dtoPath = PowerConsumptionDtoV1.class.getName();
+		String jpql = """
+				SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentWatt, t.currentWattHour, t.naturalId, t.room.id)
+				FROM PowerConsumptionV1 t
+				LEFT JOIN t.translations tl ON tl.langCode = :langCode
+				WHERE t.naturalId = :naturalId
+				""".formatted(dtoPath);
+		return entityManager.createQuery(jpql, PowerConsumptionDtoV1.class)
+				.setParameter("naturalId", naturalId)
+				.setParameter("langCode", langCode)
+				.setMaxResults(1)
+				.getResultStream()
+				.findFirst();
 	}
 
 	public Optional<PowerConsumptionDtoV1> findById(Long sensorId, String langCode) {
@@ -48,9 +65,5 @@ public class PowerConsumptionDaoV1 extends BaseEntityDaoV1<PowerConsumptionV1> {
 				.setFirstResult(page * size)
 				.setMaxResults(size)
 				.getResultList();
-	}
-
-	public Long countByRoomId(Long roomId) {
-		return count(root -> entityManager.getCriteriaBuilder().equal(root.get("room").get("id"), roomId));
 	}
 }

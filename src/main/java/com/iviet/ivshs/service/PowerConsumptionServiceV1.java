@@ -1,42 +1,28 @@
 package com.iviet.ivshs.service;
 
-import com.iviet.ivshs.dto.AveragePowerConsumptionValueDtoV1;
 import com.iviet.ivshs.dto.CreatePowerConsumptionDtoV1;
-import com.iviet.ivshs.dto.CreatePowerConsumptionValueDtoV1;
-import com.iviet.ivshs.dto.HealthCheckResponseDtoV1;
 import com.iviet.ivshs.dto.PaginatedResponseV1;
 import com.iviet.ivshs.dto.PowerConsumptionDtoV1;
-import com.iviet.ivshs.dto.SumPowerConsumptionValueDtoV1;
 import com.iviet.ivshs.dto.UpdatePowerConsumptionDtoV1;
-
-import java.time.Instant;
-import java.util.List;
+import com.iviet.ivshs.entities.PowerConsumptionV1;
 
 public interface PowerConsumptionServiceV1 {
 
     PaginatedResponseV1<PowerConsumptionDtoV1> getListByRoom(Long roomId, int page, int size);
 
+    PaginatedResponseV1<PowerConsumptionV1> getListEntityByRoom(Long roomId, int page, int size);
+
     PowerConsumptionDtoV1 getById(Long powerSensorId);
+
+    PowerConsumptionV1 getEntityById(Long powerSensorId);
+
+    PowerConsumptionDtoV1 getByNaturalId(String naturalId);
+
+    PowerConsumptionV1 getEntityByNaturalId(String naturalId);
 
     PowerConsumptionDtoV1 create(CreatePowerConsumptionDtoV1 dto);
 
     PowerConsumptionDtoV1 update(Long powerSensorId, UpdatePowerConsumptionDtoV1 dto);
 
     void delete(Long powerSensorId);
-
-    void ingestSensorData(Long sensorId, CreatePowerConsumptionValueDtoV1 dto);
-
-    void ingestSensorDataBatch(Long sensorId, List<CreatePowerConsumptionValueDtoV1> dtos);
-
-    List<AveragePowerConsumptionValueDtoV1> getAverageValueHistoryByRoomId(Long roomId, Instant startedAt, Instant endedAt);
-
-    List<SumPowerConsumptionValueDtoV1> getSumValueHistoryByRoomId(Long roomId, Instant startedAt, Instant endedAt);
-
-    List<AveragePowerConsumptionValueDtoV1> getAverageValueHistoryByClientId(Long clientId, Instant startedAt, Instant endedAt);
-
-    List<SumPowerConsumptionValueDtoV1> getSumValueHistoryByClientId(Long clientId, Instant startedAt, Instant endedAt);
-
-    void cleanupDataByRange(Long sensorId, Instant startedAt, Instant endedAt);
-
-    HealthCheckResponseDtoV1 healthCheck(Long sensorId);
 }

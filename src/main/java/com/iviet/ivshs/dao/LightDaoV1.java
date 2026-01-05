@@ -15,6 +15,23 @@ public class LightDaoV1 extends BaseIoTDeviceDaoV1<LightV1> {
         super(LightV1.class);
     }
 
+	@Override
+	public Optional<LightDtoV1> findByNaturalId(String naturalId, String langCode) {
+		String dtoPath = LightDtoV1.class.getName();
+		String jpql = """
+				SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.level, l.room.id)
+				FROM LightV1 l 
+				LEFT JOIN l.translations ll ON ll.langCode = :langCode 
+				WHERE l.naturalId = :naturalId
+				""".formatted(dtoPath);
+		return entityManager.createQuery(jpql, LightDtoV1.class)
+				.setParameter("naturalId", naturalId)
+				.setParameter("langCode", langCode)
+				.setMaxResults(1)
+				.getResultStream()
+				.findFirst();
+	}
+
     public Optional<LightDtoV1> findById(Long lightId, String langCode) {
         String dtoPath = LightDtoV1.class.getName();
 

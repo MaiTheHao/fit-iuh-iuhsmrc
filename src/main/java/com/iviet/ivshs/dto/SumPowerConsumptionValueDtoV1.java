@@ -19,12 +19,10 @@ public class SumPowerConsumptionValueDtoV1 {
     
     private Instant timestamp;
     private Double sumWatt;
-    private Double sumWattHour;
     
-    public SumPowerConsumptionValueDtoV1(String formattedTimestamp, Double sumWatt, Double sumWattHour) {
+    public SumPowerConsumptionValueDtoV1(String formattedTimestamp, Double sumWatt) {
         Instant parsedTime = TimeUtil.parseToInstant(formattedTimestamp, FORMATTER);
         this.timestamp = parsedTime != null ? parsedTime : Instant.now();
         this.sumWatt = sumWatt != null ? sumWatt : 0.0;
-        this.sumWattHour = sumWattHour != null ? sumWattHour : 0.0;
     }
 }

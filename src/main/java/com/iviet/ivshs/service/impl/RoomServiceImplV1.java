@@ -7,8 +7,8 @@ import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.FloorV1;
 import com.iviet.ivshs.entities.RoomLanV1;
 import com.iviet.ivshs.entities.RoomV1;
-import com.iviet.ivshs.exception.BadRequestException;
-import com.iviet.ivshs.exception.NotFoundException;
+import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.RoomMapperV1;
 import com.iviet.ivshs.service.RoomServiceV1;
 import com.iviet.ivshs.util.LocalContextUtil;
@@ -31,11 +31,11 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
 
     @Override
     public PaginatedResponseV1<RoomDtoV1> getListByFloor(Long floorId, int page, int size) {
-        if (floorId == null) throw new BadRequestException("Floor ID is required");
-        
+        if (floorId == null) {
+            throw new BadRequestException("Floor ID is required");
+        }
         String langCode = LocalContextUtil.getCurrentLangCode();
         List<RoomDtoV1> content = roomDao.findAllByFloorId(floorId, page, size, langCode);
-        
         return new PaginatedResponseV1<>(content, page, size, roomDao.countByFloorId(floorId));
     }
 
@@ -48,14 +48,18 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
     @Override
     @Transactional
     public RoomDtoV1 create(Long floorId, CreateRoomDtoV1 dto) {
-        if (dto == null || !StringUtils.hasText(dto.code())) throw new BadRequestException("Room data and code are required");
+        if (dto == null || !StringUtils.hasText(dto.code())) {
+            throw new BadRequestException("Room data and code are required");
+        }
 
         FloorV1 floor = floorDao.findById(floorId)
                 .orElseThrow(() -> new NotFoundException("Floor not found with ID: " + floorId));
-        
+
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
-        if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found: " + langCode);
-        
+        if (!languageDao.existsByCode(langCode)) {
+            throw new NotFoundException("Language not found: " + langCode);
+        }
+
         _checkDuplicate(dto.code().trim(), null);
 
         RoomV1 room = roomMapper.fromCreateDto(dto);
@@ -79,9 +83,11 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
     public RoomDtoV1 update(Long roomId, UpdateRoomDtoV1 dto) {
         RoomV1 room = roomDao.findById(roomId)
                 .orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
-        
+
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
-        if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found: " + langCode);
+        if (!languageDao.existsByCode(langCode)) {
+            throw new NotFoundException("Language not found: " + langCode);
+        }
 
         if (StringUtils.hasText(dto.code()) && !dto.code().trim().equals(room.getCode())) {
             _checkDuplicate(dto.code().trim(), roomId);
@@ -105,8 +111,12 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
                     return newLan;
                 });
 
-        if (dto.name() != null) roomLan.setName(dto.name().trim());
-        if (dto.description() != null) roomLan.setDescription(dto.description());
+        if (dto.name() != null) {
+            roomLan.setName(dto.name().trim());
+        }
+        if (dto.description() != null) {
+            roomLan.setDescription(dto.description());
+        }
 
         roomDao.save(room);
         return roomMapper.toDto(room, roomLan);
@@ -115,7 +125,9 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
     @Override
     @Transactional
     public void delete(Long roomId) {
-        if (!roomDao.existsById(roomId)) throw new NotFoundException("Room not found");
+        if (!roomDao.existsById(roomId)) {
+            throw new NotFoundException("Room not found");
+        }
         roomDao.deleteById(roomId);
     }
 
@@ -125,5 +137,29 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
                 throw new BadRequestException("Room code already exists: " + code);
             }
         });
+    }
+
+    @Override
+    public RoomV1 getEntityById(Long roomId) {
+        return roomDao.findById(roomId)
+                .orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
+    }
+
+    @Override
+    public RoomDtoV1 getByCode(String roomCode) {
+        if (roomCode == null || roomCode.isBlank()) {
+            throw new BadRequestException("Room code is required");
+        }
+        return roomDao.findByCode(roomCode, LocalContextUtil.getCurrentLangCode())
+                .orElseThrow(() -> new NotFoundException("Room not found with code: " + roomCode));
+    }
+
+    @Override
+    public RoomV1 getEntityByCode(String roomCode) {
+        if (roomCode == null || roomCode.isBlank()) {
+            throw new BadRequestException("Room code is required");
+        }
+        return roomDao.findByCode(roomCode)
+                .orElseThrow(() -> new NotFoundException("Room not found with code: " + roomCode));
     }
 }

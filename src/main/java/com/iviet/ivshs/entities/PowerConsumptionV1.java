@@ -33,9 +33,6 @@ public class PowerConsumptionV1 extends BaseIoTDeviceV1<PowerConsumptionLanV1> {
     @Column(name = "current_watt")
     private Double currentWatt;
 
-    @Column(name = "current_watt_hour")
-    private Double currentWattHour;
-
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<PowerConsumptionValueV1> consumptionValues = new HashSet<>();
 }

@@ -1,34 +1,37 @@
 package com.iviet.ivshs.enumeration;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
 
 @Getter
 @RequiredArgsConstructor
 public enum GatewayCommandV1 {
 
-	ON("true"),
-	OFF("false"),
-	GET("get"),
-	HEALTH_CHECK("check"),
-	LEVEL("level"); // For dimmable devices (lights, fans) - requires additional level value
+    ON("TRUE"),
+    OFF("FALSE");
 
-	private final String value;
+    private final String value;
 
-	/**
-	 * Create a level command with the specified intensity value.
-	 * @param level the intensity level (0-100)
-	 * @return the command string in format "level:XX"
-	 */
-	public static String levelCommand(int level) {
-		if (level < 0 || level > 100) {
-			throw new IllegalArgumentException("Level must be between 0 and 100");
-		}
-		return LEVEL.getValue() + ":" + level;
-	}
+    @JsonValue
+    public String getValue() {
+        return value;
+    }
+	
+    @JsonCreator
+    public static GatewayCommandV1 fromValue(String value) {
+        return Arrays.stream(values())
+                .filter(v -> v.value.equalsIgnoreCase(value))
+                .findFirst()
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Unknown GatewayCommandV1: " + value)
+                );
+    }
 
-	@Override
-	public String toString() {
-		return value;
-	}
+    public static GatewayCommandV1 fromBoolean(boolean state) {
+        return state ? ON : OFF;
+    }
 }

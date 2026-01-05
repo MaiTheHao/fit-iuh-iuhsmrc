@@ -49,4 +49,21 @@ public class TemperatureDaoV1 extends BaseIoTDeviceDaoV1<TemperatureV1> {
                 .setMaxResults(size)
                 .getResultList();
     }
+
+    @Override
+    public Optional<TemperatureDtoV1> findByNaturalId(String naturalId, String langCode) {
+        String dtoPath = TemperatureDtoV1.class.getName();
+        String jpql = """
+                SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
+                FROM TemperatureV1 t 
+                LEFT JOIN t.translations tl ON tl.langCode = :langCode 
+                WHERE t.naturalId = :naturalId
+                """.formatted(dtoPath);
+        return entityManager.createQuery(jpql, TemperatureDtoV1.class)
+                .setParameter("naturalId", naturalId)
+                .setParameter("langCode", langCode)
+                .setMaxResults(1)
+                .getResultStream()
+                .findFirst();
+    }
 }

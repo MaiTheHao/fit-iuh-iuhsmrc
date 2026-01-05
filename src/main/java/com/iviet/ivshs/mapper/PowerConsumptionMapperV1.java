@@ -17,7 +17,6 @@ public interface PowerConsumptionMapperV1 {
 	@Mapping(target = "description", source = "sensorLan.description")
 	@Mapping(target = "isActive", source = "entity.isActive")
 	@Mapping(target = "currentWatt", source = "entity.currentWatt")
-	@Mapping(target = "currentWattHour", source = "entity.currentWattHour")
 	@Mapping(target = "roomId", source = "entity.room.id")
 	PowerConsumptionDtoV1 toDto(PowerConsumptionV1 entity, PowerConsumptionLanV1 sensorLan);
 
@@ -33,7 +32,6 @@ public interface PowerConsumptionMapperV1 {
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "translations", ignore = true)
 	@Mapping(target = "currentWatt", ignore = true)
-	@Mapping(target = "currentWattHour", ignore = true)
 	@Mapping(target = "consumptionValues", ignore = true)
 	@Mapping(target = "deviceControl", ignore = true)
 	@Mapping(target = "room", ignore = true)
@@ -43,7 +41,6 @@ public interface PowerConsumptionMapperV1 {
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "translations", ignore = true)
 	@Mapping(target = "currentWatt", ignore = true)
-	@Mapping(target = "currentWattHour", ignore = true)
 	@Mapping(target = "consumptionValues", ignore = true)
 	@Mapping(target = "deviceControl", ignore = true)
 	@Mapping(target = "room", ignore = true)

@@ -2,6 +2,11 @@ package com.iviet.ivshs.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.exception.domain.ExternalServiceException;
+import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
+import com.iviet.ivshs.exception.domain.RemoteResourceNotFoundException;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +24,7 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class HttpClientUtil {
 
-	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(10);
+	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
 	private static final String CONTENT_TYPE_HEADER = "Content-Type";
 	private static final String ACCEPT_HEADER = "Accept";
 	private static final String APPLICATION_JSON = "application/json";
@@ -39,6 +44,9 @@ public class HttpClientUtil {
 		private int statusCode;
 		private String body;
 		private Map<String, String> headers;
+		public boolean isSuccess() {
+			return statusCode >= 200 && statusCode < 300;
+		}
 	}
 
 	@Data
@@ -193,6 +201,48 @@ public class HttpClientUtil {
 	public static CompletableFuture<Response> deleteAsync(Request request) {
 		return executeAsync("DELETE", request);
 	}
+
+	// ===== Utility Methods =====
+
+	/**
+     * Chủ động kiểm tra và ném (throw) các ngoại lệ (exception) tương ứng dựa trên 
+     * mã trạng thái (status code) từ phản hồi của dịch vụ thứ ba.
+     * * <p>Logic xử lý cụ thể:</p>
+     * <ul>
+     * <li><b>2xx:</b> Không làm gì nếu phản hồi thành công.</li>
+     * <li><b>408, 504:</b> Ném {@link NetworkTimeoutException} (Lỗi quá hạn kết nối).</li>
+     * <li><b>404:</b> Ném {@link RemoteResourceNotFoundException} (Không tìm thấy tài nguyên).</li>
+     * <li><b>5xx:</b> Ném {@link ExternalServiceException} cho các lỗi hệ thống từ phía server đối tác.</li>
+     * <li><b>4xx:</b> Ném {@link BadRequestException} cho các lỗi yêu cầu không hợp lệ từ phía client.</li>
+     * </ul>
+     *
+     * @param response Đối tượng phản hồi nhận được từ yêu cầu API.
+     * @throws NetworkTimeoutException Nếu status code là 408 hoặc 504.
+     * @throws RemoteResourceNotFoundException Nếu status code là 404.
+     * @throws ExternalServiceException Nếu status code >= 500 (ngoại trừ 504).
+     * @throws BadRequestException Nếu status code >= 400 (ngoại trừ 404, 408).
+     */
+    public static void handleThrowException(Response response) {
+        if (response.isSuccess()) return;
+
+        int status = response.getStatusCode();
+
+        if (status == 408 || status == 504) {
+            throw new NetworkTimeoutException("Request timed out");
+        }
+
+        if (status == 404) {
+            throw new RemoteResourceNotFoundException("Resource not found");
+        }
+
+        if (status >= 500) {
+            throw new ExternalServiceException("Internal server error: " + response.getBody());
+        }
+
+        if (status >= 400) {
+            throw new BadRequestException("Bad request: " + response.getBody());
+        }
+    }
 
 	// ===== Core Execution =====
 	private static Response execute(String method, Request request) {

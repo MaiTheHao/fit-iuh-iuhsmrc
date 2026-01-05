@@ -4,20 +4,22 @@ import com.iviet.ivshs.dao.*;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.*;
 import com.iviet.ivshs.enumeration.GatewayCommandV1;
-import com.iviet.ivshs.exception.BadRequestException;
-import com.iviet.ivshs.exception.NotFoundException;
+import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.exception.domain.ExternalServiceException;
+import com.iviet.ivshs.exception.domain.InternalServerErrorException;
+import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.LightMapperV1;
 import com.iviet.ivshs.service.ControlServiceV1;
-import com.iviet.ivshs.service.HealthCheckServiceV1;
 import com.iviet.ivshs.service.LightServiceV1;
 import com.iviet.ivshs.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -29,8 +31,6 @@ public class LightServiceImplV1 implements LightServiceV1 {
     private final DeviceControlDaoV1 deviceControlDao;
     private final LightMapperV1 lightMapper;
     private final ControlServiceV1 controlService;
-    private final HealthCheckServiceV1 healthCheckService;
-    private final PlatformTransactionManager transactionManager;
 
     @Override
     public PaginatedResponseV1<LightDtoV1> getList(int page, int size) {
@@ -140,47 +140,36 @@ public class LightServiceImplV1 implements LightServiceV1 {
 
     @Override
     @Transactional
-    public ControlDeviceResponseV1 toggleState(Long lightId) {
+    public void toggleState(Long lightId) {
         LightV1 light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
+        
         DeviceControlV1 dc = light.getDeviceControl();
         if (dc == null) throw new BadRequestException("No control associated");
+        ClientV1 gateway = dc.getClient();
 
-        ControlDeviceResponseV1 resp = light.getIsActive() ? controlService.turnOff(dc) : controlService.turnOn(dc);
+        Boolean currentState = light.getIsActive();
+        GatewayCommandV1 command = currentState ? GatewayCommandV1.OFF : GatewayCommandV1.ON;
+        ControlDeviceResponseV1 resp = controlService.sendCommand(gateway.getIpAddress(), light.getNaturalId(), command);
 
-        if ("200".equals(resp.getStatus())) {
-            light.setIsActive(!light.getIsActive());
+        if (200 == resp.status()) {
+            light.setIsActive(!currentState);
             lightDao.save(light);
+        } else {
+            log.error("Failed to toggle light state. Response status: {}, message: {}", resp.status(), resp.message());
+            switch (resp.status()) {
+                case 400 -> throw new BadRequestException(resp.message());
+                case 404 -> throw new NotFoundException(resp.message());
+                case 502, 503 -> throw new ExternalServiceException(resp.message());
+                case 500 -> throw new InternalServerErrorException(resp.message());
+                default -> throw new InternalServerErrorException("Unexpected response from gateway: " + resp.status());
+            }
         }
-        return resp;
     }
 
     @Override
     @Transactional
-    public ControlDeviceResponseV1 setLevel(Long lightId, int newLevel) {
-        LightV1 light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
-        DeviceControlV1 dc = light.getDeviceControl();
-        if (dc == null) throw new BadRequestException("No control associated");
-
-        return controlService.setLevel(dc, newLevel);
-    }
-
-    @Override
-    public HealthCheckResponseDtoV1 healthCheck(Long lightId) {
-        TransactionTemplate tm = new TransactionTemplate(transactionManager);
-        HealthCheckRequestDtoV1 reqDto = tm.execute(status -> {
-            LightV1 light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
-            DeviceControlV1 dc = light.getDeviceControl();
-            if (dc == null) throw new BadRequestException("No control associated");
-
-            return HealthCheckRequestDtoV1.builder()
-                .deviceControlType(dc.getDeviceControlType())
-                .clientId(dc.getClient().getId())
-                .clientIpAddress(dc.getClient().getIpAddress())
-                .gpioPin(dc.getGpioPin())
-                .command(GatewayCommandV1.HEALTH_CHECK.toString())
-                .build();
-        });
-        return healthCheckService.check(reqDto);
+    public void setLevel(Long lightId, int newLevel) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     private void _checkDuplicate(String nid, Long cid) {

@@ -27,7 +27,4 @@ public class PowerConsumptionValueV1 extends BaseTelemetryValueV1<PowerConsumpti
 
     @Column(name = "watt")
     private Double watt;
-
-    @Column(name = "watt_hour")
-    private Double wattHour;
 }

@@ -1,25 +1,14 @@
 package com.iviet.ivshs.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.Instant;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CreatePowerConsumptionValueDtoV1 {
-    
-    @NotNull(message = "Watt value is required")
-    private Double watt;
-
-    private Double wattHour;
-
-    @NotNull(message = "Timestamp is required")
-    private Instant timestamp;
-}
+public record CreatePowerConsumptionValueDtoV1(
+    @NotBlank(message = "Sensor natural ID is required") String sensorNaturalId,
+    @NotNull(message = "Watt value is required") Double watt,
+    @NotNull(message = "Timestamp is required") Instant timestamp
+){}

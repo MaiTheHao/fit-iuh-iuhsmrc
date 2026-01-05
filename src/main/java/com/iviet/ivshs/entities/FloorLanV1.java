@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "floor_lan_v1", 
     indexes = {
-        @Index(name = "idx_floor_id_floor_lang_code", columnList = "floor_id, lang_code", unique = true)
+        @Index(name = "idx_floor_lan_owner_id_lang_code", columnList = "owner_id, lang_code", unique = true)
     }
 )
 public class FloorLanV1 extends BaseTranslationV1<FloorV1> {
