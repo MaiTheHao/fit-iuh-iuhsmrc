@@ -1,6 +1,6 @@
 package com.iviet.ivshs.enumeration;
 
-public enum SetupCategoryV1 {
+public enum DeviceCategoryV1 {
     LIGHT,
     TEMPERATURE,
     POWER_CONSUMPTION

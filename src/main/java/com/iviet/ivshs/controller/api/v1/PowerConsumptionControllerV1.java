@@ -4,13 +4,9 @@ import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.service.PowerConsumptionServiceV1;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Instant;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -18,8 +14,6 @@ public class PowerConsumptionControllerV1 {
 
     @Autowired
     private PowerConsumptionServiceV1 powerConsumptionService;
-
-    // --- CRUD SENSOR ---
 
     @GetMapping("/rooms/{roomId}/power-consumptions")
     public ResponseEntity<ApiResponseV1<PaginatedResponseV1<PowerConsumptionDtoV1>>> 
@@ -62,74 +56,5 @@ public class PowerConsumptionControllerV1 {
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
             .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, 
                 "Deleted successfully"));
-    }
-
-    // --- DATA INGESTION ---
-
-    @PostMapping("/power-consumptions/{id}/values")
-    public ResponseEntity<ApiResponseV1<Void>> ingestData(
-            @PathVariable(name = "id") Long id,
-            @RequestBody @Valid CreatePowerConsumptionValueDtoV1 dto) {
-        powerConsumptionService.ingestSensorData(id, dto);
-        return ResponseEntity.ok(ApiResponseV1.ok(null));
-    }
-
-    @PostMapping("/power-consumptions/{id}/values:batch")
-    public ResponseEntity<ApiResponseV1<Void>> ingestDataBatch(
-            @PathVariable(name = "id") Long id,
-            @RequestBody @Valid List<CreatePowerConsumptionValueDtoV1> dtos) {
-        powerConsumptionService.ingestSensorDataBatch(id, dtos);
-        return ResponseEntity.ok(ApiResponseV1.ok(null));
-    }
-
-    // --- HISTORY & STATISTICS ---
-
-    @GetMapping("/rooms/{roomId}/power-consumptions/average-history")
-    public ResponseEntity<ApiResponseV1<List<AveragePowerConsumptionValueDtoV1>>> 
-            getAverageHistoryByRoom(
-                @PathVariable(name = "roomId") Long roomId,
-                @RequestParam(name = "startedAt") 
-                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startedAt,
-                @RequestParam(name = "endedAt") 
-                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endedAt) {
-        List<AveragePowerConsumptionValueDtoV1> history = 
-            powerConsumptionService.getAverageValueHistoryByRoomId(roomId, startedAt, 
-                endedAt);
-        return ResponseEntity.ok(ApiResponseV1.ok(history));
-    }
-
-    @GetMapping("/rooms/{roomId}/power-consumptions/sum-history")
-    public ResponseEntity<ApiResponseV1<List<SumPowerConsumptionValueDtoV1>>> 
-            getSumHistoryByRoom(
-                @PathVariable(name = "roomId") Long roomId,
-                @RequestParam(name = "startedAt") 
-                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startedAt,
-                @RequestParam(name = "endedAt") 
-                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endedAt) {
-        List<SumPowerConsumptionValueDtoV1> history = 
-            powerConsumptionService.getSumValueHistoryByRoomId(roomId, startedAt, endedAt);
-        return ResponseEntity.ok(ApiResponseV1.ok(history));
-    }
-
-    @DeleteMapping("/power-consumptions/{id}/values")
-    public ResponseEntity<ApiResponseV1<Integer>> cleanupData(
-            @PathVariable(name = "id") Long id,
-            @RequestParam(name = "startedAt") 
-                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startedAt,
-            @RequestParam(name = "endedAt") 
-                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endedAt) {
-        powerConsumptionService.cleanupDataByRange(id, startedAt, endedAt);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, 
-                "Deleted successfully"));
-    }
-
-    // --- UTILITY ---
-
-    @GetMapping("/power-consumptions/{id}/health-check")
-    public ResponseEntity<ApiResponseV1<HealthCheckResponseDtoV1>> healthCheck(
-        @PathVariable(name = "id") Long id) {
-        HealthCheckResponseDtoV1 response = powerConsumptionService.healthCheck(id);
-        return ResponseEntity.ok(ApiResponseV1.ok(response));
     }
 }

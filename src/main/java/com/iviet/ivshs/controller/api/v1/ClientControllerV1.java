@@ -25,48 +25,48 @@ public class ClientControllerV1 {
                 @RequestParam(name = "page", defaultValue = "0") int page,
                 @RequestParam(name = "size", defaultValue = "10") int size) {
         PaginatedResponseV1<ClientDtoV1> paginated = 
-            clientService.getAllClients(page, size);
+            clientService.getAll(page, size);
         return ResponseEntity.ok(ApiResponseV1.ok(paginated));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponseV1<ClientDtoV1>> getClientById(
+    public ResponseEntity<ApiResponseV1<ClientDtoV1>> getById(
             @PathVariable(name = "id") Long id) {
-        ClientDtoV1 dto = clientService.getClientById(id);
+        ClientDtoV1 dto = clientService.getById(id);
         return ResponseEntity.ok(ApiResponseV1.ok(dto));
     }
 
     @GetMapping("/room/{roomId}")
     public ResponseEntity<ApiResponseV1<PaginatedResponseV1<ClientDtoV1>>> 
-            getClientsByRoomId(
+            getAllByRoomId(
                 @PathVariable(name = "roomId") Long roomId,
                 @RequestParam(name = "page", defaultValue = "0") int page,
                 @RequestParam(name = "size", defaultValue = "10") int size) {
         PaginatedResponseV1<ClientDtoV1> paginated = 
-            clientService.getClientsByRoomId(roomId, page, size);
+            clientService.getAllGatewaysByRoomId(roomId, page, size);
         return ResponseEntity.ok(ApiResponseV1.ok(paginated));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponseV1<ClientDtoV1>> createClient(
+    public ResponseEntity<ApiResponseV1<ClientDtoV1>> create(
             @RequestBody @Valid CreateClientDtoV1 request) {
-        ClientDtoV1 created = clientService.createClient(request);
+        ClientDtoV1 created = clientService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(ApiResponseV1.created(created));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponseV1<ClientDtoV1>> updateClient(
+    public ResponseEntity<ApiResponseV1<ClientDtoV1>> update(
             @PathVariable(name = "id") Long id,
             @RequestBody @Valid UpdateClientDtoV1 request) {
-        ClientDtoV1 updated = clientService.updateClient(id, request);
+        ClientDtoV1 updated = clientService.update(id, request);
         return ResponseEntity.ok(ApiResponseV1.ok(updated));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponseV1<Void>> deleteClient(
+    public ResponseEntity<ApiResponseV1<Void>> delete(
             @PathVariable(name = "id") Long id) {
-        clientService.deleteClient(id);
+        clientService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
             .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, 
                 "Deleted successfully"));

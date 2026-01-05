@@ -1,6 +1,5 @@
 package com.iviet.ivshs.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -29,18 +28,15 @@ import com.iviet.ivshs.jwt.AuthEntryPointJwt;
 import com.iviet.ivshs.jwt.AuthTokenFilter;
 import com.iviet.ivshs.jwt.JwtUtils;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-
-    @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Autowired
-    private DataSource dataSource;
-
-    @Autowired
-    private Environment env;
+    private final UserDetailsService userDetailsService;
+    private final DataSource dataSource;
+    private final Environment env;
 
     @Bean
     public AuthEntryPointJwt unauthorizedHandler() {

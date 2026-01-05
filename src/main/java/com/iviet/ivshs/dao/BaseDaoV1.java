@@ -1,42 +1,51 @@
 package com.iviet.ivshs.dao;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Table;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public abstract class BaseDaoV1<T> {
 
     @PersistenceContext
     protected EntityManager entityManager;
 
+	@Autowired
+	protected JdbcTemplate jdbcTemplate;
+
     protected final Class<T> clazz;
+	protected final int BATCH_SIZE = 50;
 
     protected BaseDaoV1(Class<T> clazz) {
         this.clazz = Objects.requireNonNull(clazz, "Entity class must not be null");
     }
 
-    @Transactional
     public T save(T entity) {
         entityManager.persist(entity);
         return entity;
     }
 
-	@Transactional
 	public List<T> save(List<T> entities) {
-		if (entities == null || entities.isEmpty()) {
-			return entities;
-		}
+		if (entities == null || entities.isEmpty()) return List.of();
+		
 		int count = 0;
 		for (T entity : entities) {
 			entityManager.persist(entity);
@@ -49,12 +58,10 @@ public abstract class BaseDaoV1<T> {
 		return entities;
 	}
 
-    @Transactional
     public T update(T entity) {
         return entityManager.merge(entity);
     }
 
-    @Transactional
     public void delete(T entity) {
         entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
     }
@@ -65,7 +72,7 @@ public abstract class BaseDaoV1<T> {
 		int page,
 		int size
 	) {
-		var cb = entityManager.getCriteriaBuilder();
+		var cb = this.getCB();
 		var cq = cb.createQuery(clazz);
 		var root = cq.from(clazz);
 
@@ -84,9 +91,29 @@ public abstract class BaseDaoV1<T> {
 			.setMaxResults(size)
 			.getResultList();
 	}
+
+	public List<T> findAll(
+		Function<Root<T>, Predicate> specification,
+		BiConsumer<Root<T>, CriteriaQuery<T>> queryCustomizer
+	) {
+		var cb = this.getCB();
+		var cq = cb.createQuery(clazz);
+		var root = cq.from(clazz);
+
+		if (specification != null) {
+			cq.where(specification.apply(root));
+		}
+
+		if (queryCustomizer != null) {
+			queryCustomizer.accept(root, cq);
+		}
+
+		TypedQuery<T> query = entityManager.createQuery(cq);
+		return query.getResultList();
+	}
 	
 	public Optional<T> findOne(Function<Root<T>, Predicate> specification) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaBuilder cb = this.getCB();
         CriteriaQuery<T> cq = cb.createQuery(clazz);
         Root<T> root = cq.from(clazz);
 
@@ -97,12 +124,28 @@ public abstract class BaseDaoV1<T> {
                 .findFirst();
     }
 
+	public Optional<T> findOne(Function<Root<T>, Predicate> specification, BiConsumer<Root<T>, CriteriaQuery<T>> queryCustomizer) {
+		CriteriaBuilder cb = this.getCB();
+		CriteriaQuery<T> cq = cb.createQuery(clazz);
+		Root<T> root = cq.from(clazz);
+
+		if(specification != null) cq.where(specification.apply(root));
+
+		if (queryCustomizer != null) {
+			queryCustomizer.accept(root, cq);
+		}
+
+		return entityManager.createQuery(cq)
+				.getResultStream()
+				.findFirst();
+	}
+
 	public boolean exists(Function<Root<T>, Predicate> specification) {
 		return findOne(specification).isPresent();
 	}
 
 	public long count(Function<Root<T>, Predicate> specification) {
-		var cb = entityManager.getCriteriaBuilder();
+		var cb = this.getCB();
 		var cq = cb.createQuery(Long.class);
 		var root = cq.from(clazz);
 		cq.select(cb.count(root));
@@ -122,5 +165,42 @@ public abstract class BaseDaoV1<T> {
 
     public void clear() {
         entityManager.clear();
+    }
+
+	protected String getTableName() {
+		Table table = clazz.getAnnotation(Table.class);
+		if (table != null && !table.name().isEmpty()) {
+			return table.name();
+		} else {
+			return clazz.getSimpleName();
+		}
+	}
+
+	protected List<String> getColumnNames() {
+		return Arrays.stream(clazz.getDeclaredFields())
+			.filter(f -> (f.isAnnotationPresent(Column.class) || f.isAnnotationPresent(JoinColumn.class) || f.isAnnotationPresent(Id.class)))
+			.map(f -> {
+				if (f.isAnnotationPresent(Column.class)) {
+					Column column = f.getAnnotation(Column.class);
+					return column.name().isEmpty() ? f.getName() : column.name();
+				} else if (f.isAnnotationPresent(JoinColumn.class)) {
+					JoinColumn joinColumn = f.getAnnotation(JoinColumn.class);
+					return joinColumn.name().isEmpty() ? f.getName() : joinColumn.name();
+				} else if (f.isAnnotationPresent(Id.class)) {
+					return f.getName();
+				} else {
+					return f.getName();
+				}
+			})
+			.collect(Collectors.toList());
+
+	}
+
+	protected EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	protected jakarta.persistence.criteria.CriteriaBuilder getCB() {
+        return entityManager.getCriteriaBuilder();
     }
 }

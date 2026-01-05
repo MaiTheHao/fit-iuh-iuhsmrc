@@ -14,8 +14,8 @@ import com.iviet.ivshs.dto.UpdateDeviceControlDtoV1;
 import com.iviet.ivshs.entities.ClientV1;
 import com.iviet.ivshs.entities.DeviceControlV1;
 import com.iviet.ivshs.entities.RoomV1;
-import com.iviet.ivshs.exception.BadRequestException;
-import com.iviet.ivshs.exception.NotFoundException;
+import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.DeviceControlMapperV1;
 import com.iviet.ivshs.service.DeviceControlServiceV1;
 

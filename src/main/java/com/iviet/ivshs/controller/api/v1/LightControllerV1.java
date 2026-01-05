@@ -68,7 +68,7 @@ public class LightControllerV1 {
     public ResponseEntity<ApiResponseV1<ControlDeviceResponseV1>> toggleState(
             @PathVariable(name = "id") Long id) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(lightService.toggleState(id)));
+        return ResponseEntity.ok(ApiResponseV1.success(HttpStatus.ACCEPTED, null, "Toggled successfully"));
     }
 
     @PutMapping("/{id}/level/{newLevel}")
@@ -76,13 +76,6 @@ public class LightControllerV1 {
             @PathVariable(name = "id") Long id,
             @PathVariable(name = "newLevel") int newLevel) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(lightService.setLevel(id, newLevel)));
-    }
-
-    @GetMapping("/{id}/health-check")
-    public ResponseEntity<ApiResponseV1<HealthCheckResponseDtoV1>> healthCheck(
-            @PathVariable(name = "id") Long id) {
-        
-        return ResponseEntity.ok(ApiResponseV1.ok(lightService.healthCheck(id)));
+        return ResponseEntity.ok(ApiResponseV1.success(HttpStatus.ACCEPTED, null, "Level set successfully"));
     }
 }

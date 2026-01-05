@@ -11,8 +11,35 @@ public abstract class BaseIoTDeviceDaoV1<T extends BaseIoTDeviceV1<?>> extends B
         super(clazz);
 	}
 
+    @Override
+    public Optional<T> findById(Long id) {
+        return findOne(
+            root -> entityManager.getCriteriaBuilder().equal(root.get("id"), id),
+            (root, cq) -> {
+                root.fetch("room", JoinType.LEFT);
+                root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+            }
+        );
+    }
+
     public Optional<T> findByNaturalId(String naturalId) {
-        return findOne(root -> entityManager.getCriteriaBuilder().equal(root.get("naturalId"), naturalId));
+        return findOne(root -> entityManager.getCriteriaBuilder().equal(root.get("naturalId"), naturalId), (root, cq) -> {
+            root.fetch("room", JoinType.LEFT);
+            root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+        });
+    }
+
+    public abstract Optional<?> findByNaturalId(String naturalId, String langCode);
+
+    public List<T> findAllByNaturalIds(List<String> naturalIds) {
+        if (naturalIds == null || naturalIds.isEmpty()) {
+            return List.of();
+        }
+        return findAll(root -> root.get("naturalId").in(naturalIds), (root, cq) -> {
+            root.fetch("room", JoinType.LEFT);
+            root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+            cq.orderBy(entityManager.getCriteriaBuilder().desc(root.get("createdAt")));
+        });
     }
 
     public List<T> findAllByRoomId(Long roomId, int page, int size) {
@@ -20,7 +47,7 @@ public abstract class BaseIoTDeviceDaoV1<T extends BaseIoTDeviceV1<?>> extends B
             root -> entityManager.getCriteriaBuilder().equal(root.get("room").get("id"), roomId),
             (root, cq) -> {
                 root.fetch("room", JoinType.LEFT);
-                root.fetch("deviceControl", JoinType.LEFT);
+                root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
                 cq.orderBy(entityManager.getCriteriaBuilder().desc(root.get("createdAt")));
             },
             page,
@@ -29,7 +56,10 @@ public abstract class BaseIoTDeviceDaoV1<T extends BaseIoTDeviceV1<?>> extends B
     }
 
     public Optional<T> findByDeviceControlId(Long controlId) {
-        return findOne(root -> entityManager.getCriteriaBuilder().equal(root.get("deviceControl").get("id"), controlId));
+        return findOne(root -> entityManager.getCriteriaBuilder().equal(root.get("deviceControl").get("id"), controlId), (root, cq) -> {
+            root.fetch("room", JoinType.LEFT);
+            root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+        });
     }
 
     public long countByRoomId(Long roomId) {

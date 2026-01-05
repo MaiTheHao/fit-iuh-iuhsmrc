@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.ClientDaoV1;
 import com.iviet.ivshs.entities.ClientV1;
+import com.iviet.ivshs.enumeration.ClientTypeV1;
+import com.iviet.ivshs.exception.domain.InvalidClientTypeException;
 
 @Service
 public class UserDetailsServiceImplV1 implements UserDetailsService {
@@ -31,10 +33,12 @@ public class UserDetailsServiceImplV1 implements UserDetailsService {
             throw new UsernameNotFoundException("Username cannot be null or empty");
         }
 
-        ClientV1 client = clientDao.findByUsername(username).orElseThrow(() -> {
+        ClientV1 client = clientDao.findUserByUsername(username).orElseThrow(() -> {
             logger.warn("Authentication attempt for non-existent user: {}", username);
             throw new UsernameNotFoundException("User not found: " + username);
         });
+
+        if (client.getClientType() != ClientTypeV1.USER) throw new InvalidClientTypeException("Client type is not USER");
 
         return buildUserDetails(username, client);
     }

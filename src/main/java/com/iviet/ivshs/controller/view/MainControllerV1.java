@@ -1,11 +1,12 @@
 package com.iviet.ivshs.controller.view;
 
+import com.iviet.ivshs.constant.I18nMessageConstant;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.service.*;
+import com.iviet.ivshs.util.I18nMessageUtil;
+import com.iviet.ivshs.util.LocalContextUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,16 +23,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MainControllerV1 {
 
-    private final MessageSource messageSource;
     private final FloorServiceV1 floorService;
     private final RoomServiceV1 roomService;
     private final LightServiceV1 lightService;
     private final DeviceControlServiceV1 deviceControlService;
-    private final TemperatureServiceV1 temperatureService;
-    private final PowerConsumptionServiceV1 powerConsumptionService;
+    private final TemperatureValueServiceV1 temperatureValueService;
+    private final PowerConsumptionValueServiceV1 powerConsumptionValueService;
+    private final I18nMessageUtil i18nMessageUtil;
 
     private static final String LANGUAGE_ATTR = "currentlanguage";
-    private static final String WELCOME_MSG_KEY = "msg.welcome";
 
     @GetMapping("/")
     public String main() {
@@ -40,13 +40,11 @@ public class MainControllerV1 {
 
     @GetMapping("/home")
     public String home(Model model) {
-        Locale locale = LocaleContextHolder.getLocale();
-        model.addAttribute("messagewelcome", messageSource.getMessage(WELCOME_MSG_KEY, null, locale));
-        model.addAttribute(LANGUAGE_ATTR, locale);
+        model.addAttribute("messagewelcome", i18nMessageUtil.getMessage(I18nMessageConstant.MSG_WELCOME));
+        model.addAttribute(LANGUAGE_ATTR, LocalContextUtil.getCurrentLocale());
 
         List<FloorDtoV1> floors = floorService.getList(0, 1000).content();
         
-        // Map Floor -> List<Room>
         Map<FloorDtoV1, List<RoomDtoV1>> floorRoomsMap = floors.stream()
                 .collect(Collectors.toMap(
                         f -> f,
@@ -55,7 +53,6 @@ public class MainControllerV1 {
                         LinkedHashMap::new
                 ));
 
-        // Logic thời gian: 15 phút gần nhất
         Instant endedAt = Instant.now();
         Instant startedAt = endedAt.minus(15, ChronoUnit.MINUTES);
 
@@ -63,7 +60,6 @@ public class MainControllerV1 {
                 .flatMap(List::stream)
                 .toList();
 
-        // Thu thập dữ liệu cho từng phòng
         Map<Long, Long> roomGatewayCountMap = new HashMap<>();
         Map<Long, Double> roomCurrentTempMap = new HashMap<>();
         Map<Long, Double> roomCurrentPowerMap = new HashMap<>();
@@ -72,13 +68,11 @@ public class MainControllerV1 {
             Long rId = room.id();
             roomGatewayCountMap.put(rId, deviceControlService.countByRoomId(rId));
 
-            // Lấy nhiệt độ cuối cùng trong 15p qua
-            var tempHist = temperatureService.getAverageValueHistoryByRoomId(rId, startedAt, endedAt);
+            var tempHist = temperatureValueService.getAverageTemperatureByRoom(rId, startedAt, endedAt);
             roomCurrentTempMap.put(rId, tempHist.isEmpty() ? 0.0 : tempHist.get(tempHist.size() - 1).avgTempC());
 
-            // Lấy điện năng cuối cùng trong 15p qua
-            var powerHist = powerConsumptionService.getSumValueHistoryByRoomId(rId, startedAt, endedAt);
-            roomCurrentPowerMap.put(rId, powerHist.isEmpty() ? 0.0 : powerHist.get(powerHist.size() - 1).getSumWattHour());
+            var powerHist = powerConsumptionValueService.getSumPowerConsumptionByRoom(rId, startedAt, endedAt);
+            roomCurrentPowerMap.put(rId, powerHist.isEmpty() ? 0.0 : powerHist.get(powerHist.size() - 1).getSumWatt());
         });
 
         model.addAttribute("floorRoomsMap", floorRoomsMap);
@@ -100,11 +94,9 @@ public class MainControllerV1 {
             model.addAttribute("room", room);
             model.addAttribute("pageTitle", room.name());
 
-            // Khoảng thời gian mặc định
             Instant now = Instant.now();
             Instant defaultStart = now.minus(15, ChronoUnit.MINUTES);
 
-            // Parse thời gian từ params
             Instant chartStart = parseInstant(startedAtStr, defaultStart);
             Instant chartEnd = parseInstant(endedAtStr, now);
 
@@ -112,13 +104,12 @@ public class MainControllerV1 {
                 Instant temp = chartStart; chartStart = chartEnd; chartEnd = temp;
             }
 
-            // Lấy data cho Dashboard & Charts
-            var tempChartData = temperatureService.getAverageValueHistoryByRoomId(roomId, chartStart, chartEnd);
-            var powerChartData = powerConsumptionService.getSumValueHistoryByRoomId(roomId, chartStart, chartEnd);
+            var tempChartData = temperatureValueService.getAverageTemperatureByRoom(roomId, chartStart, chartEnd);
+            var powerChartData = powerConsumptionValueService.getSumPowerConsumptionByRoom(roomId, chartStart, chartEnd);
             var lights = lightService.getListByRoomId(roomId, 0, 1000).content();
 
             model.addAttribute("currentTemp", tempChartData.isEmpty() ? 0.0 : tempChartData.get(tempChartData.size() - 1).avgTempC());
-            model.addAttribute("currentPower", powerChartData.isEmpty() ? 0.0 : powerChartData.get(powerChartData.size() - 1).getSumWattHour());
+            model.addAttribute("currentPower", powerChartData.isEmpty() ? 0.0 : powerChartData.get(powerChartData.size() - 1).getSumWatt());
             model.addAttribute("tempChartData", tempChartData);
             model.addAttribute("powerChartData", powerChartData);
             model.addAttribute("lights", lights);
@@ -137,23 +128,25 @@ public class MainControllerV1 {
             HttpServletRequest request,
             Model model) {
         if (error != null) {
-            Locale locale = LocaleContextHolder.getLocale();
             Object exception = request.getSession().getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
-            String messageKey = "login.error.unknown";
+            String messageKey = I18nMessageConstant.LOGIN_ERROR_UNKNOWN;
 
             if (exception instanceof AuthenticationException authEx) {
                 String msg = authEx.getMessage();
-                if (msg.contains("Bad credentials")) messageKey = "login.error.bad.credentials";
-                else if (msg.contains("disabled")) messageKey = "login.error.user.disabled";
-                else if (msg.contains("expired")) messageKey = "login.error.account.expired";
-                else if (msg.contains("locked")) messageKey = "login.error.account.locked";
+                if (msg != null) {
+                    if (msg.contains("Bad credentials")) messageKey = I18nMessageConstant.LOGIN_ERROR_BAD_CREDENTIALS;
+                    else if (msg.contains("disabled")) messageKey = I18nMessageConstant.LOGIN_ERROR_USER_DISABLED;
+                    else if (msg.contains("expired")) messageKey = I18nMessageConstant.LOGIN_ERROR_ACCOUNT_EXPIRED;
+                    else if (msg.contains("locked")) messageKey = I18nMessageConstant.LOGIN_ERROR_ACCOUNT_LOCKED;
+                    else if (msg.contains("not found")) messageKey = I18nMessageConstant.LOGIN_ERROR_USER_NOT_FOUND;
+                    else if (msg.contains("Client type is not USER")) messageKey = I18nMessageConstant.LOGIN_ERROR_INVALID_CLIENT_TYPE;
+                }
             }
-            model.addAttribute("errorMessage", messageSource.getMessage(messageKey, null, locale));
+            model.addAttribute("errorMessage", i18nMessageUtil.getMessage(messageKey));
         }
         return "pages/login.html";
     }
 
-    // Helper parse thời gian
     private Instant parseInstant(String val, Instant defaultVal) {
         if (val == null || val.isBlank()) return defaultVal;
         try {

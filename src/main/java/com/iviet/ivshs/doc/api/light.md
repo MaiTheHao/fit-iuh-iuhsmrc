@@ -299,30 +299,3 @@
 	"timestamp": "2025-11-29T09:00:00Z"
 }
 ```
-
----
-
-### GET /api/v1/lights/{id}/health-check
-
-> Kiểm tra trạng thái sức khỏe thiết bị chiếu sáng.
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên | Loại | Mô tả       | Bắt buộc |
-| :-- | :--- | :---------- | :------- |
-| id  | Long | ID thiết bị | Có       |
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": {
-		"isHealthy": true,
-		"message": "Device is healthy",
-		"lastCheckTime": "2025-11-29T09:00:00Z"
-	},
-	"timestamp": "2025-11-29T09:00:00Z"
-}
-```

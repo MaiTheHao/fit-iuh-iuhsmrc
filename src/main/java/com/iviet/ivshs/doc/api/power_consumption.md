@@ -214,94 +214,9 @@
 
 ---
 
-### POST /api/v1/power-consumptions/{id}/values
+### GET /api/v1/room/{roomId}/power-consumption-values/sum
 
-> Ghi nhận dữ liệu tiêu thụ điện năng cho cảm biến.
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên | Loại | Mô tả       | Bắt buộc |
-| :-- | :--- | :---------- | :------- |
-| id  | Long | ID cảm biến | Có       |
-
-#### Request Body Fields
-
-| Tên trường | Loại    | Bắt buộc | Mô tả             |
-| :--------- | :------ | :------- | :---------------- |
-| watt       | Double  | Có       | Giá trị công suất |
-| wattHour   | Double  | Không    | Giá trị điện năng |
-| timestamp  | Instant | Có       | Thời điểm đo      |
-
-#### Ví dụ Request Body
-
-```json
-{
-	"watt": 120.5,
-	"wattHour": 350.0,
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": null,
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
----
-
-### POST /api/v1/power-consumptions/{id}/values:batch
-
-> Ghi nhận nhiều dữ liệu tiêu thụ điện năng cho cảm biến (batch).
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên | Loại | Mô tả       | Bắt buộc |
-| :-- | :--- | :---------- | :------- |
-| id  | Long | ID cảm biến | Có       |
-
-#### Request Body Fields
-
-Là một mảng các object như trên.
-
-#### Ví dụ Request Body
-
-```json
-[
-	{
-		"watt": 120.5,
-		"wattHour": 350.0,
-		"timestamp": "2024-06-07T09:00:00Z"
-	},
-	{
-		"watt": 110.0,
-		"wattHour": 340.0,
-		"timestamp": "2024-06-07T10:00:00Z"
-	}
-]
-```
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": null,
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
----
-
-### GET /api/v1/rooms/{roomId}/power-consumptions/average-history
-
-> Lấy lịch sử giá trị trung bình tiêu thụ điện năng theo phòng.
+> Lấy tổng giá trị tiêu thụ điện năng theo phòng trong khoảng thời gian.
 
 #### Tham số Đường dẫn (Path Parameters)
 
@@ -311,10 +226,10 @@ Là một mảng các object như trên.
 
 #### Tham số Truy vấn (Query Parameters)
 
-| Tên       | Loại    | Mô tả              | Bắt buộc |
-| :-------- | :------ | :----------------- | :------- |
-| startedAt | Instant | Thời điểm bắt đầu  | Có       |
-| endedAt   | Instant | Thời điểm kết thúc | Có       |
+| Tên  | Loại    | Mô tả              | Bắt buộc |
+| :--- | :------ | :----------------- | :------- |
+| from | Instant | Thời gian bắt đầu  | Có       |
+| to   | Instant | Thời gian kết thúc | Có       |
 
 #### Ví dụ Response (200 OK)
 
@@ -325,44 +240,11 @@ Là một mảng các object như trên.
 	"data": [
 		{
 			"timestamp": "2024-06-07T09:00:00Z",
-			"avgWatt": 115.25,
-			"avgWattHour": 345.0
-		}
-	],
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
----
-
-### GET /api/v1/rooms/{roomId}/power-consumptions/sum-history
-
-> Lấy lịch sử tổng giá trị tiêu thụ điện năng theo phòng.
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên    | Loại | Mô tả    | Bắt buộc |
-| :----- | :--- | :------- | :------- |
-| roomId | Long | ID phòng | Có       |
-
-#### Tham số Truy vấn (Query Parameters)
-
-| Tên       | Loại    | Mô tả              | Bắt buộc |
-| :-------- | :------ | :----------------- | :------- |
-| startedAt | Instant | Thời điểm bắt đầu  | Có       |
-| endedAt   | Instant | Thời điểm kết thúc | Có       |
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": [
+			"sumWatt": 450.75
+		},
 		{
-			"timestamp": "2024-06-07T09:00:00Z",
-			"sumWatt": 230.5,
-			"sumWattHour": 690.0
+			"timestamp": "2024-06-07T10:00:00Z",
+			"sumWatt": 520.25
 		}
 	],
 	"timestamp": "2024-06-07T09:00:00Z"
@@ -370,129 +252,3 @@ Là một mảng các object như trên.
 ```
 
 ---
-
-### GET /api/v1/clients/{clientId}/power-consumptions/average-history
-
-> Lấy lịch sử giá trị trung bình tiêu thụ điện năng theo client.
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên      | Loại | Mô tả     | Bắt buộc |
-| :------- | :--- | :-------- | :------- |
-| clientId | Long | ID client | Có       |
-
-#### Tham số Truy vấn (Query Parameters)
-
-| Tên       | Loại    | Mô tả              | Bắt buộc |
-| :-------- | :------ | :----------------- | :------- |
-| startedAt | Instant | Thời điểm bắt đầu  | Có       |
-| endedAt   | Instant | Thời điểm kết thúc | Có       |
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": [
-		{
-			"timestamp": "2024-06-07T09:00:00Z",
-			"avgWatt": 115.25,
-			"avgWattHour": 345.0
-		}
-	],
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
----
-
-### GET /api/v1/clients/{clientId}/power-consumptions/sum-history
-
-> Lấy lịch sử tổng giá trị tiêu thụ điện năng theo client.
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên      | Loại | Mô tả     | Bắt buộc |
-| :------- | :--- | :-------- | :------- |
-| clientId | Long | ID client | Có       |
-
-#### Tham số Truy vấn (Query Parameters)
-
-| Tên       | Loại    | Mô tả              | Bắt buộc |
-| :-------- | :------ | :----------------- | :------- |
-| startedAt | Instant | Thời điểm bắt đầu  | Có       |
-| endedAt   | Instant | Thời điểm kết thúc | Có       |
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": [
-		{
-			"timestamp": "2024-06-07T09:00:00Z",
-			"sumWatt": 230.5,
-			"sumWattHour": 690.0
-		}
-	],
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
----
-
-### DELETE /api/v1/power-consumptions/{id}/values
-
-> Xóa dữ liệu tiêu thụ điện năng của cảm biến trong khoảng thời gian.
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên | Loại | Mô tả       | Bắt buộc |
-| :-- | :--- | :---------- | :------- |
-| id  | Long | ID cảm biến | Có       |
-
-#### Tham số Truy vấn (Query Parameters)
-
-| Tên       | Loại    | Mô tả              | Bắt buộc |
-| :-------- | :------ | :----------------- | :------- |
-| startedAt | Instant | Thời điểm bắt đầu  | Có       |
-| endedAt   | Instant | Thời điểm kết thúc | Có       |
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": 10,
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
----
-
-### GET /api/v1/power-consumptions/{id}/health-check
-
-> Kiểm tra trạng thái sức khỏe của cảm biến tiêu thụ điện năng.
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên | Loại | Mô tả       | Bắt buộc |
-| :-- | :--- | :---------- | :------- |
-| id  | Long | ID cảm biến | Có       |
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": {
-		"status": "ACTIVE",
-		"active": true
-	},
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```

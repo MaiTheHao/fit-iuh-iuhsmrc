@@ -210,90 +210,9 @@
 
 ---
 
-### POST /api/v1/temperatures/{id}/values
+### GET /api/v1/room/{roomId}/temperature-values/average
 
-> Ghi nhận dữ liệu nhiệt độ cho cảm biến (record value).
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên | Loại | Mô tả       | Bắt buộc |
-| :-- | :--- | :---------- | :------- |
-| id  | Long | ID cảm biến | Có       |
-
-#### Request Body Fields
-
-| Tên trường | Loại    | Bắt buộc | Mô tả            |
-| :--------- | :------ | :------- | :--------------- |
-| tempC      | Double  | Có       | Giá trị nhiệt độ |
-| timestamp  | Instant | Có       | Thời điểm đo     |
-
-#### Ví dụ Request Body
-
-```json
-{
-	"tempC": 28.5,
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": null,
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
----
-
-### POST /api/v1/temperatures/{id}/values:batch
-
-> Ghi nhận nhiều dữ liệu nhiệt độ cho cảm biến (batch).
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên | Loại | Mô tả       | Bắt buộc |
-| :-- | :--- | :---------- | :------- |
-| id  | Long | ID cảm biến | Có       |
-
-#### Request Body Fields
-
-Là một mảng các object như trên.
-
-#### Ví dụ Request Body
-
-```json
-[
-	{
-		"tempC": 28.5,
-		"timestamp": "2024-06-07T09:00:00Z"
-	},
-	{
-		"tempC": 29.0,
-		"timestamp": "2024-06-07T10:00:00Z"
-	}
-]
-```
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": null,
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
----
-
-### GET /api/v1/rooms/{roomId}/temperatures/average-history
-
-> Lấy lịch sử giá trị nhiệt độ trung bình theo phòng.
+> Lấy giá trị nhiệt độ trung bình theo phòng trong khoảng thời gian.
 
 #### Tham số Đường dẫn (Path Parameters)
 
@@ -303,10 +222,10 @@ Là một mảng các object như trên.
 
 #### Tham số Truy vấn (Query Parameters)
 
-| Tên       | Loại    | Mô tả              | Bắt buộc |
-| :-------- | :------ | :----------------- | :------- |
-| startedAt | Instant | Thời điểm bắt đầu  | Có       |
-| endedAt   | Instant | Thời điểm kết thúc | Có       |
+| Tên  | Loại    | Mô tả              | Bắt buộc |
+| :--- | :------ | :----------------- | :------- |
+| from | Instant | Thời gian bắt đầu  | Có       |
+| to   | Instant | Thời gian kết thúc | Có       |
 
 #### Ví dụ Response (200 OK)
 
@@ -317,101 +236,14 @@ Là một mảng các object như trên.
 	"data": [
 		{
 			"timestamp": "2024-06-07T09:00:00Z",
-			"avgTempC": 28.75
-		}
-	],
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
----
-
-### GET /api/v1/clients/{clientId}/temperatures/average-history
-
-> Lấy lịch sử giá trị nhiệt độ trung bình theo client.
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên      | Loại | Mô tả     | Bắt buộc |
-| :------- | :--- | :-------- | :------- |
-| clientId | Long | ID client | Có       |
-
-#### Tham số Truy vấn (Query Parameters)
-
-| Tên       | Loại    | Mô tả              | Bắt buộc |
-| :-------- | :------ | :----------------- | :------- |
-| startedAt | Instant | Thời điểm bắt đầu  | Có       |
-| endedAt   | Instant | Thời điểm kết thúc | Có       |
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": [
+			"avgTempC": 27.8
+		},
 		{
-			"timestamp": "2024-06-07T09:00:00Z",
-			"avgTempC": 28.75
+			"timestamp": "2024-06-07T10:00:00Z",
+			"avgTempC": 28.2
 		}
 	],
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
----
-
-### DELETE /api/v1/temperatures/{id}/values
-
-> Xóa dữ liệu nhiệt độ của cảm biến trong khoảng thời gian.
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên | Loại | Mô tả       | Bắt buộc |
-| :-- | :--- | :---------- | :------- |
-| id  | Long | ID cảm biến | Có       |
-
-#### Tham số Truy vấn (Query Parameters)
-
-| Tên       | Loại    | Mô tả              | Bắt buộc |
-| :-------- | :------ | :----------------- | :------- |
-| startedAt | Instant | Thời điểm bắt đầu  | Có       |
-| endedAt   | Instant | Thời điểm kết thúc | Có       |
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": 10,
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
----
-
-### GET /api/v1/temperatures/{id}/health-check
-
-> Kiểm tra tình trạng hoạt động của cảm biến nhiệt độ.
-
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên | Loại | Mô tả       | Bắt buộc |
-| :-- | :--- | :---------- | :------- |
-| id  | Long | ID cảm biến | Có       |
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": {
-		"status": "ACTIVE",
-		"active": true
-	},
-	"timestamp": "2024-06-07T09:00:00Z"
+	"timestamp": "2024-06-07T11:00:00Z"
 }
 ```
 

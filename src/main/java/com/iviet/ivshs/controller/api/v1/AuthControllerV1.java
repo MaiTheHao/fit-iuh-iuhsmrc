@@ -66,7 +66,7 @@ public class AuthControllerV1 {
     @PostMapping("/signup")
     public ResponseEntity<ApiResponseV1<ClientDtoV1>> signup(
             @RequestBody @Valid CreateClientDtoV1 createDto) {
-        ClientDtoV1 createdClient = clientService.createClient(createDto);
+        ClientDtoV1 createdClient = clientService.create(createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(ApiResponseV1.created(createdClient));
     }

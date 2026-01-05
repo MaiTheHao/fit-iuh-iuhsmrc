@@ -4,14 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.iviet.ivshs.dto.ApiResponseV1;
 import com.iviet.ivshs.dto.SetupRequestV1;
-import com.iviet.ivshs.dto.SetupResponseV1;
 import com.iviet.ivshs.service.SetupServiceV1;
 
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/setup")
 public class SetupControllerV1 {
@@ -19,10 +24,23 @@ public class SetupControllerV1 {
 	@Autowired
 	private SetupServiceV1 setupService;
 	
-	@PostMapping
-	public ResponseEntity<ApiResponseV1<SetupResponseV1>> setup(@RequestBody SetupRequestV1 req) {
-		SetupResponseV1 response = setupService.setup(req);
-		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(ApiResponseV1.created(response));
+	@PostMapping("/{clientId}")
+	public ResponseEntity<ApiResponseV1<?>> setup(
+			@PathVariable Long clientId,
+			@Valid @RequestBody SetupRequestV1 req) {
+		
+		log.info("[SETUP_CTRL] Received setup request: clientId={}, roomCode={}, devices={}", 
+			clientId, req.getRoomCode(), req.getDevices() != null ? req.getDevices().size() : 0);
+		
+		setupService.setup(clientId);
+		
+		log.info("[SETUP_CTRL_SUCCESS] Setup completed for clientId={}", clientId);
+		
+		return ResponseEntity.ok(ApiResponseV1.builder()
+			.status(HttpStatus.OK.value())
+			.message("Device setup completed successfully")
+			.data(null)
+			.timestamp(java.time.Instant.now())
+			.build());
 	}
 }

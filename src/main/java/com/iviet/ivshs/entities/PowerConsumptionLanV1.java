@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "power_consumption_lan_v1",
     indexes = {
-        @Index(name = "idx_sensor_id_sensor_lang_code", columnList = "sensor_id, lang_code", unique = true)
+        @Index(name = "idx_power_consumption_lan_owner_id_lang_code", columnList = "owner_id, lang_code", unique = true)
     }
 )
 public class PowerConsumptionLanV1 extends BaseTranslationV1<PowerConsumptionV1> {

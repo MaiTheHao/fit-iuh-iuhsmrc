@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.jndi.JndiPropertySource;
 import org.springframework.lang.NonNull;
@@ -37,45 +39,61 @@ import lombok.extern.slf4j.Slf4j;
     @ComponentScan("com.iviet.ivshs.mapper"),
     @ComponentScan("com.iviet.ivshs.service"),
     @ComponentScan("com.iviet.ivshs.repository"),
-    @ComponentScan("com.iviet.ivshs.component")
+    @ComponentScan("com.iviet.ivshs.component"),
+    @ComponentScan("com.iviet.ivshs.startup"),
+    @ComponentScan("com.iviet.ivshs.util"),
 })
 public class AppConfig implements EnvironmentAware {
 
-    private static final String JNDI_DATABASE_NAME = "java:comp/env/jdbc/smartroom_db";
+    private static final String DEFAULT_JNDI_NAME = "java:comp/env/jdbc/smartroom_db";
     private static final String ENTITY_PACKAGES = "com.iviet.ivshs.entities";
-    private static final String HIBERNATE_DIALECT = "org.hibernate.dialect.MySQLDialect";
 
     @Autowired
     private Environment env;
 
     @Override
     public void setEnvironment(@NonNull Environment env) {
-        if (!(env instanceof ConfigurableEnvironment))  throw new IllegalArgumentException("Environment must be of type ConfigurableEnvironment");
-
+        if (!(env instanceof ConfigurableEnvironment)) {
+            return;
+        }
         ConfigurableEnvironment configurableEnv = (ConfigurableEnvironment) env;
-        
         try {
             configurableEnv.getPropertySources().addFirst(new JndiPropertySource("jndiPropertySource"));
-            log.info("JNDI PropertySource added successfully. JNDI has priority.");
+            log.info("JNDI PropertySource added successfully.");
         } catch (Exception e) {
-            log.warn("JNDI not available (running locally?). Fallback to application.properties.", e);
+            log.warn("JNDI not available. Application will use local properties.");
         }
     }
 
     @Bean
+    @NonNull
     public DataSource dataSource() {
-        String jndiName = env.getProperty("jdbc.jndi-name", JNDI_DATABASE_NAME);
-        JndiObjectFactoryBean factoryBean = new JndiObjectFactoryBean();
-        factoryBean.setJndiName(jndiName);
-        factoryBean.setExpectedType(DataSource.class);
-        factoryBean.setProxyInterface(DataSource.class);
-        factoryBean.setLookupOnStartup(true);
+        String jndiName = env.getProperty("jdbc.jndi-name", DEFAULT_JNDI_NAME);
         
         try {
+            JndiObjectFactoryBean factoryBean = new JndiObjectFactoryBean();
+            factoryBean.setJndiName(jndiName);
+            factoryBean.setExpectedType(DataSource.class);
+            factoryBean.setProxyInterface(DataSource.class);
+            factoryBean.setLookupOnStartup(true);
             factoryBean.afterPropertiesSet();
-            return (DataSource) factoryBean.getObject();
+            
+            log.info("Connected via JNDI: {}", jndiName);
+            DataSource ds = (DataSource) factoryBean.getObject();
+            if (ds == null) throw new IllegalArgumentException("DataSource from JNDI is null");
+            
+            return ds;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to lookup JNDI DataSource: " + jndiName, e);
+            log.warn("JNDI lookup failed ({}). Switching to Local JDBC Driver.", e.getMessage());
+            
+            DriverManagerDataSource dataSource = new DriverManagerDataSource();
+            dataSource.setDriverClassName(env.getRequiredProperty("jdbc.driverClassName"));
+            dataSource.setUrl(env.getRequiredProperty("jdbc.url"));
+            dataSource.setUsername(env.getRequiredProperty("jdbc.username"));
+            dataSource.setPassword(env.getRequiredProperty("jdbc.password"));
+            
+            log.info("Connected via Local JDBC Driver: {}", env.getProperty("jdbc.url"));
+            return dataSource;
         }
     }
 
@@ -84,30 +102,41 @@ public class AppConfig implements EnvironmentAware {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(dataSource());
         emf.setPackagesToScan(ENTITY_PACKAGES);
-        emf.setJpaVendorAdapter(createVendorAdapter());
+        
+        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        emf.setJpaVendorAdapter(vendorAdapter);
         emf.setJpaProperties(createJpaProperties());
+        
         return emf;
     }
 
-    private HibernateJpaVendorAdapter createVendorAdapter() {
-        HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
-        adapter.setShowSql(env.getProperty("hibernate.show_sql", Boolean.class, false));
-        adapter.setGenerateDdl(env.getProperty("hibernate.generate_ddl", Boolean.class, false));
-        adapter.setDatabasePlatform(env.getProperty("hibernate.dialect", HIBERNATE_DIALECT));
-        return adapter;
+    @Bean
+    public JdbcTemplate jdbcTemplate(@NonNull DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
     }
 
+    @NonNull
     private Properties createJpaProperties() {
         Properties props = new Properties();
+        
+        props.put("hibernate.dialect", env.getProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect"));
         props.put("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto", "validate"));
-        props.put("hibernate.format_sql", env.getProperty("hibernate.format_sql", "true"));
+        props.put("hibernate.show_sql", env.getProperty("hibernate.show_sql", "false"));
+        props.put("hibernate.format_sql", env.getProperty("hibernate.format_sql", "false"));
+        
+        props.put("hibernate.jdbc.batch_size", env.getProperty("hibernate.jdbc.batch_size", "50"));
+        props.put("hibernate.order_inserts", env.getProperty("hibernate.order_inserts", "true"));
+        props.put("hibernate.order_updates", env.getProperty("hibernate.order_updates", "true"));
+
         props.put("hibernate.connection.characterEncoding", "utf8");
         props.put("hibernate.connection.useUnicode", "true");
+        props.put("hibernate.connection.charSet", "UTF-8");
+
         return props;
     }
 
     @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+    public PlatformTransactionManager transactionManager(@NonNull EntityManagerFactory emf) {
         return new JpaTransactionManager(emf);
     }
 }

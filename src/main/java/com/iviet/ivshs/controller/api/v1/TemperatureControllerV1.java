@@ -4,13 +4,9 @@ import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.service.TemperatureServiceV1;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Instant;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,8 +14,6 @@ import java.util.List;
 public class TemperatureControllerV1 {
 
     private final TemperatureServiceV1 temperatureService;
-
-    // --- CRUD SENSOR ---
 
     @GetMapping("/rooms/{roomId}/temperatures")
     public ResponseEntity<ApiResponseV1<PaginatedResponseV1<TemperatureDtoV1>>> getListByRoom(
@@ -58,65 +52,5 @@ public class TemperatureControllerV1 {
         temperatureService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
-    }
-
-    // --- DATA INGESTION ---
-
-    @PostMapping("/temperatures/{id}/values")
-    public ResponseEntity<ApiResponseV1<Void>> ingestData(
-            @PathVariable(name = "id") Long id,
-            @RequestBody @Valid CreateTemperatureValueDtoV1 dto) {
-        
-        temperatureService.ingestSensorData(id, dto);
-        return ResponseEntity.ok(ApiResponseV1.ok(null));
-    }
-
-    @PostMapping("/temperatures/{id}/values:batch")
-    public ResponseEntity<ApiResponseV1<Void>> ingestDataBatch(
-            @PathVariable(name = "id") Long id,
-            @RequestBody @Valid List<CreateTemperatureValueDtoV1> dtos) {
-        
-        temperatureService.ingestSensorDataBatch(id, dtos);
-        return ResponseEntity.ok(ApiResponseV1.ok(null));
-    }
-
-    // --- HISTORY ---
-
-    @GetMapping("/rooms/{roomId}/temperatures/average-history")
-    public ResponseEntity<ApiResponseV1<List<AverageTemperatureValueDtoV1>>> getAverageHistoryByRoom(
-            @PathVariable(name = "roomId") Long roomId,
-            @RequestParam(name = "startedAt") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startedAt,
-            @RequestParam(name = "endedAt") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endedAt) {
-        
-        return ResponseEntity.ok(ApiResponseV1.ok(temperatureService.getAverageValueHistoryByRoomId(roomId, startedAt, endedAt)));
-    }
-
-    @GetMapping("/client/{clientId}/temperatures/average-history")
-    public ResponseEntity<ApiResponseV1<List<AverageTemperatureValueDtoV1>>> getAverageHistoryByClient(
-            @PathVariable(name = "clientId") Long clientId,
-            @RequestParam(name = "startedAt") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startedAt,
-            @RequestParam(name = "endedAt") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endedAt) {
-        
-        return ResponseEntity.ok(ApiResponseV1.ok(temperatureService.getAverageValueHistoryByClientId(clientId, startedAt, endedAt)));
-    }
-
-    @DeleteMapping("/temperatures/{id}/values")
-    public ResponseEntity<ApiResponseV1<Integer>> cleanupData(
-            @PathVariable(name = "id") Long id,
-            @RequestParam(name = "startedAt") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startedAt,
-            @RequestParam(name = "endedAt") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endedAt) {
-        
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, 
-                "Deleted successfully"));
-    }
-
-    // --- UTILITY ---
-
-    @GetMapping("/temperatures/{id}/health-check")
-    public ResponseEntity<ApiResponseV1<HealthCheckResponseDtoV1>> healthCheck(
-            @PathVariable(name = "id") Long id) {
-        
-        return ResponseEntity.ok(ApiResponseV1.ok(temperatureService.healthCheck(id)));
     }
 }
