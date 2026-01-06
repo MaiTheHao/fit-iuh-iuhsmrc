@@ -1,6 +1,6 @@
 package com.iviet.ivshs.dto;
 
-import com.iviet.ivshs.enumeration.GatewayCommandV1;
+import com.iviet.ivshs.enumeration.GatewayCommand;
 
 import lombok.Builder;
 
@@ -11,5 +11,5 @@ public record ControlDeviceRequest (
 	// DeviceControlTypeV1 controlType,
 	// String clientIpAddress,
 	// String targetNaturalId,
-	GatewayCommandV1 command
+	GatewayCommand command
 ){}

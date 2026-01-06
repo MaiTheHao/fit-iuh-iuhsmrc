@@ -1,6 +1,6 @@
 package com.iviet.ivshs.dto;
 
-import com.iviet.ivshs.enumeration.DeviceControlTypeV1;
+import com.iviet.ivshs.enumeration.DeviceControlType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +19,7 @@ import jakarta.validation.constraints.Size;
 public class CreateDeviceControlDto {
     
     @NotNull(message = "Device control type is required")
-    private DeviceControlTypeV1 deviceControlType;
+    private DeviceControlType deviceControlType;
 
     @Min(value = 0, message = "GPIO pin must be at least 0")
     @Max(value = 40, message = "GPIO pin must not exceed 40")

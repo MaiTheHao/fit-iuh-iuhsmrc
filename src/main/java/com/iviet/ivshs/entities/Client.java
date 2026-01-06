@@ -18,7 +18,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 
-import com.iviet.ivshs.enumeration.ClientTypeV1;
+import com.iviet.ivshs.enumeration.ClientType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -48,7 +48,7 @@ public class Client extends BaseAuditEntity {
 
     @Column(name = "client_type", length = 50)
     @Enumerated(EnumType.STRING)
-    private ClientTypeV1 clientType;
+    private ClientType clientType;
 
     @Column(name = "ip_address", length = 45)
     private String ipAddress;

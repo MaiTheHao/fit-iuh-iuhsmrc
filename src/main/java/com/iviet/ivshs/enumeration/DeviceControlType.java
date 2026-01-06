@@ -1,6 +1,6 @@
 package com.iviet.ivshs.enumeration;
 
-public enum DeviceControlTypeV1 {
+public enum DeviceControlType {
     GPIO,
     BLUETOOTH,
     API

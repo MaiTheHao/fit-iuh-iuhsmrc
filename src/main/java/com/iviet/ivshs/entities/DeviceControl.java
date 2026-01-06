@@ -11,7 +11,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-import com.iviet.ivshs.enumeration.DeviceControlTypeV1;
+import com.iviet.ivshs.enumeration.DeviceControlType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,7 +32,7 @@ public class DeviceControl extends BaseAuditEntity {
 
     @Column(name = "device_control_type", length = 50, nullable = false)
     @Enumerated(EnumType.STRING)
-    private DeviceControlTypeV1 deviceControlType;
+    private DeviceControlType deviceControlType;
 
     @Column(name = "gpio_pin", nullable = false)
     private Integer gpioPin;

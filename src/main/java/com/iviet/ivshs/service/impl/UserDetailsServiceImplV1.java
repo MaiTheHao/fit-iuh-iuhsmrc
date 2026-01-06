@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.enumeration.ClientTypeV1;
+import com.iviet.ivshs.enumeration.ClientType;
 import com.iviet.ivshs.exception.domain.InvalidClientTypeException;
 
 @Service
@@ -38,7 +38,7 @@ public class UserDetailsServiceImplV1 implements UserDetailsService {
             throw new UsernameNotFoundException("User not found: " + username);
         });
 
-        if (client.getClientType() != ClientTypeV1.USER) throw new InvalidClientTypeException("Client type is not USER");
+        if (client.getClientType() != ClientType.USER) throw new InvalidClientTypeException("Client type is not USER");
 
         return buildUserDetails(username, client);
     }

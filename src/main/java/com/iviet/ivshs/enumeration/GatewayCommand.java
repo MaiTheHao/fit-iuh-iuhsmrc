@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 @Getter
 @RequiredArgsConstructor
-public enum GatewayCommandV1 {
+public enum GatewayCommand {
 
     ON("TRUE"),
     OFF("FALSE");
@@ -22,7 +22,7 @@ public enum GatewayCommandV1 {
     }
 	
     @JsonCreator
-    public static GatewayCommandV1 fromValue(String value) {
+    public static GatewayCommand fromValue(String value) {
         return Arrays.stream(values())
                 .filter(v -> v.value.equalsIgnoreCase(value))
                 .findFirst()
@@ -31,7 +31,7 @@ public enum GatewayCommandV1 {
                 );
     }
 
-    public static GatewayCommandV1 fromBoolean(boolean state) {
+    public static GatewayCommand fromBoolean(boolean state) {
         return state ? ON : OFF;
     }
 }

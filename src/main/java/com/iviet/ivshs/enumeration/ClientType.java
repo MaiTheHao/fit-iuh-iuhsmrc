@@ -1,6 +1,6 @@
 package com.iviet.ivshs.enumeration;
 
-public enum ClientTypeV1 {
+public enum ClientType {
     USER,
     HARDWARE_GATEWAY
 }

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.iviet.ivshs.enumeration.DeviceCategoryV1;
+import com.iviet.ivshs.enumeration.DeviceCategory;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +23,7 @@ public class FetchTelemetryByGatewayResponseDto {
 	@Builder
 	public static class Data {
 		private String naturalId;
-		private DeviceCategoryV1 category;
+		private DeviceCategory category;
 		private boolean isActive;
 		private JsonNode data;
 	}

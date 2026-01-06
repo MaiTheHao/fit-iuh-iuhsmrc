@@ -3,7 +3,7 @@ package com.iviet.ivshs.service.impl;
 import com.iviet.ivshs.dao.*;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.*;
-import com.iviet.ivshs.enumeration.GatewayCommandV1;
+import com.iviet.ivshs.enumeration.GatewayCommand;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
 import com.iviet.ivshs.exception.domain.InternalServerErrorException;
@@ -148,7 +148,7 @@ public class LightServiceImplV1 implements LightServiceV1 {
         Client gateway = dc.getClient();
 
         Boolean currentState = light.getIsActive();
-        GatewayCommandV1 command = currentState ? GatewayCommandV1.OFF : GatewayCommandV1.ON;
+        GatewayCommand command = currentState ? GatewayCommand.OFF : GatewayCommand.ON;
         ControlDeviceResponse resp = controlService.sendCommand(gateway.getIpAddress(), light.getNaturalId(), command);
 
         if (200 == resp.status()) {

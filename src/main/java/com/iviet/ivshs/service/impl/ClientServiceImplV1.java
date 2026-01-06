@@ -6,7 +6,7 @@ import com.iviet.ivshs.dto.CreateClientDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateClientDto;
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.enumeration.ClientTypeV1;
+import com.iviet.ivshs.enumeration.ClientType;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.ClientMapperV1;
@@ -201,7 +201,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
             throw new BadRequestException("Username already exists: " + username);
         }
 
-        if (createDto.getClientType() == ClientTypeV1.HARDWARE_GATEWAY) {
+        if (createDto.getClientType() == ClientType.HARDWARE_GATEWAY) {
             String ipAddress = createDto.getIpAddress() == null ? null : createDto.getIpAddress().trim();
             if (ipAddress == null || ipAddress.isEmpty()) {
                 log.warn("IP Address is required for HARDWARE_GATEWAY clients");

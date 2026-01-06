@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.enumeration.ClientTypeV1;
+import com.iviet.ivshs.enumeration.ClientType;
 
 @Repository
 public class ClientDao extends BaseAuditEntityDao<Client> {
@@ -23,14 +23,14 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
     public Optional<Client> findUserByUsername(String username) {
         return findOne(root -> this.getCB().and(
             this.getCB().equal(root.get("username"), username),
-            this.getCB().equal(root.get("clientType"), ClientTypeV1.USER)
+            this.getCB().equal(root.get("clientType"), ClientType.USER)
         ));
     }
 
     public Optional<Client> findGatewayByUsername(String username) {
         return findOne(root -> this.getCB().and(
             this.getCB().equal(root.get("username"), username),
-            this.getCB().equal(root.get("clientType"), ClientTypeV1.HARDWARE_GATEWAY)
+            this.getCB().equal(root.get("clientType"), ClientType.HARDWARE_GATEWAY)
         ));
     }
 
@@ -46,14 +46,14 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
     public Optional<Client> findUserByIpAddress(String ipAddress) {
         return findOne(root -> this.getCB().and(
             this.getCB().equal(root.get("ipAddress"), ipAddress),
-            this.getCB().equal(root.get("clientType"), ClientTypeV1.USER)
+            this.getCB().equal(root.get("clientType"), ClientType.USER)
         ));
     }
 
     public Optional<Client> findGatewayByIpAddress(String ipAddress) {
         return findOne(root -> this.getCB().and(
             this.getCB().equal(root.get("ipAddress"), ipAddress),
-            this.getCB().equal(root.get("clientType"), ClientTypeV1.HARDWARE_GATEWAY)
+            this.getCB().equal(root.get("clientType"), ClientType.HARDWARE_GATEWAY)
         ));
     }
 
@@ -65,14 +65,14 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
     public Optional<Client> findUserById(Long id) {
         return findOne(root -> this.getCB().and(
             this.getCB().equal(root.get("id"), id),
-            this.getCB().equal(root.get("clientType"), ClientTypeV1.USER)
+            this.getCB().equal(root.get("clientType"), ClientType.USER)
         ));
     }
 
     public Optional<Client> findGatewayById(Long id) {
         return findOne(root -> this.getCB().and(
             this.getCB().equal(root.get("id"), id),
-            this.getCB().equal(root.get("clientType"), ClientTypeV1.HARDWARE_GATEWAY)
+            this.getCB().equal(root.get("clientType"), ClientType.HARDWARE_GATEWAY)
         ));
     }
 
@@ -86,7 +86,7 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
         
         return entityManager.createQuery(jpql, Client.class)
                 .setParameter("roomId", roomId)
-                .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
+                .setParameter("clientType", ClientType.HARDWARE_GATEWAY)
                 .setFirstResult(page * size)
                 .setMaxResults(size)
                 .getResultList();
@@ -101,7 +101,7 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
 
         return entityManager.createQuery(jpql, Client.class)
                 .setParameter("roomId", roomId)
-                .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
+                .setParameter("clientType", ClientType.HARDWARE_GATEWAY)
                 .getResultList();
     }
 
@@ -113,7 +113,7 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
 
         return entityManager.createQuery(jpql, Long.class)
                 .setParameter("roomId", roomId)
-                .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
+                .setParameter("clientType", ClientType.HARDWARE_GATEWAY)
                 .getSingleResult();
     }
 
@@ -127,7 +127,7 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
 
         return entityManager.createQuery(jpql, Client.class)
                 .setParameter("roomCode", roomCode)
-                .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
+                .setParameter("clientType", ClientType.HARDWARE_GATEWAY)
                 .setFirstResult(page * size)
                 .setMaxResults(size)
                 .getResultList();
@@ -142,7 +142,7 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
 
         return entityManager.createQuery(jpql, Client.class)
                 .setParameter("roomCode", roomCode)
-                .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
+                .setParameter("clientType", ClientType.HARDWARE_GATEWAY)
                 .getResultList();
     }
 }

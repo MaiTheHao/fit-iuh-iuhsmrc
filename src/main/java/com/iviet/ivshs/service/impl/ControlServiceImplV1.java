@@ -3,7 +3,7 @@ package com.iviet.ivshs.service.impl;
 import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dto.ControlDeviceRequest;
 import com.iviet.ivshs.dto.ControlDeviceResponse;
-import com.iviet.ivshs.enumeration.GatewayCommandV1;
+import com.iviet.ivshs.enumeration.GatewayCommand;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
 import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class ControlServiceImplV1 implements ControlServiceV1 {
 	
 	@Override
-	public ControlDeviceResponse sendCommand(String gatewayIp, String targetNaturalId, GatewayCommandV1 command) {
+	public ControlDeviceResponse sendCommand(String gatewayIp, String targetNaturalId, GatewayCommand command) {
 		if (gatewayIp == null || gatewayIp.isEmpty()) throw new BadRequestException("Gateway IP is required");
 		
 		if (targetNaturalId == null || targetNaturalId.isEmpty()) throw new BadRequestException("Target Natural ID is required");

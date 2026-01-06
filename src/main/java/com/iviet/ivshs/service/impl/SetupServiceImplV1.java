@@ -8,7 +8,7 @@ import com.iviet.ivshs.dao.SetupDao;
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.Room;
-import com.iviet.ivshs.enumeration.ClientTypeV1;
+import com.iviet.ivshs.enumeration.ClientType;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
 import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
@@ -50,7 +50,7 @@ public class SetupServiceImplV1 implements SetupServiceV1 {
     private Client validateAndGetGateway(Long clientId) {
         Client client = clientService.getEntityById(clientId); 
         
-        if (client.getClientType() != ClientTypeV1.HARDWARE_GATEWAY) {
+        if (client.getClientType() != ClientType.HARDWARE_GATEWAY) {
             log.error("[SETUP] Client is not a gateway: id={}", clientId);
             throw new BadRequestException("Client ID " + clientId + " is not a hardware gateway");
         }

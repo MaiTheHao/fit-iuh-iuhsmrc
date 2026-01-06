@@ -2,8 +2,8 @@ package com.iviet.ivshs.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.iviet.ivshs.enumeration.DeviceCategoryV1;
-import com.iviet.ivshs.enumeration.DeviceControlTypeV1;
+import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.enumeration.DeviceControlType;
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -29,8 +29,8 @@ public class SetupRequest {
     @AllArgsConstructor
     public static class DeviceConfig {
         private String naturalId;
-        private DeviceCategoryV1 category;
-        private DeviceControlTypeV1 controlType;
+        private DeviceCategory category;
+        private DeviceControlType controlType;
         private Integer gpioPin;
         private String bleMac;
         private String apiEndpoint;

@@ -2,7 +2,7 @@ package com.iviet.ivshs.dto;
 
 import org.hibernate.validator.constraints.URL;
 
-import com.iviet.ivshs.enumeration.ClientTypeV1;
+import com.iviet.ivshs.enumeration.ClientType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +28,7 @@ public class CreateClientDto {
     private String password;
 
     @NotNull(message = "Client type is required")
-    private ClientTypeV1 clientType;
+    private ClientType clientType;
 
     @Size(max = 45, message = "IP address must not exceed 45 characters")
     @Pattern(

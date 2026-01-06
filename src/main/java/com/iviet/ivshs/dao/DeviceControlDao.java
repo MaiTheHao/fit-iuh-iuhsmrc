@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.entities.DeviceControl;
-import com.iviet.ivshs.enumeration.DeviceControlTypeV1;
+import com.iviet.ivshs.enumeration.DeviceControlType;
 
 import jakarta.persistence.TypedQuery;
 
@@ -58,7 +58,7 @@ public class DeviceControlDao extends BaseEntityDao<DeviceControl> {
         return executePaginatedQuery(jpql, "roomId", roomId, page, size);
     }
 
-    public List<DeviceControl> findByDeviceControlType(DeviceControlTypeV1 deviceControlType) {
+    public List<DeviceControl> findByDeviceControlType(DeviceControlType deviceControlType) {
         String jpql = "SELECT dc FROM DeviceControl dc WHERE dc.deviceControlType = :deviceControlType ORDER BY dc.createdAt DESC";
         TypedQuery<DeviceControl> query = entityManager.createQuery(jpql, DeviceControl.class);
         query.setParameter("deviceControlType", deviceControlType);

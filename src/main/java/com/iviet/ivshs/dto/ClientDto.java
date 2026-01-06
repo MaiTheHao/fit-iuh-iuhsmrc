@@ -1,6 +1,6 @@
 package com.iviet.ivshs.dto;
 
-import com.iviet.ivshs.enumeration.ClientTypeV1;
+import com.iviet.ivshs.enumeration.ClientType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +16,7 @@ public class ClientDto {
     
     private Long id;
     private String username;
-    private ClientTypeV1 clientType;
+    private ClientType clientType;
     private String ipAddress;
     private String macAddress;
     private String avatarUrl;
