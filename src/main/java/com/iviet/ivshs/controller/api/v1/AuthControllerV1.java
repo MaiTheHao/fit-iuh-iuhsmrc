@@ -25,7 +25,7 @@ import com.iviet.ivshs.dto.CreateClientDto;
 import com.iviet.ivshs.dto.JwtResponse;
 import com.iviet.ivshs.dto.LoginDto;
 import com.iviet.ivshs.jwt.JwtUtils;
-import com.iviet.ivshs.service.ClientServiceV1;
+import com.iviet.ivshs.service.ClientService;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -39,7 +39,7 @@ public class AuthControllerV1 {
     private JwtUtils jwtUtils;
     
     @Autowired
-    private ClientServiceV1 clientService;
+    private ClientService clientService;
 
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<JwtResponse>> signin(

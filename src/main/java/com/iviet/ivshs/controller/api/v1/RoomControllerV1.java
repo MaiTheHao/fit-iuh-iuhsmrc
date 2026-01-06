@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.RoomServiceV1;
+import com.iviet.ivshs.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1")
 public class RoomControllerV1 {
 
-    private final RoomServiceV1 roomService;
+    private final RoomService roomService;
 
     @GetMapping("/floors/{floorId}/rooms")
     public ResponseEntity<ApiResponse<PaginatedResponse<RoomDto>>> getRoomsByFloor(

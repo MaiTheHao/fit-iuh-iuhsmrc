@@ -23,12 +23,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MainControllerV1 {
 
-    private final FloorServiceV1 floorService;
-    private final RoomServiceV1 roomService;
-    private final LightServiceV1 lightService;
-    private final DeviceControlServiceV1 deviceControlService;
-    private final TemperatureValueServiceV1 temperatureValueService;
-    private final PowerConsumptionValueServiceV1 powerConsumptionValueService;
+    private final FloorService floorService;
+    private final RoomService roomService;
+    private final LightService lightService;
+    private final DeviceControlService deviceControlService;
+    private final TemperatureValueService temperatureValueService;
+    private final PowerConsumptionValueService powerConsumptionValueService;
     private final I18nMessageUtil i18nMessageUtil;
 
     private static final String LANGUAGE_ATTR = "currentlanguage";

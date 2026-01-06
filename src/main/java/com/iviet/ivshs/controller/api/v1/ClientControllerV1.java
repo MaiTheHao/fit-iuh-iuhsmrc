@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.ClientServiceV1;
+import com.iviet.ivshs.service.ClientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class ClientControllerV1 {
 
     @Autowired
-    private ClientServiceV1 clientService;
+    private ClientService clientService;
 
     // --- CRUD CLIENT ---
 

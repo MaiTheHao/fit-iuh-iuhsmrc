@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.LanguageServiceV1;
+import com.iviet.ivshs.service.LanguageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/languages")
 public class LanguageControllerV1 {
 
-    private final LanguageServiceV1 languageService;
+    private final LanguageService languageService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<PaginatedResponse<LanguageDto>>> getLanguages(

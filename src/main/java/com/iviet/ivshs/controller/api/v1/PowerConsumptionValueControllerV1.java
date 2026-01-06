@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
-import com.iviet.ivshs.service.PowerConsumptionValueServiceV1;
+import com.iviet.ivshs.service.PowerConsumptionValueService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PowerConsumptionValueControllerV1 {
 
-	private final PowerConsumptionValueServiceV1 powerConsumptionValueService;
+	private final PowerConsumptionValueService powerConsumptionValueService;
 
 	@GetMapping("/rooms/{roomId}/power-consumptions/sum-history")
 	public ResponseEntity<List<SumPowerConsumptionValueDto>> oldGetSumByRoom(

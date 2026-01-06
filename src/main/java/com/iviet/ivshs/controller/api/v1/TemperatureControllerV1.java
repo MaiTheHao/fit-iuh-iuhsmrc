@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.TemperatureServiceV1;
+import com.iviet.ivshs.service.TemperatureService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1")
 public class TemperatureControllerV1 {
 
-    private final TemperatureServiceV1 temperatureService;
+    private final TemperatureService temperatureService;
 
     @GetMapping("/rooms/{roomId}/temperatures")
     public ResponseEntity<ApiResponse<PaginatedResponse<TemperatureDto>>> getListByRoom(

@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.SysRoleServiceV1;
+import com.iviet.ivshs.service.SysRoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/roles")
 public class SysRoleControllerV1 {
 
-    private final SysRoleServiceV1 roleService;
+    private final SysRoleService roleService;
 
     @PostMapping("/groups/functions/batch-add")
     public ResponseEntity<ApiResponse<BatchOperationResultDto>> batchAddFunctionsToGroup(

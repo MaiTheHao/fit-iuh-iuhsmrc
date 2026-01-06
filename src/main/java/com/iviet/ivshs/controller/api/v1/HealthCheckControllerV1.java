@@ -2,7 +2,7 @@ package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.HealthCheckResponseDto;
-import com.iviet.ivshs.service.HealthCheckServiceV1;
+import com.iviet.ivshs.service.HealthCheckService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import java.util.Map;
 @RequestMapping("/api/v1")
 public class HealthCheckControllerV1 {
 
-    private final HealthCheckServiceV1 healthCheckService;
+    private final HealthCheckService healthCheckService;
 
     @GetMapping("/clients/{clientId}/health")
     public ResponseEntity<ApiResponse<HealthCheckResponseDto>> getClientHealth(

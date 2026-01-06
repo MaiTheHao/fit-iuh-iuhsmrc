@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.service.TelemetryServiceV1;
+import com.iviet.ivshs.service.TelemetryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class TelemetryControllerV1 {
 
-	private final TelemetryServiceV1 telemetryService;
+	private final TelemetryService telemetryService;
 
 	@PostMapping("/gateway/{gatewayUsername}")
 	public ResponseEntity<ApiResponse<?>> fetchByGateway(@PathVariable String gatewayUsername) {

@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.DeviceControlServiceV1;
+import com.iviet.ivshs.service.DeviceControlService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class DeviceControlControllerV1 {
 
     @Autowired
-    private DeviceControlServiceV1 deviceControlService;
+    private DeviceControlService deviceControlService;
 
     // --- CRUD DEVICE CONTROL ---
 

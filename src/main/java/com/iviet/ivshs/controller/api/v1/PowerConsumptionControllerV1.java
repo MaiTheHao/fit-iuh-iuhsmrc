@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.PowerConsumptionServiceV1;
+import com.iviet.ivshs.service.PowerConsumptionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class PowerConsumptionControllerV1 {
 
     @Autowired
-    private PowerConsumptionServiceV1 powerConsumptionService;
+    private PowerConsumptionService powerConsumptionService;
 
     @GetMapping("/rooms/{roomId}/power-consumptions")
     public ResponseEntity<ApiResponse<PaginatedResponse<PowerConsumptionDto>>> 

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iviet.ivshs.dto.AverageTemperatureValueDto;
-import com.iviet.ivshs.service.TemperatureValueServiceV1;
+import com.iviet.ivshs.service.TemperatureValueService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TemperatureValueControllerV1 {
 
-	private final TemperatureValueServiceV1 temperatureValueService;
+	private final TemperatureValueService temperatureValueService;
 	
 	@GetMapping("rooms/{roomId}/temperatures/average-history")
 	public ResponseEntity<List<AverageTemperatureValueDto>> oldGetAverageByRoom(

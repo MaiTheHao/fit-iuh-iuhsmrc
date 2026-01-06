@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.SysGroupServiceV1;
+import com.iviet.ivshs.service.SysGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/v1/groups")
 public class SysGroupControllerV1 {
 
-    private final SysGroupServiceV1 groupService;
+    private final SysGroupService groupService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<PaginatedResponse<SysGroupDto>>> getGroups(

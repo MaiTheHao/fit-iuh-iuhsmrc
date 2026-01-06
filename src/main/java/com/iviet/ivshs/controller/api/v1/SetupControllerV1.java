@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.service.SetupServiceV1;
+import com.iviet.ivshs.service.SetupService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SetupControllerV1 {
 	
 	@Autowired
-	private SetupServiceV1 setupService;
+	private SetupService setupService;
 	
 	@PostMapping("/{clientId}")
 	public ResponseEntity<ApiResponse<?>> setup(@PathVariable(name = "clientId") Long clientId) {

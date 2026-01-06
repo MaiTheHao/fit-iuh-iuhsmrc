@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.SysFunctionServiceV1;
+import com.iviet.ivshs.service.SysFunctionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/v1/functions")
 public class SysFunctionControllerV1 {
 
-    private final SysFunctionServiceV1 functionService;
+    private final SysFunctionService functionService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<PaginatedResponse<SysFunctionDto>>> getFunctions(

@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.FloorServiceV1;
+import com.iviet.ivshs.service.FloorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/floors")
 public class FloorControllerV1 {
 
-    private final FloorServiceV1 floorService;
+    private final FloorService floorService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<PaginatedResponse<FloorDto>>> getFloors(

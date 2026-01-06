@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.LightServiceV1;
+import com.iviet.ivshs.service.LightService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/lights")
 public class LightControllerV1 {
 
-    private final LightServiceV1 lightService;
+    private final LightService lightService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<PaginatedResponse<LightDto>>> getLights(
