@@ -5,8 +5,8 @@ import org.mapstruct.Mapping;
 import com.iviet.ivshs.dto.PowerConsumptionDtoV1;
 import com.iviet.ivshs.dto.CreatePowerConsumptionDtoV1;
 import com.iviet.ivshs.dto.UpdatePowerConsumptionDtoV1;
-import com.iviet.ivshs.entities.PowerConsumptionV1;
-import com.iviet.ivshs.entities.PowerConsumptionLanV1;
+import com.iviet.ivshs.entities.PowerConsumption;
+import com.iviet.ivshs.entities.PowerConsumptionLan;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
 
 @Mapper(componentModel = "spring")
@@ -18,7 +18,7 @@ public interface PowerConsumptionMapperV1 {
 	@Mapping(target = "isActive", source = "entity.isActive")
 	@Mapping(target = "currentWatt", source = "entity.currentWatt")
 	@Mapping(target = "roomId", source = "entity.room.id")
-	PowerConsumptionDtoV1 toDto(PowerConsumptionV1 entity, PowerConsumptionLanV1 sensorLan);
+	PowerConsumptionDtoV1 toDto(PowerConsumption entity, PowerConsumptionLan sensorLan);
 
 	@IgnoreAuditFields
 	@Mapping(target = "id", ignore = true)
@@ -26,16 +26,7 @@ public interface PowerConsumptionMapperV1 {
 	@Mapping(target = "consumptionValues", ignore = true)
 	@Mapping(target = "deviceControl", ignore = true)
 	@Mapping(target = "room", ignore = true)
-	PowerConsumptionV1 toEntity(PowerConsumptionDtoV1 dto);
-
-	@IgnoreAuditFields
-	@Mapping(target = "id", ignore = true)
-	@Mapping(target = "translations", ignore = true)
-	@Mapping(target = "currentWatt", ignore = true)
-	@Mapping(target = "consumptionValues", ignore = true)
-	@Mapping(target = "deviceControl", ignore = true)
-	@Mapping(target = "room", ignore = true)
-	PowerConsumptionV1 fromCreateDto(CreatePowerConsumptionDtoV1 dto);
+	PowerConsumption toEntity(PowerConsumptionDtoV1 dto);
 
 	@IgnoreAuditFields
 	@Mapping(target = "id", ignore = true)
@@ -44,5 +35,14 @@ public interface PowerConsumptionMapperV1 {
 	@Mapping(target = "consumptionValues", ignore = true)
 	@Mapping(target = "deviceControl", ignore = true)
 	@Mapping(target = "room", ignore = true)
-	PowerConsumptionV1 fromUpdateDto(UpdatePowerConsumptionDtoV1 dto);
+	PowerConsumption fromCreateDto(CreatePowerConsumptionDtoV1 dto);
+
+	@IgnoreAuditFields
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "translations", ignore = true)
+	@Mapping(target = "currentWatt", ignore = true)
+	@Mapping(target = "consumptionValues", ignore = true)
+	@Mapping(target = "deviceControl", ignore = true)
+	@Mapping(target = "room", ignore = true)
+	PowerConsumption fromUpdateDto(UpdatePowerConsumptionDtoV1 dto);
 }

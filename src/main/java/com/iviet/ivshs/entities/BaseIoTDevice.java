@@ -24,9 +24,9 @@ public abstract class BaseIoTDevice<L extends BaseTranslation<?>> extends BaseTr
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
-    private RoomV1 room;
+    private Room room;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_control_id", unique = true)
-    private DeviceControlV1 deviceControl;
+    private DeviceControl deviceControl;
 }

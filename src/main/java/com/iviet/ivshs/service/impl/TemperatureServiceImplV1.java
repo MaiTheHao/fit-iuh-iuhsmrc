@@ -42,10 +42,10 @@ public class TemperatureServiceImplV1 implements TemperatureServiceV1 {
 
     @Override
     @Transactional(readOnly = true)
-    public PaginatedResponseV1<TemperatureV1> getListEntityByRoom(Long roomId, int page, int size) {
+    public PaginatedResponseV1<Temperature> getListEntityByRoom(Long roomId, int page, int size) {
         if (roomId == null) throw new BadRequestException("Room ID is required");
     
-        List<TemperatureV1> data = temperatureDao.findAllByRoomId(roomId, page, size);
+        List<Temperature> data = temperatureDao.findAllByRoomId(roomId, page, size);
         Long totalElements = temperatureDao.countByRoomId(roomId);
 
         return new PaginatedResponseV1<>(data, page, size, totalElements);
@@ -60,7 +60,7 @@ public class TemperatureServiceImplV1 implements TemperatureServiceV1 {
 
     @Override
     @Transactional(readOnly = true)
-    public TemperatureV1 getEntityById(Long tempSensorId) {
+    public Temperature getEntityById(Long tempSensorId) {
         if (tempSensorId == null) throw new BadRequestException("Temperature sensor ID is required");
 
         return temperatureDao.findById(tempSensorId)
@@ -76,7 +76,7 @@ public class TemperatureServiceImplV1 implements TemperatureServiceV1 {
 
     @Override
     @Transactional(readOnly = true)
-    public TemperatureV1 getEntityByNaturalId(String naturalId) {
+    public Temperature getEntityByNaturalId(String naturalId) {
         if (naturalId.isBlank()) throw new BadRequestException("Natural ID is required");
 
         return temperatureDao.findByNaturalId(naturalId)
@@ -88,19 +88,19 @@ public class TemperatureServiceImplV1 implements TemperatureServiceV1 {
     public TemperatureDtoV1 create(CreateTemperatureDtoV1 dto) {
         if (dto == null || !StringUtils.hasText(dto.naturalId())) throw new BadRequestException("Data and Natural ID are required");
 
-        RoomV1 room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found"));
-        DeviceControlV1 dc = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found"));
+        Room room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found"));
+        DeviceControl dc = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found"));
 
         if (dc.getRoom() == null || !dc.getRoom().getId().equals(room.getId())) throw new BadRequestException("Device Control does not belong to the specified Room");
 
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found");
 
-        TemperatureV1 sensor = temperatureMapper.fromCreateDto(dto);
+        Temperature sensor = temperatureMapper.fromCreateDto(dto);
         sensor.setRoom(room);
         sensor.setDeviceControl(dc);
 
-        TemperatureLanV1 lan = new TemperatureLanV1();
+        TemperatureLan lan = new TemperatureLan();
         lan.setLangCode(langCode);
         lan.setName(dto.name().trim());
         lan.setDescription(dto.description());
@@ -115,17 +115,17 @@ public class TemperatureServiceImplV1 implements TemperatureServiceV1 {
     @Override
     @Transactional
     public TemperatureDtoV1 update(Long tempSensorId, UpdateTemperatureDtoV1 dto) {
-        TemperatureV1 sensor = temperatureDao.findById(tempSensorId)
+        Temperature sensor = temperatureDao.findById(tempSensorId)
                 .orElseThrow(() -> new NotFoundException("Sensor not found"));
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
 
         if (dto.isActive() != null) sensor.setIsActive(dto.isActive());
 
-        TemperatureLanV1 lan = sensor.getTranslations().stream()
+        TemperatureLan lan = sensor.getTranslations().stream()
                 .filter(l -> langCode.equals(l.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
-                    TemperatureLanV1 newLan = new TemperatureLanV1();
+                    TemperatureLan newLan = new TemperatureLan();
                     newLan.setLangCode(langCode);
                     newLan.setOwner(sensor);
                     sensor.getTranslations().add(newLan);

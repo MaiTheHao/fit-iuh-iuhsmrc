@@ -5,12 +5,12 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "sys_role_lan_v1", 
+@Table(name = "sys_function_lan_v1", 
     indexes = {
-        @Index(name = "idx_sys_role_lan_owner_lang", columnList = "owner_id, lang_code", unique = true)
+        @Index(name = "idx_sys_function_lan_owner_lang", columnList = "owner_id, lang_code", unique = true)
     }
 )
-public class SysRoleLanV1 extends BaseTranslation<SysRoleV1> {
+public class SysFunctionLan extends BaseTranslation<SysFunction> {
     
     private static final long serialVersionUID = 1L;
 }

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.ClientDaoV1;
-import com.iviet.ivshs.entities.ClientV1;
+import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.enumeration.ClientTypeV1;
 import com.iviet.ivshs.exception.domain.InvalidClientTypeException;
 
@@ -33,7 +33,7 @@ public class UserDetailsServiceImplV1 implements UserDetailsService {
             throw new UsernameNotFoundException("Username cannot be null or empty");
         }
 
-        ClientV1 client = clientDao.findUserByUsername(username).orElseThrow(() -> {
+        Client client = clientDao.findUserByUsername(username).orElseThrow(() -> {
             logger.warn("Authentication attempt for non-existent user: {}", username);
             throw new UsernameNotFoundException("User not found: " + username);
         });
@@ -43,7 +43,7 @@ public class UserDetailsServiceImplV1 implements UserDetailsService {
         return buildUserDetails(username, client);
     }
 
-    private UserDetails buildUserDetails(String username, ClientV1 client) {
+    private UserDetails buildUserDetails(String username, Client client) {
         return User.builder()
                 .username(username)
                 .password(client.getPasswordHash())

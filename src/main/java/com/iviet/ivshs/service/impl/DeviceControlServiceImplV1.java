@@ -11,9 +11,9 @@ import com.iviet.ivshs.dto.CreateDeviceControlDtoV1;
 import com.iviet.ivshs.dto.DeviceControlDtoV1;
 import com.iviet.ivshs.dto.PaginatedResponseV1;
 import com.iviet.ivshs.dto.UpdateDeviceControlDtoV1;
-import com.iviet.ivshs.entities.ClientV1;
-import com.iviet.ivshs.entities.DeviceControlV1;
-import com.iviet.ivshs.entities.RoomV1;
+import com.iviet.ivshs.entities.Client;
+import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.DeviceControlMapperV1;
@@ -42,7 +42,7 @@ public class DeviceControlServiceImplV1 implements DeviceControlServiceV1 {
         if (deviceControlId == null) 
             throw new BadRequestException("Device Control ID is required");
         
-        DeviceControlV1 deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
+        DeviceControl deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
         
         return deviceControlMapper.toDto(deviceControl);
     }
@@ -54,15 +54,15 @@ public class DeviceControlServiceImplV1 implements DeviceControlServiceV1 {
         if (dto.getClientId() == null) throw new BadRequestException("Client ID is required");
         if (dto.getRoomId() == null) throw new BadRequestException("Room ID is required");
 
-        ClientV1 client = clientDao.findById(dto.getClientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
+        Client client = clientDao.findById(dto.getClientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
         
-        RoomV1 room = RoomDaoV1.findById(dto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.getRoomId()));
+        Room room = RoomDaoV1.findById(dto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.getRoomId()));
 
-        DeviceControlV1 deviceControl = deviceControlMapper.toEntity(dto);
+        DeviceControl deviceControl = deviceControlMapper.toEntity(dto);
         deviceControl.setClient(client);
         deviceControl.setRoom(room);
 
-        DeviceControlV1 savedDeviceControl = deviceControlDao.save(deviceControl);
+        DeviceControl savedDeviceControl = deviceControlDao.save(deviceControl);
 
         return deviceControlMapper.toDto(savedDeviceControl);
     }
@@ -73,18 +73,18 @@ public class DeviceControlServiceImplV1 implements DeviceControlServiceV1 {
         if (deviceControlId == null) throw new BadRequestException("Device Control ID is required");
         if (dto == null) throw new BadRequestException("Update data is required");
 
-        DeviceControlV1 deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
+        DeviceControl deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
 
         if (dto.getClientId() != null) {
             Long currentClientId = deviceControl.getClient() != null ? deviceControl.getClient().getId() : null;
             if (!dto.getClientId().equals(currentClientId)) {
-                ClientV1 client = clientDao.findById(dto.getClientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
+                Client client = clientDao.findById(dto.getClientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
                 deviceControl.setClient(client);
             }
         }
 
         if (dto.getRoomId() != null && !dto.getRoomId().equals(deviceControl.getRoom().getId())) {
-            RoomV1 room = RoomDaoV1.findById(dto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.getRoomId()));
+            Room room = RoomDaoV1.findById(dto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.getRoomId()));
             deviceControl.setRoom(room);
         }
 
@@ -99,7 +99,7 @@ public class DeviceControlServiceImplV1 implements DeviceControlServiceV1 {
     public void delete(Long deviceControlId) {
         if (deviceControlId == null) throw new BadRequestException("Device Control ID is required");
 
-        DeviceControlV1 deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
+        DeviceControl deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
         
         deviceControlDao.delete(deviceControl);
     }
@@ -108,7 +108,7 @@ public class DeviceControlServiceImplV1 implements DeviceControlServiceV1 {
     public PaginatedResponseV1<DeviceControlDtoV1> getListByClientId(Long clientId, int page, int size) {
         if (clientId == null) throw new BadRequestException("Client ID is required");
         
-        List<DeviceControlV1> deviceControls = deviceControlDao.findByClientId(clientId, page, size);
+        List<DeviceControl> deviceControls = deviceControlDao.findByClientId(clientId, page, size);
         List<DeviceControlDtoV1> content = deviceControlMapper.toListDto(deviceControls);
         Long totalElements = deviceControlDao.countByClientId(clientId);
         
@@ -119,7 +119,7 @@ public class DeviceControlServiceImplV1 implements DeviceControlServiceV1 {
     public PaginatedResponseV1<DeviceControlDtoV1> getListByRoomId(Long roomId, int page, int size) {
         if (roomId == null) throw new BadRequestException("Room ID is required");
         
-        List<DeviceControlV1> deviceControls = deviceControlDao.findByRoomId(roomId, page, size);
+        List<DeviceControl> deviceControls = deviceControlDao.findByRoomId(roomId, page, size);
         List<DeviceControlDtoV1> content = deviceControlMapper.toListDto(deviceControls);
         Long totalElements = deviceControlDao.countByRoomId(roomId);
         

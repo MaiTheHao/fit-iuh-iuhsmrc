@@ -35,8 +35,8 @@ public class SetupDaoV1 extends BaseDaoV1<SetupDaoV1> {
 					i, device.getName(), device.getCategory());
 			}
 
-			ClientV1 client = entityManager.getReference(ClientV1.class, clientId);
-			RoomV1 room = entityManager.getReference(RoomV1.class, roomId);
+			Client client = entityManager.getReference(Client.class, clientId);
+			Room room = entityManager.getReference(Room.class, roomId);
 			
 			persistDevice(device, client, room);
 			processedDevices++;
@@ -54,19 +54,19 @@ public class SetupDaoV1 extends BaseDaoV1<SetupDaoV1> {
 		return processedDevices;
 	}
 
-	private void persistDevice(SetupRequestV1.DeviceConfig device, ClientV1 client, RoomV1 room) {
+	private void persistDevice(SetupRequestV1.DeviceConfig device, Client client, Room room) {
 		if (log.isDebugEnabled()) {
 			log.debug("[SETUP:PERSIST] name={}, category={}", device.getName(), device.getCategory());
 		}
 		
-		DeviceControlV1 deviceControl = createAndPersistDeviceControl(device, room, client);
+		DeviceControl deviceControl = createAndPersistDeviceControl(device, room, client);
 		createSensorEntity(device, room, deviceControl, device.getTranslations());
 	}
 
-	private DeviceControlV1 createAndPersistDeviceControl(
-		SetupRequestV1.DeviceConfig device, RoomV1 room, ClientV1 client) {
+	private DeviceControl createAndPersistDeviceControl(
+		SetupRequestV1.DeviceConfig device, Room room, Client client) {
 		
-		DeviceControlV1 deviceControl = new DeviceControlV1();
+		DeviceControl deviceControl = new DeviceControl();
 		deviceControl.setDeviceControlType(device.getControlType());
 		deviceControl.setGpioPin(device.getGpioPin());
 		deviceControl.setBleMacAddress(device.getBleMac());
@@ -82,8 +82,8 @@ public class SetupDaoV1 extends BaseDaoV1<SetupDaoV1> {
 		return deviceControl;
 	}
 
-	private void createSensorEntity(SetupRequestV1.DeviceConfig device, RoomV1 room, 
-		DeviceControlV1 deviceControl, Map<String, SetupRequestV1.DeviceConfig.TranslationDetail> translations) {
+	private void createSensorEntity(SetupRequestV1.DeviceConfig device, Room room, 
+		DeviceControl deviceControl, Map<String, SetupRequestV1.DeviceConfig.TranslationDetail> translations) {
 		switch (device.getCategory()) {
 			case LIGHT -> createLight(device, room, deviceControl, translations);
 			case TEMPERATURE -> createTemperature(device, room, deviceControl, translations);
@@ -91,9 +91,9 @@ public class SetupDaoV1 extends BaseDaoV1<SetupDaoV1> {
 		}
 	}
 
-	private void createLight(SetupRequestV1.DeviceConfig device, RoomV1 room, 
-		DeviceControlV1 deviceControl, Map<String, SetupRequestV1.DeviceConfig.TranslationDetail> translations) {
-		LightV1 light = new LightV1();
+	private void createLight(SetupRequestV1.DeviceConfig device, Room room, 
+		DeviceControl deviceControl, Map<String, SetupRequestV1.DeviceConfig.TranslationDetail> translations) {
+		Light light = new Light();
 		light.setIsActive(device.isActive());
 		light.setRoom(room);
 		light.setDeviceControl(deviceControl);
@@ -108,9 +108,9 @@ public class SetupDaoV1 extends BaseDaoV1<SetupDaoV1> {
 		}
 	}
 
-	private void createTemperature(SetupRequestV1.DeviceConfig device, RoomV1 room, 
-		DeviceControlV1 deviceControl, Map<String, SetupRequestV1.DeviceConfig.TranslationDetail> translations) {
-		TemperatureV1 temperature = new TemperatureV1();
+	private void createTemperature(SetupRequestV1.DeviceConfig device, Room room, 
+		DeviceControl deviceControl, Map<String, SetupRequestV1.DeviceConfig.TranslationDetail> translations) {
+		Temperature temperature = new Temperature();
 		temperature.setIsActive(device.isActive());
 		temperature.setNaturalId(device.getNaturalId());
 		temperature.setRoom(room);
@@ -125,9 +125,9 @@ public class SetupDaoV1 extends BaseDaoV1<SetupDaoV1> {
 		}
 	}
 
-	private void createPowerConsumption(SetupRequestV1.DeviceConfig device, RoomV1 room, 
-		DeviceControlV1 deviceControl, Map<String, SetupRequestV1.DeviceConfig.TranslationDetail> translations) {
-		PowerConsumptionV1 powerConsumption = new PowerConsumptionV1();
+	private void createPowerConsumption(SetupRequestV1.DeviceConfig device, Room room, 
+		DeviceControl deviceControl, Map<String, SetupRequestV1.DeviceConfig.TranslationDetail> translations) {
+		PowerConsumption powerConsumption = new PowerConsumption();
 		powerConsumption.setIsActive(device.isActive());
 		powerConsumption.setNaturalId(device.getNaturalId());
 		powerConsumption.setRoom(room);
@@ -157,11 +157,11 @@ public class SetupDaoV1 extends BaseDaoV1<SetupDaoV1> {
 		}
 
 		translations.forEach((langCode, detail) -> {
-			if (entity instanceof LightV1 light) {
+			if (entity instanceof Light light) {
 				createLightTranslation(light, langCode, detail);
-			} else if (entity instanceof TemperatureV1 temperature) {
+			} else if (entity instanceof Temperature temperature) {
 				createTemperatureTranslation(temperature, langCode, detail);
-			} else if (entity instanceof PowerConsumptionV1 powerConsumption) {
+			} else if (entity instanceof PowerConsumption powerConsumption) {
 				createPowerConsumptionTranslation(powerConsumption, langCode, detail);
 			}
 		});
@@ -172,11 +172,11 @@ public class SetupDaoV1 extends BaseDaoV1<SetupDaoV1> {
 	}
 
 	private void createLightTranslation(
-		LightV1 light, 
+		Light light, 
 		String langCode, 
 		SetupRequestV1.DeviceConfig.TranslationDetail detail) {
 		
-		LightLanV1 lightLan = new LightLanV1();
+		LightLan lightLan = new LightLan();
 		lightLan.setLangCode(langCode);
 		lightLan.setName(detail.getName());
 		lightLan.setDescription(detail.getDescription());
@@ -187,11 +187,11 @@ public class SetupDaoV1 extends BaseDaoV1<SetupDaoV1> {
 	}
 
 	private void createTemperatureTranslation(
-		TemperatureV1 temperature, 
+		Temperature temperature, 
 		String langCode, 
 		SetupRequestV1.DeviceConfig.TranslationDetail detail) {
 		
-		TemperatureLanV1 temperatureLan = new TemperatureLanV1();
+		TemperatureLan temperatureLan = new TemperatureLan();
 		temperatureLan.setLangCode(langCode);
 		temperatureLan.setName(detail.getName());
 		temperatureLan.setDescription(detail.getDescription());
@@ -202,11 +202,11 @@ public class SetupDaoV1 extends BaseDaoV1<SetupDaoV1> {
 	}
 
 	private void createPowerConsumptionTranslation(
-		PowerConsumptionV1 powerConsumption, 
+		PowerConsumption powerConsumption, 
 		String langCode, 
 		SetupRequestV1.DeviceConfig.TranslationDetail detail) {
 		
-		PowerConsumptionLanV1 powerConsumptionLan = new PowerConsumptionLanV1();
+		PowerConsumptionLan powerConsumptionLan = new PowerConsumptionLan();
 		powerConsumptionLan.setLangCode(langCode);
 		powerConsumptionLan.setName(detail.getName());
 		powerConsumptionLan.setDescription(detail.getDescription());

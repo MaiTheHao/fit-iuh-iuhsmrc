@@ -19,7 +19,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PersistentLoginV1 {
+public class PersistentLogin {
 	
 	@Id
 	@Column(name = "series", length = 64)

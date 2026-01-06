@@ -4,16 +4,16 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.iviet.ivshs.entities.LanguageV1;
+import com.iviet.ivshs.entities.Language;
 
 @Repository
-public class LanguageDaoV1 extends BaseAuditEntityDaoV1<LanguageV1> {
+public class LanguageDaoV1 extends BaseAuditEntityDaoV1<Language> {
     
     public LanguageDaoV1() {
-        super(LanguageV1.class);
+        super(Language.class);
     }
 
-    public Optional<LanguageV1> findByCode(String code) {
+    public Optional<Language> findByCode(String code) {
         return findOne(root -> entityManager.getCriteriaBuilder().equal(root.get("code"), code));
     }
     

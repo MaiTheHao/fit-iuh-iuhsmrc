@@ -26,26 +26,26 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoomV1 extends BaseTranslatableEntity<RoomLanV1> {
+public class Room extends BaseTranslatableEntity<RoomLan> {
 
     private static final long serialVersionUID = 1L;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "floor_id", nullable = false)
-    private FloorV1 floor;
+    private Floor floor;
 
     @Column(name = "code", nullable = false, length = 256)
     private String code;
 
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-    private Set<LightV1> lights = new HashSet<>();
+    private Set<Light> lights = new HashSet<>();
 
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-    private Set<TemperatureV1> temperatures = new HashSet<>();
+    private Set<Temperature> temperatures = new HashSet<>();
 
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-    private Set<PowerConsumptionV1> powerConsumptions = new HashSet<>();
+    private Set<PowerConsumption> powerConsumptions = new HashSet<>();
 
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-    private Set<DeviceControlV1> deviceControls = new HashSet<>();
+    private Set<DeviceControl> deviceControls = new HashSet<>();
 }

@@ -7,26 +7,26 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dto.AverageTemperatureValueDtoV1;
-import com.iviet.ivshs.entities.TemperatureValueV1;
+import com.iviet.ivshs.entities.TemperatureValue;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 
 @Repository
-public class TemperatureValueDaoV1 extends BaseTelemetryDaoV1<TemperatureValueV1> {
+public class TemperatureValueDaoV1 extends BaseTelemetryDaoV1<TemperatureValue> {
 	private static final String INSERT_SQL = "INSERT INTO temperature_value_v1 (sensor_id, timestamp, temp_c) VALUES (?, ?, ?)";
 	private static final String DATE_FORMAT = "%Y-%m-%d %H:%i";
 	private static final String DATE_FUNC = "CAST(FUNCTION('DATE_FORMAT', v.timestamp, '" + DATE_FORMAT + "') AS string)";
 
 	public TemperatureValueDaoV1() {
-		super(TemperatureValueV1.class);
+		super(TemperatureValue.class);
 	}
 
 	@Override
-	public void saveAndForget(Long sensorId, TemperatureValueV1 entity) {			
+	public void saveAndForget(Long sensorId, TemperatureValue entity) {			
 		this.saveAndForget(sensorId, Collections.singletonList(entity));
 	}
 
 	@Override
-	public void saveAndForget(Long sensorId, List<TemperatureValueV1> entities) {
+	public void saveAndForget(Long sensorId, List<TemperatureValue> entities) {
 		if (entities == null || entities.isEmpty()) return;
 
 		jdbcTemplate.batchUpdate(INSERT_SQL, entities, BATCH_SIZE, (ps, entity) -> {
@@ -47,7 +47,7 @@ public class TemperatureValueDaoV1 extends BaseTelemetryDaoV1<TemperatureValueV1
 		String dtoPath = AverageTemperatureValueDtoV1.class.getName();
 		String jpql = """
 						SELECT new %s(%s, AVG(v.tempC))
-						FROM TemperatureValueV1 v
+						FROM TemperatureValue v
 						WHERE v.sensor.room.id = :roomId 
 						AND v.timestamp BETWEEN :startedAt AND :endedAt
 						GROUP BY %s
@@ -65,7 +65,7 @@ public class TemperatureValueDaoV1 extends BaseTelemetryDaoV1<TemperatureValueV1
 		String dtoPath = AverageTemperatureValueDtoV1.class.getName();
 		String jpql = """
 						SELECT new %s(%s, AVG(v.tempC))
-						FROM TemperatureValueV1 v
+						FROM TemperatureValue v
 						WHERE v.sensor.deviceControl.client.id = :clientId
 						AND v.timestamp BETWEEN :startedAt AND :endedAt
 						GROUP BY %s
@@ -81,7 +81,7 @@ public class TemperatureValueDaoV1 extends BaseTelemetryDaoV1<TemperatureValueV1
 
 	public void deleteBySensorIdAndTimestampBetween(Long sensorId, Instant startedAt, Instant endedAt) {
 		String jpql = """
-						DELETE FROM TemperatureValueV1 v
+						DELETE FROM TemperatureValue v
 						WHERE v.sensor.id = :sensorId
 						AND v.timestamp BETWEEN :startedAt AND :endedAt
 						""";
@@ -95,7 +95,7 @@ public class TemperatureValueDaoV1 extends BaseTelemetryDaoV1<TemperatureValueV1
 
 	public void deleteBySensorNaturalIdAndTimestampBetween(String sensorNaturalId, Instant startedAt, Instant endedAt) {
 		String jpql = """
-						DELETE FROM TemperatureValueV1 v
+						DELETE FROM TemperatureValue v
 						WHERE v.sensor.naturalId = :sensorNaturalId
 						AND v.timestamp BETWEEN :startedAt AND :endedAt
 						""";

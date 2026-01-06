@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.iviet.ivshs.entities.ClientV1;
+import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.dto.ApiResponseV1;
 import com.iviet.ivshs.dto.ClientDtoV1;
 import com.iviet.ivshs.dto.CreateClientDtoV1;
@@ -54,7 +54,7 @@ public class AuthControllerV1 {
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        ClientV1 client = clientService.getEntityByUsername(loginDto.getUsername());
+        Client client = clientService.getEntityByUsername(loginDto.getUsername());
         List<String> groupCodes = client.getGroups().stream()
             .map(g -> g.getGroupCode())
             .collect(Collectors.toList());

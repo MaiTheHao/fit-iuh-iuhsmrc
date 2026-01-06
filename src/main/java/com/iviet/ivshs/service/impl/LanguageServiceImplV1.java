@@ -5,7 +5,7 @@ import com.iviet.ivshs.dto.CreateLanguageDtoV1;
 import com.iviet.ivshs.dto.LanguageDtoV1;
 import com.iviet.ivshs.dto.PaginatedResponseV1;
 import com.iviet.ivshs.dto.UpdateLanguageDtoV1;
-import com.iviet.ivshs.entities.LanguageV1;
+import com.iviet.ivshs.entities.Language;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.LanguageMapperV1;
@@ -58,7 +58,7 @@ public class LanguageServiceImplV1 implements LanguageServiceV1 {
         String code = dto.code().trim();
         _checkDuplicate(code, null);
 
-        LanguageV1 entity = languageMapper.fromCreateDto(dto);
+        Language entity = languageMapper.fromCreateDto(dto);
         entity.setCode(code);
         
         return languageMapper.toDto(languageDao.save(entity));
@@ -69,7 +69,7 @@ public class LanguageServiceImplV1 implements LanguageServiceV1 {
     public LanguageDtoV1 update(Long langId, UpdateLanguageDtoV1 dto) {
         if (dto == null) throw new BadRequestException("Update data is required");
 
-        LanguageV1 entity = languageDao.findById(langId).orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId));
+        Language entity = languageDao.findById(langId).orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId));
 
         if (StringUtils.hasText(dto.code())) {
             String newCode = dto.code().trim();

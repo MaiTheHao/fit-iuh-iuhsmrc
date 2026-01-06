@@ -23,17 +23,17 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SysRoleV1 extends BaseTranslatableEntity<SysRoleLanV1> {
+public class SysRole extends BaseTranslatableEntity<SysRoleLan> {
 	
 	private static final long serialVersionUID = 1L;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "group_id", nullable = false)
-	private SysGroupV1 group;
+	private SysGroup group;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "function_id", nullable = false)
-	private SysFunctionV1 function;
+	private SysFunction function;
 
 	@Column(name = "is_active", nullable = false)
 	private Boolean isActive = true;

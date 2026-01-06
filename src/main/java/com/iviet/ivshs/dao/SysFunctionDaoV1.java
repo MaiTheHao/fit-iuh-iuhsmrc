@@ -7,13 +7,13 @@ import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dto.SysFunctionDtoV1;
 import com.iviet.ivshs.dto.SysFunctionWithGroupStatusDtoV1;
-import com.iviet.ivshs.entities.SysFunctionV1;
+import com.iviet.ivshs.entities.SysFunction;
 
 @Repository
-public class SysFunctionDaoV1 extends BaseTranslatableEntityDaoV1<SysFunctionV1> {
+public class SysFunctionDaoV1 extends BaseTranslatableEntityDaoV1<SysFunction> {
     
     public SysFunctionDaoV1() {
-        super(SysFunctionV1.class);
+        super(SysFunction.class);
     }
 
     // ======= Find by Function Code =======
@@ -21,7 +21,7 @@ public class SysFunctionDaoV1 extends BaseTranslatableEntityDaoV1<SysFunctionV1>
     /**
      * Tìm SysFunction entity theo functionCode
      */
-    public Optional<SysFunctionV1> findByCode(String functionCode) {
+    public Optional<SysFunction> findByCode(String functionCode) {
         return findOne(root -> entityManager.getCriteriaBuilder()
             .equal(root.get("functionCode"), functionCode));
     }
@@ -34,7 +34,7 @@ public class SysFunctionDaoV1 extends BaseTranslatableEntityDaoV1<SysFunctionV1>
 
         String jpql = """
                 SELECT new %s(f.id, f.functionCode, flan.name, flan.description)
-                FROM SysFunctionV1 f
+                FROM SysFunction f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 WHERE f.functionCode = :functionCode
                 """.formatted(dtoClassPath);
@@ -66,7 +66,7 @@ public class SysFunctionDaoV1 extends BaseTranslatableEntityDaoV1<SysFunctionV1>
 
         String jpql = """
                 SELECT new %s(f.id, f.functionCode, flan.name, flan.description)
-                FROM SysFunctionV1 f
+                FROM SysFunction f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 WHERE f.id = :functionId
                 """.formatted(dtoClassPath);
@@ -90,7 +90,7 @@ public class SysFunctionDaoV1 extends BaseTranslatableEntityDaoV1<SysFunctionV1>
 
         String jpql = """
                 SELECT new %s(f.id, f.functionCode, flan.name, flan.description)
-                FROM SysFunctionV1 f
+                FROM SysFunction f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 ORDER BY f.functionCode ASC
                 """.formatted(dtoClassPath);
@@ -110,7 +110,7 @@ public class SysFunctionDaoV1 extends BaseTranslatableEntityDaoV1<SysFunctionV1>
 
         String jpql = """
                 SELECT new %s(f.id, f.functionCode, flan.name, flan.description)
-                FROM SysFunctionV1 f
+                FROM SysFunction f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 ORDER BY f.functionCode ASC
                 """.formatted(dtoClassPath);
@@ -142,7 +142,7 @@ public class SysFunctionDaoV1 extends BaseTranslatableEntityDaoV1<SysFunctionV1>
                     CASE WHEN r.id IS NOT NULL THEN true ELSE false END,
                     r.id
                 )
-                FROM SysFunctionV1 f
+                FROM SysFunction f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 LEFT JOIN f.roles r ON r.group.id = :groupId AND r.isActive = true
                 ORDER BY f.functionCode ASC
@@ -170,7 +170,7 @@ public class SysFunctionDaoV1 extends BaseTranslatableEntityDaoV1<SysFunctionV1>
                     CASE WHEN r.id IS NOT NULL THEN true ELSE false END,
                     r.id
                 )
-                FROM SysFunctionV1 f
+                FROM SysFunction f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 LEFT JOIN f.roles r ON r.group.id = :groupId AND r.isActive = true
                 ORDER BY f.functionCode ASC
@@ -190,7 +190,7 @@ public class SysFunctionDaoV1 extends BaseTranslatableEntityDaoV1<SysFunctionV1>
      * Đếm tổng số Functions
      */
     public long countAll() {
-        String jpql = "SELECT COUNT(f) FROM SysFunctionV1 f";
+        String jpql = "SELECT COUNT(f) FROM SysFunction f";
         return entityManager.createQuery(jpql, Long.class)
                 .getSingleResult();
     }

@@ -5,29 +5,29 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.iviet.ivshs.entities.ClientV1;
+import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.enumeration.ClientTypeV1;
 
 @Repository
-public class ClientDaoV1 extends BaseAuditEntityDaoV1<ClientV1> {
+public class ClientDaoV1 extends BaseAuditEntityDaoV1<Client> {
 
     public ClientDaoV1() {
-        super(ClientV1.class);
+        super(Client.class);
     }
 
     // ======= Find by Username =======
-    public Optional<ClientV1> findByUsername(String username) {
+    public Optional<Client> findByUsername(String username) {
         return findOne(root -> this.getCB().equal(root.get("username"), username));
     }
 
-    public Optional<ClientV1> findUserByUsername(String username) {
+    public Optional<Client> findUserByUsername(String username) {
         return findOne(root -> this.getCB().and(
             this.getCB().equal(root.get("username"), username),
             this.getCB().equal(root.get("clientType"), ClientTypeV1.USER)
         ));
     }
 
-    public Optional<ClientV1> findGatewayByUsername(String username) {
+    public Optional<Client> findGatewayByUsername(String username) {
         return findOne(root -> this.getCB().and(
             this.getCB().equal(root.get("username"), username),
             this.getCB().equal(root.get("clientType"), ClientTypeV1.HARDWARE_GATEWAY)
@@ -39,18 +39,18 @@ public class ClientDaoV1 extends BaseAuditEntityDaoV1<ClientV1> {
     }
 
     // ======= Find by IP Address =======
-    public Optional<ClientV1> findByIpAddress(String ipAddress) {
+    public Optional<Client> findByIpAddress(String ipAddress) {
         return findOne(root -> this.getCB().equal(root.get("ipAddress"), ipAddress));
     }
 
-    public Optional<ClientV1> findUserByIpAddress(String ipAddress) {
+    public Optional<Client> findUserByIpAddress(String ipAddress) {
         return findOne(root -> this.getCB().and(
             this.getCB().equal(root.get("ipAddress"), ipAddress),
             this.getCB().equal(root.get("clientType"), ClientTypeV1.USER)
         ));
     }
 
-    public Optional<ClientV1> findGatewayByIpAddress(String ipAddress) {
+    public Optional<Client> findGatewayByIpAddress(String ipAddress) {
         return findOne(root -> this.getCB().and(
             this.getCB().equal(root.get("ipAddress"), ipAddress),
             this.getCB().equal(root.get("clientType"), ClientTypeV1.HARDWARE_GATEWAY)
@@ -58,18 +58,18 @@ public class ClientDaoV1 extends BaseAuditEntityDaoV1<ClientV1> {
     }
 
     // ======= Find by ID =======
-    public Optional<ClientV1> findById(Long id) {
+    public Optional<Client> findById(Long id) {
         return findOne(root -> this.getCB().equal(root.get("id"), id));
     }
 
-    public Optional<ClientV1> findUserById(Long id) {
+    public Optional<Client> findUserById(Long id) {
         return findOne(root -> this.getCB().and(
             this.getCB().equal(root.get("id"), id),
             this.getCB().equal(root.get("clientType"), ClientTypeV1.USER)
         ));
     }
 
-    public Optional<ClientV1> findGatewayById(Long id) {
+    public Optional<Client> findGatewayById(Long id) {
         return findOne(root -> this.getCB().and(
             this.getCB().equal(root.get("id"), id),
             this.getCB().equal(root.get("clientType"), ClientTypeV1.HARDWARE_GATEWAY)
@@ -77,14 +77,14 @@ public class ClientDaoV1 extends BaseAuditEntityDaoV1<ClientV1> {
     }
 
     // ======= Find Gateways by Room ID =======
-    public List<ClientV1> findGatewaysByRoomId(Long roomId, int page, int size) {
-        String jpql = "SELECT DISTINCT c FROM ClientV1 c " +
+    public List<Client> findGatewaysByRoomId(Long roomId, int page, int size) {
+        String jpql = "SELECT DISTINCT c FROM Client c " +
                       "JOIN c.deviceControls dc " +
                       "WHERE dc.room.id = :roomId " +
                       "AND c.clientType = :clientType " +
                       "ORDER BY c.createdAt DESC";
         
-        return entityManager.createQuery(jpql, ClientV1.class)
+        return entityManager.createQuery(jpql, Client.class)
                 .setParameter("roomId", roomId)
                 .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
                 .setFirstResult(page * size)
@@ -92,21 +92,21 @@ public class ClientDaoV1 extends BaseAuditEntityDaoV1<ClientV1> {
                 .getResultList();
     }
 
-    public List<ClientV1> findGatewaysByRoomId(Long roomId) {
-        String jpql = "SELECT DISTINCT c FROM ClientV1 c " +
+    public List<Client> findGatewaysByRoomId(Long roomId) {
+        String jpql = "SELECT DISTINCT c FROM Client c " +
                       "JOIN c.deviceControls dc " +
                       "WHERE dc.room.id = :roomId " +
                       "AND c.clientType = :clientType " +
                       "ORDER BY c.createdAt DESC";
 
-        return entityManager.createQuery(jpql, ClientV1.class)
+        return entityManager.createQuery(jpql, Client.class)
                 .setParameter("roomId", roomId)
                 .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
                 .getResultList();
     }
 
     public long countGatewaysByRoomId(Long roomId) {
-        String jpql = "SELECT COUNT(DISTINCT c) FROM ClientV1 c " +
+        String jpql = "SELECT COUNT(DISTINCT c) FROM Client c " +
                       "JOIN c.deviceControls dc " +
                       "WHERE dc.room.id = :roomId " +
                       "AND c.clientType = :clientType";
@@ -118,14 +118,14 @@ public class ClientDaoV1 extends BaseAuditEntityDaoV1<ClientV1> {
     }
 
     // ======= Find Gateways by Room Code =======
-    public List<ClientV1> findGatewaysByRoomCode(String roomCode, int page, int size) {
-        String jpql = "SELECT DISTINCT c FROM ClientV1 c " +
+    public List<Client> findGatewaysByRoomCode(String roomCode, int page, int size) {
+        String jpql = "SELECT DISTINCT c FROM Client c " +
                       "JOIN c.deviceControls dc " +
                       "WHERE dc.room.code = :roomCode " +
                       "AND c.clientType = :clientType " +
                       "ORDER BY c.createdAt DESC";
 
-        return entityManager.createQuery(jpql, ClientV1.class)
+        return entityManager.createQuery(jpql, Client.class)
                 .setParameter("roomCode", roomCode)
                 .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
                 .setFirstResult(page * size)
@@ -133,14 +133,14 @@ public class ClientDaoV1 extends BaseAuditEntityDaoV1<ClientV1> {
                 .getResultList();
     }
 
-    public List<ClientV1> findGatewaysByRoomCode(String roomCode) {
-        String jpql = "SELECT DISTINCT c FROM ClientV1 c " +
+    public List<Client> findGatewaysByRoomCode(String roomCode) {
+        String jpql = "SELECT DISTINCT c FROM Client c " +
                       "JOIN c.deviceControls dc " +
                       "WHERE dc.room.code = :roomCode " +
                       "AND c.clientType = :clientType " +
                       "ORDER BY c.createdAt DESC";
 
-        return entityManager.createQuery(jpql, ClientV1.class)
+        return entityManager.createQuery(jpql, Client.class)
                 .setParameter("roomCode", roomCode)
                 .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
                 .getResultList();

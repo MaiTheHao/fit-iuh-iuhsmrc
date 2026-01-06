@@ -65,21 +65,21 @@ public class LightServiceImplV1 implements LightServiceV1 {
 
         _checkDuplicate(dto.naturalId().trim(), null);
 
-        RoomV1 room = roomDao.findById(dto.roomId())
+        Room room = roomDao.findById(dto.roomId())
                 .orElseThrow(() -> new NotFoundException("Room not found"));
-        DeviceControlV1 deviceControl = deviceControlDao.findById(dto.deviceControlId())
+        DeviceControl deviceControl = deviceControlDao.findById(dto.deviceControlId())
                 .orElseThrow(() -> new NotFoundException("Device Control not found"));
         
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found");
 
-        LightV1 light = lightMapper.fromCreateDto(dto);
+        Light light = lightMapper.fromCreateDto(dto);
         light.setRoom(room);
         light.setDeviceControl(deviceControl);
         light.setIsActive(dto.isActive() != null ? dto.isActive() : false);
         light.setLevel(dto.level() != null ? dto.level() : 0);
 
-        LightLanV1 lightLan = new LightLanV1();
+        LightLan lightLan = new LightLan();
         lightLan.setLangCode(langCode);
         lightLan.setName(dto.name() != null ? dto.name().trim() : "");
         lightLan.setDescription(dto.description());
@@ -94,7 +94,7 @@ public class LightServiceImplV1 implements LightServiceV1 {
     @Override
     @Transactional
     public LightDtoV1 update(Long lightId, UpdateLightDtoV1 dto) {
-        LightV1 light = lightDao.findById(lightId)
+        Light light = lightDao.findById(lightId)
                 .orElseThrow(() -> new NotFoundException("Light not found"));
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
 
@@ -113,11 +113,11 @@ public class LightServiceImplV1 implements LightServiceV1 {
         if (dto.isActive() != null) light.setIsActive(dto.isActive());
         if (dto.level() != null) light.setLevel(dto.level());
 
-        LightLanV1 lan = light.getTranslations().stream()
+        LightLan lan = light.getTranslations().stream()
                 .filter(ll -> langCode.equals(ll.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
-                    LightLanV1 newLan = new LightLanV1();
+                    LightLan newLan = new LightLan();
                     newLan.setLangCode(langCode);
                     newLan.setOwner(light);
                     light.getTranslations().add(newLan);
@@ -141,11 +141,11 @@ public class LightServiceImplV1 implements LightServiceV1 {
     @Override
     @Transactional
     public void toggleState(Long lightId) {
-        LightV1 light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
+        Light light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
         
-        DeviceControlV1 dc = light.getDeviceControl();
+        DeviceControl dc = light.getDeviceControl();
         if (dc == null) throw new BadRequestException("No control associated");
-        ClientV1 gateway = dc.getClient();
+        Client gateway = dc.getClient();
 
         Boolean currentState = light.getIsActive();
         GatewayCommandV1 command = currentState ? GatewayCommandV1.OFF : GatewayCommandV1.ON;

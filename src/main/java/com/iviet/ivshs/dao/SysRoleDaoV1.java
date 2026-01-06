@@ -4,15 +4,15 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.iviet.ivshs.entities.SysRoleV1;
+import com.iviet.ivshs.entities.SysRole;
 
 import jakarta.persistence.NoResultException;
 
 @Repository
-public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRoleV1> {
+public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRole> {
     
     public SysRoleDaoV1() {
-        super(SysRoleV1.class);
+        super(SysRole.class);
     }
 
     // ======= Find by Group and Function =======
@@ -20,15 +20,15 @@ public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRoleV1> {
     /**
      * Tìm Role theo Group ID và Function ID
      */
-    public Optional<SysRoleV1> findByGroupAndFunction(Long groupId, Long functionId) {
+    public Optional<SysRole> findByGroupAndFunction(Long groupId, Long functionId) {
         String jpql = """
                 SELECT r
-                FROM SysRoleV1 r
+                FROM SysRoler
                 WHERE r.group.id = :groupId AND r.function.id = :functionId
                 """;
 
         try {
-            SysRoleV1 result = entityManager.createQuery(jpql, SysRoleV1.class)
+            SysRole result = entityManager.createQuery(jpql, SysRole.class)
                     .setParameter("groupId", groupId)
                     .setParameter("functionId", functionId)
                     .getSingleResult();
@@ -41,17 +41,17 @@ public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRoleV1> {
     /**
      * Tìm Active Role theo Group ID và Function ID
      */
-    public Optional<SysRoleV1> findActiveByGroupAndFunction(Long groupId, Long functionId) {
+    public Optional<SysRole> findActiveByGroupAndFunction(Long groupId, Long functionId) {
         String jpql = """
                 SELECT r
-                FROM SysRoleV1 r
+                FROM SysRoler
                 WHERE r.group.id = :groupId 
                   AND r.function.id = :functionId 
                   AND r.isActive = true
                 """;
 
         try {
-            SysRoleV1 result = entityManager.createQuery(jpql, SysRoleV1.class)
+            SysRole result = entityManager.createQuery(jpql, SysRole.class)
                     .setParameter("groupId", groupId)
                     .setParameter("functionId", functionId)
                     .getSingleResult();
@@ -67,7 +67,7 @@ public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRoleV1> {
     public boolean existsByGroupAndFunction(Long groupId, Long functionId) {
         String jpql = """
                 SELECT COUNT(r) > 0
-                FROM SysRoleV1 r
+                FROM SysRoler
                 WHERE r.group.id = :groupId AND r.function.id = :functionId
                 """;
 
@@ -83,7 +83,7 @@ public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRoleV1> {
     public boolean existsActiveByGroupAndFunction(Long groupId, Long functionId) {
         String jpql = """
                 SELECT COUNT(r) > 0
-                FROM SysRoleV1 r
+                FROM SysRoler
                 WHERE r.group.id = :groupId 
                   AND r.function.id = :functionId 
                   AND r.isActive = true
@@ -103,7 +103,7 @@ public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRoleV1> {
      */
     public int deleteByGroupAndFunction(Long groupId, Long functionId) {
         String jpql = """
-                DELETE FROM SysRoleV1 r
+                DELETE FROM SysRoler
                 WHERE r.group.id = :groupId AND r.function.id = :functionId
                 """;
 
@@ -119,7 +119,7 @@ public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRoleV1> {
      */
     public int deleteByGroupId(Long groupId) {
         String jpql = """
-                DELETE FROM SysRoleV1 r
+                DELETE FROM SysRoler
                 WHERE r.group.id = :groupId
                 """;
 
@@ -134,7 +134,7 @@ public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRoleV1> {
      */
     public int deleteByFunctionId(Long functionId) {
         String jpql = """
-                DELETE FROM SysRoleV1 r
+                DELETE FROM SysRoler
                 WHERE r.function.id = :functionId
                 """;
 
@@ -151,7 +151,7 @@ public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRoleV1> {
     public long countByGroupId(Long groupId) {
         String jpql = """
                 SELECT COUNT(r)
-                FROM SysRoleV1 r
+                FROM SysRoler
                 WHERE r.group.id = :groupId
                 """;
         
@@ -166,7 +166,7 @@ public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRoleV1> {
     public long countActiveByGroupId(Long groupId) {
         String jpql = """
                 SELECT COUNT(r)
-                FROM SysRoleV1 r
+                FROM SysRoler
                 WHERE r.group.id = :groupId AND r.isActive = true
                 """;
         
@@ -181,7 +181,7 @@ public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRoleV1> {
     public long countByFunctionId(Long functionId) {
         String jpql = """
                 SELECT COUNT(r)
-                FROM SysRoleV1 r
+                FROM SysRoler
                 WHERE r.function.id = :functionId
                 """;
         
@@ -196,7 +196,7 @@ public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRoleV1> {
     public long countActiveByFunctionId(Long functionId) {
         String jpql = """
                 SELECT COUNT(r)
-                FROM SysRoleV1 r
+                FROM SysRoler
                 WHERE r.function.id = :functionId AND r.isActive = true
                 """;
         

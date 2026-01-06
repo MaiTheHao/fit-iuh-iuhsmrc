@@ -3,8 +3,8 @@ package com.iviet.ivshs.service.impl;
 import com.iviet.ivshs.dao.FloorDaoV1;
 import com.iviet.ivshs.dao.LanguageDaoV1;
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.entities.FloorLanV1;
-import com.iviet.ivshs.entities.FloorV1;
+import com.iviet.ivshs.entities.FloorLan;
+import com.iviet.ivshs.entities.Floor;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.FloorMapperV1;
@@ -50,10 +50,10 @@ public class FloorServiceImplV1 implements FloorServiceV1 {
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found: " + langCode);
 
-        FloorV1 floor = floorMapper.fromCreateDto(dto);
+        Floor floor = floorMapper.fromCreateDto(dto);
         floor.setCode(code);
 
-        FloorLanV1 floorLan = new FloorLanV1();
+        FloorLan floorLan = new FloorLan();
         floorLan.setLangCode(langCode);
         floorLan.setName(dto.name() != null ? dto.name().trim() : "");
         floorLan.setDescription(dto.description());
@@ -68,7 +68,7 @@ public class FloorServiceImplV1 implements FloorServiceV1 {
     @Override
     @Transactional
     public FloorDtoV1 update(Long id, UpdateFloorDtoV1 dto) {
-        FloorV1 floor = floorDao.findById(id).orElseThrow(() -> new NotFoundException("Floor not found"));
+        Floor floor = floorDao.findById(id).orElseThrow(() -> new NotFoundException("Floor not found"));
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found: " + langCode);
 
@@ -80,11 +80,11 @@ public class FloorServiceImplV1 implements FloorServiceV1 {
 
         if (dto.level() != null) floor.setLevel(dto.level());
 
-        FloorLanV1 floorLan = floor.getTranslations().stream()
+        FloorLan floorLan = floor.getTranslations().stream()
                 .filter(lan -> langCode.equals(lan.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
-                    FloorLanV1 newLan = new FloorLanV1();
+                    FloorLan newLan = new FloorLan();
                     newLan.setLangCode(langCode);
                     newLan.setOwner(floor);
                     floor.getTranslations().add(newLan);

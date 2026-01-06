@@ -3,8 +3,8 @@ package com.iviet.ivshs.service.impl;
 import com.iviet.ivshs.dao.LanguageDaoV1;
 import com.iviet.ivshs.dao.SysGroupDaoV1;
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.entities.SysGroupLanV1;
-import com.iviet.ivshs.entities.SysGroupV1;
+import com.iviet.ivshs.entities.SysGroupLan;
+import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.SysGroupMapperV1;
@@ -71,10 +71,10 @@ public class SysGroupServiceImplV1 implements SysGroupServiceV1 {
             throw new NotFoundException("Language not found: " + langCode);
         }
 
-        SysGroupV1 group = groupMapper.fromCreateDto(dto);
+        SysGroup group = groupMapper.fromCreateDto(dto);
         group.setGroupCode(code);
 
-        SysGroupLanV1 groupLan = new SysGroupLanV1();
+        SysGroupLan groupLan = new SysGroupLan();
         groupLan.setLangCode(langCode);
         groupLan.setName(dto.getName() != null ? dto.getName().trim() : "");
         groupLan.setDescription(dto.getDescription());
@@ -89,7 +89,7 @@ public class SysGroupServiceImplV1 implements SysGroupServiceV1 {
     @Override
     @Transactional
     public SysGroupDtoV1 update(Long id, UpdateSysGroupDtoV1 dto) {
-        SysGroupV1 group = groupDao.findById(id)
+        SysGroup group = groupDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Group not found with ID: " + id));
         
         String langCode = LocalContextUtil.resolveLangCode(dto.getLangCode());
@@ -98,11 +98,11 @@ public class SysGroupServiceImplV1 implements SysGroupServiceV1 {
         }
 
         // Tìm hoặc tạo translation cho langCode
-        SysGroupLanV1 groupLan = group.getTranslations().stream()
+        SysGroupLan groupLan = group.getTranslations().stream()
                 .filter(lan -> langCode.equals(lan.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
-                    SysGroupLanV1 newLan = new SysGroupLanV1();
+                    SysGroupLan newLan = new SysGroupLan();
                     newLan.setLangCode(langCode);
                     newLan.setOwner(group);
                     group.getTranslations().add(newLan);

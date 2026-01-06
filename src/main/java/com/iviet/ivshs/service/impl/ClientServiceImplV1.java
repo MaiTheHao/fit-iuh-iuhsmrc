@@ -5,7 +5,7 @@ import com.iviet.ivshs.dto.ClientDtoV1;
 import com.iviet.ivshs.dto.CreateClientDtoV1;
 import com.iviet.ivshs.dto.PaginatedResponseV1;
 import com.iviet.ivshs.dto.UpdateClientDtoV1;
-import com.iviet.ivshs.entities.ClientV1;
+import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.enumeration.ClientTypeV1;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
@@ -55,14 +55,14 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
     }
 
     @Override
-    public ClientV1 getEntityById(Long clientId) {
+    public Client getEntityById(Long clientId) {
         log.info("Fetching client entity by ID: {}", clientId);
         if (clientId == null || clientId <= 0) {
             log.warn("Invalid client ID: {}", clientId);
             throw new BadRequestException("Client ID is required and must be greater than 0");
         }
 
-        ClientV1 client = clientDao.findById(clientId)
+        Client client = clientDao.findById(clientId)
                 .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
         
         if (client.getGroups() != null) {
@@ -85,14 +85,14 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
     }
 
     @Override
-    public ClientV1 getEntityByUsername(String username) {
+    public Client getEntityByUsername(String username) {
         log.info("Fetching client entity by username: {}", username);
         if (username == null || username.trim().isEmpty()) {
             log.warn("Username is required");
             throw new BadRequestException("Username is required");
         }
         
-        ClientV1 client = clientDao.findByUsername(username.trim())
+        Client client = clientDao.findByUsername(username.trim())
                 .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
 
         if (client.getGroups() != null) {
@@ -148,7 +148,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
             throw new BadRequestException("IP Address is required");
         }
 
-        ClientV1 user = clientDao.findUserByIpAddress(ipAddress)
+        Client user = clientDao.findUserByIpAddress(ipAddress)
                 .orElseThrow(() -> new NotFoundException("User not found with IP Address: " + ipAddress));
 
         return clientMapper.toDto(user);
@@ -175,7 +175,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
             throw new BadRequestException("IP Address is required");
         }
 
-        ClientV1 gateway = clientDao.findGatewayByIpAddress(ipAddress)
+        Client gateway = clientDao.findGatewayByIpAddress(ipAddress)
                 .orElseThrow(() -> new NotFoundException("Gateway not found with IP Address: " + ipAddress));
 
         return clientMapper.toDto(gateway);
@@ -215,11 +215,11 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
             createDto.setIpAddress(null);
         }
 
-        ClientV1 client = clientMapper.toEntity(createDto);
+        Client client = clientMapper.toEntity(createDto);
         client.setUsername(username);
         client.setPasswordHash(passwordEncoder.encode(createDto.getPassword()));
 
-        ClientV1 savedClient = clientDao.save(client);
+        Client savedClient = clientDao.save(client);
 
         log.info("Client created successfully: {}", savedClient.getId());
         return clientMapper.toDto(savedClient);
@@ -238,7 +238,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
             throw new BadRequestException("Update data is required");
         }
 
-        ClientV1 client = clientDao.findById(clientId)
+        Client client = clientDao.findById(clientId)
                 .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
         if (updateDto.getUsername() != null && !updateDto.getUsername().trim().isEmpty()) {
@@ -271,7 +271,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
             throw new BadRequestException("Client ID is required");
         }
 
-        ClientV1 client = clientDao.findById(clientId)
+        Client client = clientDao.findById(clientId)
                 .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
         clientDao.delete(client);

@@ -25,7 +25,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FloorV1 extends BaseTranslatableEntity<FloorLanV1> {
+public class Floor extends BaseTranslatableEntity<FloorLan> {
 
     private static final long serialVersionUID = 1L;
 
@@ -36,5 +36,5 @@ public class FloorV1 extends BaseTranslatableEntity<FloorLanV1> {
     private String code;
 
     @OneToMany(mappedBy = "floor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<RoomV1> rooms = new HashSet<>();
+    private Set<Room> rooms = new HashSet<>();
 }

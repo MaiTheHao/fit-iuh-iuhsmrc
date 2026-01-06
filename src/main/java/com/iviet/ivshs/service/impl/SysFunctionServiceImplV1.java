@@ -3,8 +3,8 @@ package com.iviet.ivshs.service.impl;
 import com.iviet.ivshs.dao.LanguageDaoV1;
 import com.iviet.ivshs.dao.SysFunctionDaoV1;
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.entities.SysFunctionLanV1;
-import com.iviet.ivshs.entities.SysFunctionV1;
+import com.iviet.ivshs.entities.SysFunctionLan;
+import com.iviet.ivshs.entities.SysFunction;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.SysFunctionMapperV1;
@@ -82,10 +82,10 @@ public class SysFunctionServiceImplV1 implements SysFunctionServiceV1 {
             throw new NotFoundException("Language not found: " + langCode);
         }
 
-        SysFunctionV1 function = functionMapper.fromCreateDto(dto);
+        SysFunction function = functionMapper.fromCreateDto(dto);
         function.setFunctionCode(code);
 
-        SysFunctionLanV1 functionLan = new SysFunctionLanV1();
+        SysFunctionLan functionLan = new SysFunctionLan();
         functionLan.setLangCode(langCode);
         functionLan.setName(dto.getName() != null ? dto.getName().trim() : "");
         functionLan.setDescription(dto.getDescription());
@@ -100,7 +100,7 @@ public class SysFunctionServiceImplV1 implements SysFunctionServiceV1 {
     @Override
     @Transactional
     public SysFunctionDtoV1 update(Long id, UpdateSysFunctionDtoV1 dto) {
-        SysFunctionV1 function = functionDao.findById(id)
+        SysFunction function = functionDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Function not found with ID: " + id));
         
         String langCode = LocalContextUtil.resolveLangCode(dto.getLangCode());
@@ -109,11 +109,11 @@ public class SysFunctionServiceImplV1 implements SysFunctionServiceV1 {
         }
 
         // Tìm hoặc tạo translation cho langCode
-        SysFunctionLanV1 functionLan = function.getTranslations().stream()
+        SysFunctionLan functionLan = function.getTranslations().stream()
                 .filter(lan -> langCode.equals(lan.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
-                    SysFunctionLanV1 newLan = new SysFunctionLanV1();
+                    SysFunctionLan newLan = new SysFunctionLan();
                     newLan.setLangCode(langCode);
                     newLan.setOwner(function);
                     function.getTranslations().add(newLan);
@@ -140,7 +140,7 @@ public class SysFunctionServiceImplV1 implements SysFunctionServiceV1 {
         }
         
         // Lấy functionCode trước khi xóa để clear cache
-        SysFunctionV1 function = functionDao.findById(id)
+        SysFunction function = functionDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Function not found"));
         String functionCode = function.getFunctionCode();
         

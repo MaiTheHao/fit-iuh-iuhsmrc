@@ -12,9 +12,9 @@ import com.iviet.ivshs.dto.CreateTemperatureValueDtoV1;
 import com.iviet.ivshs.dto.FetchPowerConsumpValueResponseDtoV1;
 import com.iviet.ivshs.dto.FetchTelemetryByGatewayResponseDtoV1;
 import com.iviet.ivshs.dto.FetchTempValueResponseDtoV1;
-import com.iviet.ivshs.entities.ClientV1;
-import com.iviet.ivshs.entities.DeviceControlV1;
-import com.iviet.ivshs.entities.TemperatureV1;
+import com.iviet.ivshs.entities.Client;
+import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.Temperature;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.ClientServiceV1;
 import com.iviet.ivshs.service.PowerConsumptionServiceV1;
@@ -90,9 +90,9 @@ public class TelemetryServiceImplV1 implements TelemetryServiceV1 {
     @Override
     public void takeTemperatureData(String naturalId) {
         // Stage 1: READ
-        TemperatureV1 sensor = temperatureService.getEntityByNaturalId(naturalId);
-        DeviceControlV1 deviceControl = sensor.getDeviceControl();
-        ClientV1 client = deviceControl.getClient();
+        Temperature sensor = temperatureService.getEntityByNaturalId(naturalId);
+        DeviceControl deviceControl = sensor.getDeviceControl();
+        Client client = deviceControl.getClient();
 
         // Stage 2: FETCH
         String url = UrlConstant.getTelemetryTempV1(client.getIpAddress(), naturalId);

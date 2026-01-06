@@ -5,10 +5,10 @@ import com.iviet.ivshs.dao.SysFunctionDaoV1;
 import com.iviet.ivshs.dao.SysGroupDaoV1;
 import com.iviet.ivshs.dao.SysRoleDaoV1;
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.entities.ClientV1;
-import com.iviet.ivshs.entities.SysFunctionV1;
-import com.iviet.ivshs.entities.SysGroupV1;
-import com.iviet.ivshs.entities.SysRoleV1;
+import com.iviet.ivshs.entities.Client;
+import com.iviet.ivshs.entities.SysFunction;
+import com.iviet.ivshs.entities.SysGroup;
+import com.iviet.ivshs.entities.SysRole;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.ClientFunctionCacheServiceV1;
@@ -40,7 +40,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
             throw new BadRequestException("Invalid request data");
         }
 
-        SysGroupV1 group = groupDao.findById(dto.getGroupId())
+        SysGroup group = groupDao.findById(dto.getGroupId())
                 .orElseThrow(() -> new NotFoundException("Group not found with ID: " + dto.getGroupId()));
 
         int successCount = 0;
@@ -50,7 +50,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
 
         for (String functionCode : dto.getFunctionCodes()) {
             try {
-                SysFunctionV1 function = functionDao.findByCode(functionCode)
+                SysFunction function = functionDao.findByCode(functionCode)
                         .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
                 // Kiểm tra đã tồn tại chưa
@@ -61,7 +61,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
                 }
 
                 // Tạo role mới
-                SysRoleV1 role = new SysRoleV1();
+                SysRole role = new SysRole();
                 role.setGroup(group);
                 role.setFunction(function);
                 role.setIsActive(true);
@@ -116,7 +116,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
 
         for (String functionCode : dto.getFunctionCodes()) {
             try {
-                SysFunctionV1 function = functionDao.findByCode(functionCode)
+                SysFunction function = functionDao.findByCode(functionCode)
                         .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
                 // Kiểm tra role có tồn tại không
@@ -168,7 +168,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
             throw new BadRequestException("Invalid request data");
         }
 
-        SysGroupV1 group = groupDao.findById(dto.getGroupId())
+        SysGroup group = groupDao.findById(dto.getGroupId())
                 .orElseThrow(() -> new NotFoundException("Group not found with ID: " + dto.getGroupId()));
 
         int addedCount = 0;
@@ -182,7 +182,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
             Boolean shouldAdd = entry.getValue();
 
             try {
-                SysFunctionV1 function = functionDao.findByCode(functionCode)
+                SysFunction function = functionDao.findByCode(functionCode)
                         .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
                 boolean exists = roleDao.existsByGroupAndFunction(group.getId(), function.getId());
@@ -192,7 +192,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
                     if (exists) {
                         skippedCount++;
                     } else {
-                        SysRoleV1 role = new SysRoleV1();
+                        SysRole role = new SysRole();
                         role.setGroup(group);
                         role.setFunction(function);
                         role.setIsActive(true);
@@ -246,10 +246,10 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
             throw new BadRequestException("Group ID and Function code are required");
         }
 
-        SysGroupV1 group = groupDao.findById(groupId)
+        SysGroup group = groupDao.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
-        SysFunctionV1 function = functionDao.findByCode(functionCode)
+        SysFunction function = functionDao.findByCode(functionCode)
                 .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
         // Kiểm tra đã tồn tại chưa
@@ -258,7 +258,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
         }
 
         // Tạo role mới
-        SysRoleV1 role = new SysRoleV1();
+        SysRole role = new SysRole();
         role.setGroup(group);
         role.setFunction(function);
         role.setIsActive(true);
@@ -275,7 +275,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
             throw new BadRequestException("Group ID and Function code are required");
         }
 
-        SysFunctionV1 function = functionDao.findByCode(functionCode)
+        SysFunction function = functionDao.findByCode(functionCode)
                 .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
         // Kiểm tra role có tồn tại không
@@ -296,7 +296,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
             throw new BadRequestException("Invalid request data");
         }
 
-        ClientV1 client = clientDao.findById(dto.getClientId())
+        Client client = clientDao.findById(dto.getClientId())
                 .orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
 
         int successCount = 0;
@@ -305,7 +305,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
 
         for (Long groupId : dto.getGroupIds()) {
             try {
-                SysGroupV1 group = groupDao.findById(groupId)
+                SysGroup group = groupDao.findById(groupId)
                         .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
                 // Kiểm tra client đã có group chưa
@@ -353,10 +353,10 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
             throw new BadRequestException("Client ID and Group ID are required");
         }
 
-        ClientV1 client = clientDao.findById(clientId)
+        Client client = clientDao.findById(clientId)
                 .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
-        SysGroupV1 group = groupDao.findById(groupId)
+        SysGroup group = groupDao.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
         // Kiểm tra client có group không
@@ -380,7 +380,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
             return false;
         }
 
-        SysFunctionV1 function = functionDao.findByCode(functionCode).orElse(null);
+        SysFunction function = functionDao.findByCode(functionCode).orElse(null);
         if (function == null) {
             return false;
         }

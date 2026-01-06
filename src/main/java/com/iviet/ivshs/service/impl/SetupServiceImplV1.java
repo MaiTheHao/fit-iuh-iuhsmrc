@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.SetupDaoV1;
 import com.iviet.ivshs.dto.SetupRequestV1;
-import com.iviet.ivshs.entities.ClientV1;
-import com.iviet.ivshs.entities.RoomV1;
+import com.iviet.ivshs.entities.Client;
+import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.enumeration.ClientTypeV1;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
@@ -38,7 +38,7 @@ public class SetupServiceImplV1 implements SetupServiceV1 {
         long start = System.currentTimeMillis();
         log.info("[SETUP] Starting setup process for clientId: {}", clientId);
 
-        ClientV1 client = validateAndGetGateway(clientId);
+        Client client = validateAndGetGateway(clientId);
 
         SetupRequestV1 setupRequest = fetchSetupData(client);
 
@@ -47,8 +47,8 @@ public class SetupServiceImplV1 implements SetupServiceV1 {
         log.info("[SETUP] Finished setup process for clientId: {} in {}ms", clientId, System.currentTimeMillis() - start);
     }
 
-    private ClientV1 validateAndGetGateway(Long clientId) {
-        ClientV1 client = clientService.getEntityById(clientId); 
+    private Client validateAndGetGateway(Long clientId) {
+        Client client = clientService.getEntityById(clientId); 
         
         if (client.getClientType() != ClientTypeV1.HARDWARE_GATEWAY) {
             log.error("[SETUP] Client is not a gateway: id={}", clientId);
@@ -57,7 +57,7 @@ public class SetupServiceImplV1 implements SetupServiceV1 {
         return client;
     }
 
-    private SetupRequestV1 fetchSetupData(ClientV1 client) {
+    private SetupRequestV1 fetchSetupData(Client client) {
         String url = UrlConstant.getSetupUrlV1(client.getIpAddress());
         try {
             var res = HttpClientUtil.get(url);
@@ -88,9 +88,9 @@ public class SetupServiceImplV1 implements SetupServiceV1 {
         }
     }
 
-    protected void executeDatabasePersistence(ClientV1 client, SetupRequestV1 req) {
+    protected void executeDatabasePersistence(Client client, SetupRequestV1 req) {
         try {
-            RoomV1 room = roomService.getEntityByCode(req.getRoomCode());
+            Room room = roomService.getEntityByCode(req.getRoomCode());
             
             int processed = setupDaoV1.persistDeviceSetup(
                 req.getDevices(), 

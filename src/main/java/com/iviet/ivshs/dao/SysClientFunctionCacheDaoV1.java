@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import com.iviet.ivshs.entities.SysClientFunctionCacheV1;
+import com.iviet.ivshs.entities.SysClientFunctionCache;
 
 @Repository
-public class SysClientFunctionCacheDaoV1 extends BaseDaoV1<SysClientFunctionCacheV1> {
+public class SysClientFunctionCacheDaoV1 extends BaseDaoV1<SysClientFunctionCache> {
     
     public SysClientFunctionCacheDaoV1() {
-        super(SysClientFunctionCacheV1.class);
+        super(SysClientFunctionCache.class);
     }
 
     public boolean hasPermission(Long clientId, String functionCode) {
@@ -26,7 +26,7 @@ public class SysClientFunctionCacheDaoV1 extends BaseDaoV1<SysClientFunctionCach
     public List<String> getFunctionCodesByClient(Long clientId) {
         var cb = entityManager.getCriteriaBuilder();
         var query = cb.createQuery(String.class);
-        var root = query.from(SysClientFunctionCacheV1.class);
+        var root = query.from(SysClientFunctionCache.class);
         
         query.select(root.get("functionCode"))
              .distinct(true)
@@ -35,20 +35,20 @@ public class SysClientFunctionCacheDaoV1 extends BaseDaoV1<SysClientFunctionCach
         return entityManager.createQuery(query).getResultList();
     }
 
-    public List<SysClientFunctionCacheV1> findByClient(Long clientId) {
+    public List<SysClientFunctionCache> findByClient(Long clientId) {
         var cb = entityManager.getCriteriaBuilder();
-        var query = cb.createQuery(SysClientFunctionCacheV1.class);
-        var root = query.from(SysClientFunctionCacheV1.class);
+        var query = cb.createQuery(SysClientFunctionCache.class);
+        var root = query.from(SysClientFunctionCache.class);
         
         query.where(cb.equal(root.get("clientId"), clientId));
         
         return entityManager.createQuery(query).getResultList();
     }
 
-    public List<SysClientFunctionCacheV1> findByGroup(Long groupId) {
+    public List<SysClientFunctionCache> findByGroup(Long groupId) {
         var cb = entityManager.getCriteriaBuilder();
-        var query = cb.createQuery(SysClientFunctionCacheV1.class);
-        var root = query.from(SysClientFunctionCacheV1.class);
+        var query = cb.createQuery(SysClientFunctionCache.class);
+        var root = query.from(SysClientFunctionCache.class);
         
         query.where(cb.equal(root.get("groupId"), groupId));
         
@@ -57,8 +57,8 @@ public class SysClientFunctionCacheDaoV1 extends BaseDaoV1<SysClientFunctionCach
 
     public int deleteByClientAndGroup(Long clientId, Long groupId) {
         var cb = entityManager.getCriteriaBuilder();
-        var delete = cb.createCriteriaDelete(SysClientFunctionCacheV1.class);
-        var root = delete.from(SysClientFunctionCacheV1.class);
+        var delete = cb.createCriteriaDelete(SysClientFunctionCache.class);
+        var root = delete.from(SysClientFunctionCache.class);
         
         delete.where(cb.and(
             cb.equal(root.get("clientId"), clientId),
@@ -70,8 +70,8 @@ public class SysClientFunctionCacheDaoV1 extends BaseDaoV1<SysClientFunctionCach
 
     public int deleteByClient(Long clientId) {
         var cb = entityManager.getCriteriaBuilder();
-        var delete = cb.createCriteriaDelete(SysClientFunctionCacheV1.class);
-        var root = delete.from(SysClientFunctionCacheV1.class);
+        var delete = cb.createCriteriaDelete(SysClientFunctionCache.class);
+        var root = delete.from(SysClientFunctionCache.class);
         
         delete.where(cb.equal(root.get("clientId"), clientId));
         
@@ -80,8 +80,8 @@ public class SysClientFunctionCacheDaoV1 extends BaseDaoV1<SysClientFunctionCach
 
     public int deleteByGroup(Long groupId) {
         var cb = entityManager.getCriteriaBuilder();
-        var delete = cb.createCriteriaDelete(SysClientFunctionCacheV1.class);
-        var root = delete.from(SysClientFunctionCacheV1.class);
+        var delete = cb.createCriteriaDelete(SysClientFunctionCache.class);
+        var root = delete.from(SysClientFunctionCache.class);
         
         delete.where(cb.equal(root.get("groupId"), groupId));
         
@@ -90,8 +90,8 @@ public class SysClientFunctionCacheDaoV1 extends BaseDaoV1<SysClientFunctionCach
 
     public int deleteByFunctionCode(String functionCode) {
         var cb = entityManager.getCriteriaBuilder();
-        var delete = cb.createCriteriaDelete(SysClientFunctionCacheV1.class);
-        var root = delete.from(SysClientFunctionCacheV1.class);
+        var delete = cb.createCriteriaDelete(SysClientFunctionCache.class);
+        var root = delete.from(SysClientFunctionCache.class);
         
         delete.where(cb.equal(root.get("functionCode"), functionCode));
         
@@ -112,7 +112,7 @@ public class SysClientFunctionCacheDaoV1 extends BaseDaoV1<SysClientFunctionCach
     public long countDistinctFunctionsByClient(Long clientId) {
         var cb = entityManager.getCriteriaBuilder();
         var query = cb.createQuery(Long.class);
-        var root = query.from(SysClientFunctionCacheV1.class);
+        var root = query.from(SysClientFunctionCache.class);
         
         query.select(cb.countDistinct(root.get("functionCode")))
              .where(cb.equal(root.get("clientId"), clientId));

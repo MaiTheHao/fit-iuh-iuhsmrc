@@ -6,13 +6,13 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dto.PowerConsumptionDtoV1;
-import com.iviet.ivshs.entities.PowerConsumptionV1;
+import com.iviet.ivshs.entities.PowerConsumption;
 
 @Repository
-public class PowerConsumptionDaoV1 extends BaseIoTDeviceDaoV1<PowerConsumptionV1> {
+public class PowerConsumptionDaoV1 extends BaseIoTDeviceDaoV1<PowerConsumption> {
 
 	public PowerConsumptionDaoV1() {
-		super(PowerConsumptionV1.class);
+		super(PowerConsumption.class);
 	}
 
 	@Override
@@ -20,7 +20,7 @@ public class PowerConsumptionDaoV1 extends BaseIoTDeviceDaoV1<PowerConsumptionV1
 		String dtoPath = PowerConsumptionDtoV1.class.getName();
 		String jpql = """
 				SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentWatt, t.currentWattHour, t.naturalId, t.room.id)
-				FROM PowerConsumptionV1 t
+				FROM PowerConsumption t
 				LEFT JOIN t.translations tl ON tl.langCode = :langCode
 				WHERE t.naturalId = :naturalId
 				""".formatted(dtoPath);
@@ -36,7 +36,7 @@ public class PowerConsumptionDaoV1 extends BaseIoTDeviceDaoV1<PowerConsumptionV1
 		String dtoPath = PowerConsumptionDtoV1.class.getName();
 		String jpql = """
 				SELECT new %s(s.id, sl.name, sl.description, s.isActive, s.currentWatt, s.currentWattHour, s.naturalId, s.room.id)
-				FROM PowerConsumptionV1 s 
+				FROM PowerConsumption s 
 				LEFT JOIN s.translations sl ON sl.langCode = :langCode 
 				WHERE s.id = :sensorId
 				""".formatted(dtoPath);
@@ -53,7 +53,7 @@ public class PowerConsumptionDaoV1 extends BaseIoTDeviceDaoV1<PowerConsumptionV1
 		String dtoPath = PowerConsumptionDtoV1.class.getName();
 		String jpql = """
 				SELECT new %s(s.id, sl.name, sl.description, s.isActive, s.currentWatt, s.currentWattHour, s.naturalId, s.room.id)
-				FROM PowerConsumptionV1 s 
+				FROM PowerConsumption s 
 				LEFT JOIN s.translations sl ON sl.langCode = :langCode 
 				WHERE s.room.id = :roomId 
 				ORDER BY s.createdAt DESC

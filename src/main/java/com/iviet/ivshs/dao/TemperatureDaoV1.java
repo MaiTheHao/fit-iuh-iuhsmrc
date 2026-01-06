@@ -6,20 +6,20 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dto.TemperatureDtoV1;
-import com.iviet.ivshs.entities.TemperatureV1;
+import com.iviet.ivshs.entities.Temperature;
 
 @Repository
-public class TemperatureDaoV1 extends BaseIoTDeviceDaoV1<TemperatureV1> {
+public class TemperatureDaoV1 extends BaseIoTDeviceDaoV1<Temperature> {
 
     public TemperatureDaoV1() {
-        super(TemperatureV1.class);
+        super(Temperature.class);
     }
 
     public Optional<TemperatureDtoV1> findById(Long temperatureId, String langCode) {
         String dtoPath = TemperatureDtoV1.class.getName();
         String jpql = """
                 SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
-                FROM TemperatureV1 t 
+                FROM Temperature t 
                 LEFT JOIN t.translations tl ON tl.langCode = :langCode 
                 WHERE t.id = :temperatureId
                 """.formatted(dtoPath);
@@ -36,7 +36,7 @@ public class TemperatureDaoV1 extends BaseIoTDeviceDaoV1<TemperatureV1> {
         String dtoPath = TemperatureDtoV1.class.getName();
         String jpql = """
                 SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
-                FROM TemperatureV1 t 
+                FROM Temperature t 
                 LEFT JOIN t.translations tl ON tl.langCode = :langCode 
                 WHERE t.room.id = :roomId 
                 ORDER BY t.id ASC
@@ -55,7 +55,7 @@ public class TemperatureDaoV1 extends BaseIoTDeviceDaoV1<TemperatureV1> {
         String dtoPath = TemperatureDtoV1.class.getName();
         String jpql = """
                 SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
-                FROM TemperatureV1 t 
+                FROM Temperature t 
                 LEFT JOIN t.translations tl ON tl.langCode = :langCode 
                 WHERE t.naturalId = :naturalId
                 """.formatted(dtoPath);

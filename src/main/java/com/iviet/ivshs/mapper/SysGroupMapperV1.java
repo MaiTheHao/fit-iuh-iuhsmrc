@@ -7,8 +7,8 @@ import com.iviet.ivshs.annotation.IgnoreAuditFields;
 import com.iviet.ivshs.dto.CreateSysGroupDtoV1;
 import com.iviet.ivshs.dto.SysGroupDtoV1;
 import com.iviet.ivshs.dto.UpdateSysGroupDtoV1;
-import com.iviet.ivshs.entities.SysGroupLanV1;
-import com.iviet.ivshs.entities.SysGroupV1;
+import com.iviet.ivshs.entities.SysGroupLan;
+import com.iviet.ivshs.entities.SysGroup;
 
 @Mapper(componentModel = "spring")
 public interface SysGroupMapperV1 {
@@ -17,21 +17,21 @@ public interface SysGroupMapperV1 {
     @Mapping(target = "groupCode", source = "entity.groupCode")
     @Mapping(target = "name", source = "groupLan.name")
     @Mapping(target = "description", source = "groupLan.description")
-    SysGroupDtoV1 toDto(SysGroupV1 entity, SysGroupLanV1 groupLan);
+    SysGroupDtoV1 toDto(SysGroup entity, SysGroupLan groupLan);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "translations", ignore = true)
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "clients", ignore = true)
-    SysGroupV1 toEntity(SysGroupDtoV1 dto);
+    SysGroup toEntity(SysGroupDtoV1 dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "translations", ignore = true)
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "clients", ignore = true)
-    SysGroupV1 fromCreateDto(CreateSysGroupDtoV1 dto);
+    SysGroup fromCreateDto(CreateSysGroupDtoV1 dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
@@ -39,5 +39,5 @@ public interface SysGroupMapperV1 {
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "clients", ignore = true)
     @Mapping(target = "groupCode", ignore = true)
-    SysGroupV1 fromUpdateDto(UpdateSysGroupDtoV1 dto);
+    SysGroup fromUpdateDto(UpdateSysGroupDtoV1 dto);
 }

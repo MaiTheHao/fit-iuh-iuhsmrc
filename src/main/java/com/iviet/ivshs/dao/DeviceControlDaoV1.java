@@ -4,20 +4,20 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import com.iviet.ivshs.entities.DeviceControlV1;
+import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.enumeration.DeviceControlTypeV1;
 
 import jakarta.persistence.TypedQuery;
 
 @Repository
-public class DeviceControlDaoV1 extends BaseEntityDaoV1<DeviceControlV1> {
+public class DeviceControlDaoV1 extends BaseEntityDaoV1<DeviceControl> {
     
     public DeviceControlDaoV1() {
-        super(DeviceControlV1.class);
+        super(DeviceControl.class);
     }
 
-    public List<DeviceControlV1> findByClientId(Long clientId, int page, int size) {
-        String idQuery = "SELECT dc.id FROM DeviceControlV1 dc " +
+    public List<DeviceControl> findByClientId(Long clientId, int page, int size) {
+        String idQuery = "SELECT dc.id FROM DeviceControl dc " +
                         "WHERE dc.client.id = :clientId " +
                         "ORDER BY dc.createdAt DESC";
         
@@ -31,7 +31,7 @@ public class DeviceControlDaoV1 extends BaseEntityDaoV1<DeviceControlV1> {
             return List.of();
         }
         
-        String fetchQueryStr = "SELECT DISTINCT dc FROM DeviceControlV1 dc " +
+        String fetchQueryStr = "SELECT DISTINCT dc FROM DeviceControl dc " +
                            "LEFT JOIN FETCH dc.room " +
                            "LEFT JOIN FETCH dc.client " +
                            "LEFT JOIN FETCH dc.light " +
@@ -40,13 +40,13 @@ public class DeviceControlDaoV1 extends BaseEntityDaoV1<DeviceControlV1> {
                            "WHERE dc.id IN :ids " +
                            "ORDER BY dc.createdAt DESC";
         
-        TypedQuery<DeviceControlV1> fetchQuery = entityManager.createQuery(fetchQueryStr, DeviceControlV1.class);
+        TypedQuery<DeviceControl> fetchQuery = entityManager.createQuery(fetchQueryStr, DeviceControl.class);
         fetchQuery.setParameter("ids", ids);
         return fetchQuery.getResultList();
     }
 
-    public List<DeviceControlV1> findByRoomId(Long roomId, int page, int size) {
-        String jpql = "SELECT dc FROM DeviceControlV1 dc " +
+    public List<DeviceControl> findByRoomId(Long roomId, int page, int size) {
+        String jpql = "SELECT dc FROM DeviceControl dc " +
                     "LEFT JOIN FETCH dc.room " +             
                     "LEFT JOIN FETCH dc.client " +           
                     "LEFT JOIN FETCH dc.light " +            
@@ -58,25 +58,25 @@ public class DeviceControlDaoV1 extends BaseEntityDaoV1<DeviceControlV1> {
         return executePaginatedQuery(jpql, "roomId", roomId, page, size);
     }
 
-    public List<DeviceControlV1> findByDeviceControlType(DeviceControlTypeV1 deviceControlType) {
-        String jpql = "SELECT dc FROM DeviceControlV1 dc WHERE dc.deviceControlType = :deviceControlType ORDER BY dc.createdAt DESC";
-        TypedQuery<DeviceControlV1> query = entityManager.createQuery(jpql, DeviceControlV1.class);
+    public List<DeviceControl> findByDeviceControlType(DeviceControlTypeV1 deviceControlType) {
+        String jpql = "SELECT dc FROM DeviceControl dc WHERE dc.deviceControlType = :deviceControlType ORDER BY dc.createdAt DESC";
+        TypedQuery<DeviceControl> query = entityManager.createQuery(jpql, DeviceControl.class);
         query.setParameter("deviceControlType", deviceControlType);
         return query.getResultList();
     }
 
-    public List<DeviceControlV1> findByBleMacAddress(String bleMacAddress) {
-        String jpql = "SELECT dc FROM DeviceControlV1 dc WHERE dc.bleMacAddress = :bleMacAddress ORDER BY dc.createdAt DESC";
-        TypedQuery<DeviceControlV1> query = entityManager.createQuery(jpql, DeviceControlV1.class);
+    public List<DeviceControl> findByBleMacAddress(String bleMacAddress) {
+        String jpql = "SELECT dc FROM DeviceControl dc WHERE dc.bleMacAddress = :bleMacAddress ORDER BY dc.createdAt DESC";
+        TypedQuery<DeviceControl> query = entityManager.createQuery(jpql, DeviceControl.class);
         query.setParameter("bleMacAddress", bleMacAddress);
         return query.getResultList();
     }
 
-    public DeviceControlV1 findByGpioPin(Integer gpioPin) {
-        String jpql = "SELECT dc FROM DeviceControlV1 dc WHERE dc.gpioPin = :gpioPin";
-        TypedQuery<DeviceControlV1> query = entityManager.createQuery(jpql, DeviceControlV1.class);
+    public DeviceControl findByGpioPin(Integer gpioPin) {
+        String jpql = "SELECT dc FROM DeviceControl dc WHERE dc.gpioPin = :gpioPin";
+        TypedQuery<DeviceControl> query = entityManager.createQuery(jpql, DeviceControl.class);
         query.setParameter("gpioPin", gpioPin);
-        List<DeviceControlV1> results = query.getResultList();
+        List<DeviceControl> results = query.getResultList();
         return results.isEmpty() ? null : results.get(0);
     }
 
@@ -104,18 +104,18 @@ public class DeviceControlDaoV1 extends BaseEntityDaoV1<DeviceControlV1> {
         );
     }
 
-    public DeviceControlV1 findByClientIdAndGpioPin(Long clientId, Integer gpioPin) {
-        String jpql = "SELECT dc FROM DeviceControlV1 dc WHERE dc.client.id = :clientId AND dc.gpioPin = :gpioPin";
-        TypedQuery<DeviceControlV1> query = entityManager.createQuery(jpql, DeviceControlV1.class);
+    public DeviceControl findByClientIdAndGpioPin(Long clientId, Integer gpioPin) {
+        String jpql = "SELECT dc FROM DeviceControl dc WHERE dc.client.id = :clientId AND dc.gpioPin = :gpioPin";
+        TypedQuery<DeviceControl> query = entityManager.createQuery(jpql, DeviceControl.class);
         query.setParameter("clientId", clientId);
         query.setParameter("gpioPin", gpioPin);
-        List<DeviceControlV1> results = query.getResultList();
+        List<DeviceControl> results = query.getResultList();
         return results.isEmpty() ? null : results.get(0);
     }
     
-    private List<DeviceControlV1> executePaginatedQuery(String jpql, String paramName, 
+    private List<DeviceControl> executePaginatedQuery(String jpql, String paramName, 
                                                         Object paramValue, int page, int size) {
-        TypedQuery<DeviceControlV1> query = entityManager.createQuery(jpql, DeviceControlV1.class);
+        TypedQuery<DeviceControl> query = entityManager.createQuery(jpql, DeviceControl.class);
         query.setParameter(paramName, paramValue);
         query.setFirstResult(page * size);
         query.setMaxResults(size);

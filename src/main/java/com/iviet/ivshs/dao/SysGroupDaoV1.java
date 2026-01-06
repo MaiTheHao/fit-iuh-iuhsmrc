@@ -8,14 +8,14 @@ import org.springframework.stereotype.Repository;
 import com.iviet.ivshs.dto.ClientDtoV1;
 import com.iviet.ivshs.dto.SysFunctionDtoV1;
 import com.iviet.ivshs.dto.SysGroupDtoV1;
-import com.iviet.ivshs.entities.ClientV1;
-import com.iviet.ivshs.entities.SysGroupV1;
+import com.iviet.ivshs.entities.Client;
+import com.iviet.ivshs.entities.SysGroup;
 
 @Repository
-public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
+public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroup> {
     
     public SysGroupDaoV1() {
-        super(SysGroupV1.class);
+        super(SysGroup.class);
     }
 
     // ======= Find by Group Code =======
@@ -23,7 +23,7 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
     /**
      * Tìm SysGroup entity theo groupCode
      */
-    public Optional<SysGroupV1> findByCode(String groupCode) {
+    public Optional<SysGroup> findByCode(String groupCode) {
         return findOne(root -> entityManager.getCriteriaBuilder()
             .equal(root.get("groupCode"), groupCode));
     }
@@ -36,7 +36,7 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
 
         String jpql = """
                 SELECT new %s(g.id, g.groupCode, glan.name, glan.description)
-                FROM SysGroupV1 g
+                FROM SysGroup g
                 LEFT JOIN g.translations glan ON glan.langCode = :langCode
                 WHERE g.groupCode = :groupCode
                 """.formatted(dtoClassPath);
@@ -68,7 +68,7 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
 
         String jpql = """
                 SELECT new %s(g.id, g.groupCode, glan.name, glan.description)
-                FROM SysGroupV1 g
+                FROM SysGroup g
                 LEFT JOIN g.translations glan ON glan.langCode = :langCode
                 WHERE g.id = :groupId
                 """.formatted(dtoClassPath);
@@ -92,7 +92,7 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
 
         String jpql = """
                 SELECT new %s(g.id, g.groupCode, glan.name, glan.description)
-                FROM SysGroupV1 g
+                FROM SysGroup g
                 LEFT JOIN g.translations glan ON glan.langCode = :langCode
                 ORDER BY g.groupCode ASC
                 """.formatted(dtoClassPath);
@@ -112,7 +112,7 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
 
         String jpql = """
                 SELECT new %s(g.id, g.groupCode, glan.name, glan.description)
-                FROM SysGroupV1 g
+                FROM SysGroup g
                 LEFT JOIN g.translations glan ON glan.langCode = :langCode
                 ORDER BY g.groupCode ASC
                 """.formatted(dtoClassPath);
@@ -133,7 +133,7 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
 
         String jpql = """
                 SELECT new %s(f.id, f.functionCode, flan.name, flan.description)
-                FROM SysGroupV1 g
+                FROM SysGroup g
                 JOIN g.roles r ON r.isActive = true
                 JOIN r.function f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
@@ -156,7 +156,7 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
 
         String jpql = """
                 SELECT new %s(f.id, f.functionCode, flan.name, flan.description)
-                FROM SysGroupV1 g
+                FROM SysGroup g
                 JOIN g.roles r ON r.isActive = true
                 JOIN r.function f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
@@ -185,7 +185,7 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
                     c.id, c.username, c.clientType, 
                     c.ipAddress, c.macAddress, c.avatarUrl, c.lastLoginAt
                 )
-                FROM SysGroupV1 g
+                FROM SysGroup g
                 JOIN g.clients c
                 WHERE g.id = :groupId
                 ORDER BY c.username ASC
@@ -207,7 +207,7 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
                     c.id, c.username, c.clientType, 
                     c.ipAddress, c.macAddress, c.avatarUrl, c.lastLoginAt
                 )
-                FROM SysGroupV1 g
+                FROM SysGroup g
                 JOIN g.clients c
                 WHERE g.id = :groupId
                 ORDER BY c.username ASC
@@ -224,16 +224,16 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
      * Lấy danh sách Clients thuộc một Group - trả về Entity
      * Dùng khi cần thao tác với entity
      */
-    public List<ClientV1> findClientEntitiesByGroupId(Long groupId) {
+    public List<Client> findClientEntitiesByGroupId(Long groupId) {
         String jpql = """
                 SELECT c
-                FROM SysGroupV1 g
+                FROM SysGroup g
                 JOIN g.clients c
                 WHERE g.id = :groupId
                 ORDER BY c.username ASC
                 """;
 
-        return entityManager.createQuery(jpql, ClientV1.class)
+        return entityManager.createQuery(jpql, Client.class)
                 .setParameter("groupId", groupId)
                 .getResultList();
     }
@@ -241,16 +241,16 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
     /**
      * Lấy danh sách Clients thuộc một Group với phân trang - trả về Entity
      */
-    public List<ClientV1> findClientEntitiesByGroupId(Long groupId, int page, int size) {
+    public List<Client> findClientEntitiesByGroupId(Long groupId, int page, int size) {
         String jpql = """
                 SELECT c
-                FROM SysGroupV1 g
+                FROM SysGroup g
                 JOIN g.clients c
                 WHERE g.id = :groupId
                 ORDER BY c.username ASC
                 """;
 
-        return entityManager.createQuery(jpql, ClientV1.class)
+        return entityManager.createQuery(jpql, Client.class)
                 .setParameter("groupId", groupId)
                 .setFirstResult(page * size)
                 .setMaxResults(size)
@@ -263,7 +263,7 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
      * Đếm tổng số Groups
      */
     public long countAll() {
-        String jpql = "SELECT COUNT(g) FROM SysGroupV1 g";
+        String jpql = "SELECT COUNT(g) FROM SysGroup g";
         return entityManager.createQuery(jpql, Long.class)
                 .getSingleResult();
     }
@@ -274,7 +274,7 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
     public long countFunctionsByGroupId(Long groupId) {
         String jpql = """
                 SELECT COUNT(f)
-                FROM SysGroupV1 g
+                FROM SysGroup g
                 JOIN g.roles r ON r.isActive = true
                 JOIN r.function f
                 WHERE g.id = :groupId
@@ -291,7 +291,7 @@ public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroupV1> {
     public long countClientsByGroupId(Long groupId) {
         String jpql = """
                 SELECT COUNT(c)
-                FROM SysGroupV1 g
+                FROM SysGroup g
                 JOIN g.clients c
                 WHERE g.id = :groupId
                 """;

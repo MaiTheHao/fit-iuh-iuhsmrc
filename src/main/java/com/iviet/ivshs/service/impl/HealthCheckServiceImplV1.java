@@ -5,7 +5,7 @@ import com.iviet.ivshs.dao.ClientDaoV1;
 import com.iviet.ivshs.dao.RoomDaoV1;
 import com.iviet.ivshs.dto.HealthCheckResponseDtoV1;
 import com.iviet.ivshs.dto.HealthCheckResponseDtoV1.DeviceDto;
-import com.iviet.ivshs.entities.ClientV1;
+import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
 import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
@@ -77,7 +77,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
     @Override
     public Map<String, HealthCheckResponseDtoV1> checkByRoom(String roomCode) {
         List<String> ipAddresses = clientDao.findGatewaysByRoomCode(roomCode).stream()
-                .map(ClientV1::getIpAddress)
+                .map(Client::getIpAddress)
                 .toList();
 
         if (ipAddresses.isEmpty()) {

@@ -4,9 +4,9 @@ import com.iviet.ivshs.dao.FloorDaoV1;
 import com.iviet.ivshs.dao.LanguageDaoV1;
 import com.iviet.ivshs.dao.RoomDaoV1;
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.entities.FloorV1;
-import com.iviet.ivshs.entities.RoomLanV1;
-import com.iviet.ivshs.entities.RoomV1;
+import com.iviet.ivshs.entities.Floor;
+import com.iviet.ivshs.entities.RoomLan;
+import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.RoomMapperV1;
@@ -52,7 +52,7 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
             throw new BadRequestException("Room data and code are required");
         }
 
-        FloorV1 floor = floorDao.findById(floorId)
+        Floor floor = floorDao.findById(floorId)
                 .orElseThrow(() -> new NotFoundException("Floor not found with ID: " + floorId));
 
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
@@ -62,11 +62,11 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
 
         _checkDuplicate(dto.code().trim(), null);
 
-        RoomV1 room = roomMapper.fromCreateDto(dto);
+        Room room = roomMapper.fromCreateDto(dto);
         room.setCode(dto.code().trim());
         room.setFloor(floor);
 
-        RoomLanV1 roomLan = new RoomLanV1();
+        RoomLan roomLan = new RoomLan();
         roomLan.setLangCode(langCode);
         roomLan.setName(dto.name() != null ? dto.name().trim() : "");
         roomLan.setDescription(dto.description());
@@ -81,7 +81,7 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
     @Override
     @Transactional
     public RoomDtoV1 update(Long roomId, UpdateRoomDtoV1 dto) {
-        RoomV1 room = roomDao.findById(roomId)
+        Room room = roomDao.findById(roomId)
                 .orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
 
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
@@ -95,16 +95,16 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
         }
 
         if (dto.floorId() != null && !dto.floorId().equals(room.getFloor().getId())) {
-            FloorV1 newFloor = floorDao.findById(dto.floorId())
+            Floor newFloor = floorDao.findById(dto.floorId())
                     .orElseThrow(() -> new NotFoundException("Target floor not found: " + dto.floorId()));
             room.setFloor(newFloor);
         }
 
-        RoomLanV1 roomLan = room.getTranslations().stream()
+        RoomLan roomLan = room.getTranslations().stream()
                 .filter(lan -> langCode.equals(lan.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
-                    RoomLanV1 newLan = new RoomLanV1();
+                    RoomLan newLan = new RoomLan();
                     newLan.setLangCode(langCode);
                     newLan.setOwner(room);
                     room.getTranslations().add(newLan);
@@ -140,7 +140,7 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
     }
 
     @Override
-    public RoomV1 getEntityById(Long roomId) {
+    public Room getEntityById(Long roomId) {
         return roomDao.findById(roomId)
                 .orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
     }
@@ -155,7 +155,7 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
     }
 
     @Override
-    public RoomV1 getEntityByCode(String roomCode) {
+    public Room getEntityByCode(String roomCode) {
         if (roomCode == null || roomCode.isBlank()) {
             throw new BadRequestException("Room code is required");
         }

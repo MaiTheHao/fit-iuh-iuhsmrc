@@ -6,16 +6,16 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dto.RoomDtoV1;
-import com.iviet.ivshs.entities.RoomV1;
+import com.iviet.ivshs.entities.Room;
 
 @Repository
-public class RoomDaoV1 extends BaseAuditEntityDaoV1<RoomV1> {
+public class RoomDaoV1 extends BaseAuditEntityDaoV1<Room> {
     
     public RoomDaoV1() {
-        super(RoomV1.class);
+        super(Room.class);
     }
 
-    public Optional<RoomV1> findByCode(String code) {
+    public Optional<Room> findByCode(String code) {
         return findOne(root -> entityManager.getCriteriaBuilder().equal(root.get("code"), code));
     }
 
@@ -24,7 +24,7 @@ public class RoomDaoV1 extends BaseAuditEntityDaoV1<RoomV1> {
 
         String jpql = """
                 SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
-                FROM RoomV1 r
+                FROM Room r
                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                 WHERE r.code = :code
                 """.formatted(dtoPath);
@@ -42,7 +42,7 @@ public class RoomDaoV1 extends BaseAuditEntityDaoV1<RoomV1> {
 
         String jpql = """
                 SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
-                FROM RoomV1 r
+                FROM Room r
                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                 WHERE r.id = :roomId
                 """.formatted(dtoPath);
@@ -60,7 +60,7 @@ public class RoomDaoV1 extends BaseAuditEntityDaoV1<RoomV1> {
 
         String jpql = """
                 SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
-                FROM RoomV1 r
+                FROM Room r
                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                 WHERE r.floor.id = :floorId
                 """.formatted(dtoPath);

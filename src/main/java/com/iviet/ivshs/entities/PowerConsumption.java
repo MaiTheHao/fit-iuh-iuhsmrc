@@ -16,23 +16,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "temperature_v1",
+@Table(name = "power_consumption_v1",
     indexes = {
-        @Index(name = "idx_temperature_room_id", columnList = "room_id", unique = false),
-        @Index(name = "idx_temperature_natural_id", columnList = "natural_id", unique = true)
+        @Index(name = "idx_power_consumption_room_id", columnList = "room_id", unique = false),
+        @Index(name = "idx_power_consumption_natural_id", columnList = "natural_id", unique = true)
     }
 )
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TemperatureV1 extends BaseIoTDevice<TemperatureLanV1> {
+public class PowerConsumption extends BaseIoTDevice<PowerConsumptionLan> {
 
     private static final long serialVersionUID = 1L;
 
-    @Column(name = "current_value")
-    private Double currentValue;
+    @Column(name = "current_watt")
+    private Double currentWatt;
 
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<TemperatureValueV1> temperatureValues = new HashSet<>();
+    private Set<PowerConsumptionValue> consumptionValues = new HashSet<>();
 }

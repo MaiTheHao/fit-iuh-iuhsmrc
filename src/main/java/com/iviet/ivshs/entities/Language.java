@@ -21,7 +21,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LanguageV1 extends BaseAuditEntity {
+public class Language extends BaseAuditEntity {
 
     private static final long serialVersionUID = 1L;
 

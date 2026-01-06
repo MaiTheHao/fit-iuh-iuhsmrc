@@ -10,10 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.iviet.ivshs.dao.ClientDaoV1;
 import com.iviet.ivshs.dao.SysClientFunctionCacheDaoV1;
 import com.iviet.ivshs.dao.SysGroupDaoV1;
-import com.iviet.ivshs.entities.ClientV1;
-import com.iviet.ivshs.entities.SysClientFunctionCacheV1;
-import com.iviet.ivshs.entities.SysGroupV1;
-import com.iviet.ivshs.entities.SysRoleV1;
+import com.iviet.ivshs.entities.Client;
+import com.iviet.ivshs.entities.SysClientFunctionCache;
+import com.iviet.ivshs.entities.SysGroup;
+import com.iviet.ivshs.entities.SysRole;
 import com.iviet.ivshs.service.ClientFunctionCacheServiceV1;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -38,14 +38,14 @@ public class ClientFunctionServiceImplV1 implements ClientFunctionCacheServiceV1
 	public int rebuildCacheForClient(Long clientId) {
 		cacheDao.deleteByClient(clientId);
 
-		ClientV1 client = clientDao.findById(clientId)
+		Client client = clientDao.findById(clientId)
 			.orElseThrow(() -> new RuntimeException("Client not found: " + clientId));
 		
 		int createdCount = 0;
-		for (SysGroupV1 group : client.getGroups()) {
-			for (SysRoleV1 role : group.getRoles()) {
+		for (SysGroup group : client.getGroups()) {
+			for (SysRole role : group.getRoles()) {
 				if (Boolean.TRUE.equals(role.getIsActive())) {
-					SysClientFunctionCacheV1 cache = new SysClientFunctionCacheV1();
+					SysClientFunctionCache cache = new SysClientFunctionCache();
 					cache.setClientId(clientId);
 					cache.setFunctionCode(role.getFunction().getFunctionCode());
 					cache.setGroupId(group.getId());
@@ -63,11 +63,11 @@ public class ClientFunctionServiceImplV1 implements ClientFunctionCacheServiceV1
 
 	@Override
 	public int rebuildCacheForGroup(Long groupId) {
-		SysGroupV1 group = groupDao.findById(groupId)
+		SysGroup group = groupDao.findById(groupId)
 			.orElseThrow(() -> new RuntimeException("Group not found: " + groupId));
 		
 		int totalRebuilt = 0;
-		for (ClientV1 client : group.getClients()) {
+		for (Client client : group.getClients()) {
 			int count = rebuildCacheForClient(client.getId());
 			totalRebuilt += count;
 		}
@@ -80,17 +80,17 @@ public class ClientFunctionServiceImplV1 implements ClientFunctionCacheServiceV1
 		entityManager.createNativeQuery("DELETE FROM sys_client_function_cache_v1").executeUpdate();
 		
 		var cb = entityManager.getCriteriaBuilder();
-		var query = cb.createQuery(ClientV1.class);
-		query.from(ClientV1.class);
-		List<ClientV1> allClients = entityManager.createQuery(query).getResultList();
+		var query = cb.createQuery(Client.class);
+		query.from(Client.class);
+		List<Client> allClients = entityManager.createQuery(query).getResultList();
 		
 		int totalCreated = 0;
 		
-		for (ClientV1 client : allClients) {
-			for (SysGroupV1 group : client.getGroups()) {
-				for (SysRoleV1 role : group.getRoles()) {
+		for (Client client : allClients) {
+			for (SysGroup group : client.getGroups()) {
+				for (SysRole role : group.getRoles()) {
 					if (Boolean.TRUE.equals(role.getIsActive())) {
-						SysClientFunctionCacheV1 cache = new SysClientFunctionCacheV1();
+						SysClientFunctionCache cache = new SysClientFunctionCache();
 						cache.setClientId(client.getId());
 						cache.setFunctionCode(role.getFunction().getFunctionCode());
 						cache.setGroupId(group.getId());
@@ -133,14 +133,14 @@ public class ClientFunctionServiceImplV1 implements ClientFunctionCacheServiceV1
 
 	@Override
 	public int addPermissionsForClientGroup(Long clientId, Long groupId) {
-		SysGroupV1 group = groupDao.findById(groupId)
+		SysGroup group = groupDao.findById(groupId)
 			.orElseThrow(() -> new RuntimeException("Group not found: " + groupId));
 		
 		int addedCount = 0;
-		for (SysRoleV1 role : group.getRoles()) {
+		for (SysRole role : group.getRoles()) {
 			if (Boolean.TRUE.equals(role.getIsActive())) {
 				if (!cacheDao.exists(clientId, role.getFunction().getFunctionCode(), groupId)) {
-					SysClientFunctionCacheV1 cache = new SysClientFunctionCacheV1();
+					SysClientFunctionCache cache = new SysClientFunctionCache();
 					cache.setClientId(clientId);
 					cache.setFunctionCode(role.getFunction().getFunctionCode());
 					cache.setGroupId(groupId);
@@ -155,13 +155,13 @@ public class ClientFunctionServiceImplV1 implements ClientFunctionCacheServiceV1
 
 	@Override
 	public int addPermissionsForGroupFunction(Long groupId, String functionCode) {
-		SysGroupV1 group = groupDao.findById(groupId)
+		SysGroup group = groupDao.findById(groupId)
 			.orElseThrow(() -> new RuntimeException("Group not found: " + groupId));
 		
 		int addedCount = 0;
-		for (ClientV1 client : group.getClients()) {
+		for (Client client : group.getClients()) {
 			if (!cacheDao.exists(client.getId(), functionCode, groupId)) {
-				SysClientFunctionCacheV1 cache = new SysClientFunctionCacheV1();
+				SysClientFunctionCache cache = new SysClientFunctionCache();
 				cache.setClientId(client.getId());
 				cache.setFunctionCode(functionCode);
 				cache.setGroupId(groupId);
@@ -177,7 +177,7 @@ public class ClientFunctionServiceImplV1 implements ClientFunctionCacheServiceV1
 	@Transactional(readOnly = true)
 	public boolean validateCache(Long clientId) {
 		Set<String> cachedPermissions = new HashSet<>(cacheDao.getFunctionCodesByClient(clientId));
-		ClientV1 client = clientDao.findById(clientId)
+		Client client = clientDao.findById(clientId)
 			.orElseThrow(() -> new RuntimeException("Client not found: " + clientId));
 		
 		Set<String> actualPermissions = client.getGroups().stream()

@@ -36,7 +36,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClientV1 extends BaseAuditEntity {
+public class Client extends BaseAuditEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -64,7 +64,7 @@ public class ClientV1 extends BaseAuditEntity {
     private Date lastLoginAt;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<DeviceControlV1> deviceControls = new HashSet<>();
+    private Set<DeviceControl> deviceControls = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(
@@ -75,5 +75,5 @@ public class ClientV1 extends BaseAuditEntity {
             @Index(name = "idx_client_group", columnList = "client_id, group_id", unique = true)
         }
     )
-    private Set<SysGroupV1> groups = new HashSet<>();
+    private Set<SysGroup> groups = new HashSet<>();
 }

@@ -1,7 +1,6 @@
 package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.SysClientFunctionCacheDaoV1;
-import com.iviet.ivshs.enumeration.SysFunctionEnumV1;
 import com.iviet.ivshs.service.PermissionServiceV1;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

@@ -6,29 +6,29 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import com.iviet.ivshs.dto.AveragePowerConsumptionValueDtoV1;
 import com.iviet.ivshs.dto.SumPowerConsumptionValueDtoV1;
-import com.iviet.ivshs.entities.PowerConsumptionValueV1;
+import com.iviet.ivshs.entities.PowerConsumptionValue;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 
 import jakarta.persistence.TypedQuery;
 
 @Repository
-public class PowerConsumptionValueDaoV1 extends BaseTelemetryDaoV1<PowerConsumptionValueV1> {
+public class PowerConsumptionValueDaoV1 extends BaseTelemetryDaoV1<PowerConsumptionValue> {
 
 	private static final String DATE_FORMAT = "%Y-%m-%d %H:%i";
 	private static final String DATE_FORMAT_FUNCTION = "CAST(FUNCTION('DATE_FORMAT', p.timestamp, '" + DATE_FORMAT + "') AS string)";
 	private static final String INSERT_SQL = "INSERT INTO power_consumption_value_v1 (sensor_id, timestamp, watt) VALUES (?, ?, ?, ?)";
 
 	public PowerConsumptionValueDaoV1() {
-		super(PowerConsumptionValueV1.class);
+		super(PowerConsumptionValue.class);
 	}
 
 	@Override
-	public void saveAndForget(Long sensorId, PowerConsumptionValueV1 entity) {
+	public void saveAndForget(Long sensorId, PowerConsumptionValue entity) {
 		this.saveAndForget(sensorId, Collections.singletonList(entity));
 	}
 
 	@Override
-	public void saveAndForget(Long sensorId, List<PowerConsumptionValueV1> entities) {
+	public void saveAndForget(Long sensorId, List<PowerConsumptionValue> entities) {
 		if (entities == null || entities.isEmpty()) return;
 
 		jdbcTemplate.batchUpdate(INSERT_SQL, entities, BATCH_SIZE, (ps, entity) -> {
@@ -48,7 +48,7 @@ public class PowerConsumptionValueDaoV1 extends BaseTelemetryDaoV1<PowerConsumpt
 	public List<AveragePowerConsumptionValueDtoV1> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
 		String jpql = "SELECT new com.iviet.ivshs.dto.AveragePowerConsumptionValueDtoV1(" +
 				DATE_FORMAT_FUNCTION + ", AVG(p.watt), AVG(p.wattHour)) " +
-				"FROM PowerConsumptionValueV1 p " +
+				"FROM PowerConsumptionValue p " +
 				"WHERE p.sensor.room.id = :roomId AND p.timestamp BETWEEN :startedAt AND :endedAt " +
 				"GROUP BY " + DATE_FORMAT_FUNCTION + " " +
 				"ORDER BY " + DATE_FORMAT_FUNCTION + " ASC";
@@ -62,7 +62,7 @@ public class PowerConsumptionValueDaoV1 extends BaseTelemetryDaoV1<PowerConsumpt
 	public List<AveragePowerConsumptionValueDtoV1> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
 		String jpql = "SELECT new com.iviet.ivshs.dto.AveragePowerConsumptionValueDtoV1(" +
 				DATE_FORMAT_FUNCTION + ", AVG(p.watt), AVG(p.wattHour)) " +
-				"FROM PowerConsumptionValueV1 p " +
+				"FROM PowerConsumptionValue p " +
 				"WHERE p.sensor.deviceControl.client.id = :clientId " +
 				"AND p.timestamp BETWEEN :startedAt AND :endedAt " +
 				"GROUP BY " + DATE_FORMAT_FUNCTION + " " +
@@ -77,7 +77,7 @@ public class PowerConsumptionValueDaoV1 extends BaseTelemetryDaoV1<PowerConsumpt
 	public List<SumPowerConsumptionValueDtoV1> getSumHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
 		String jpql = "SELECT new com.iviet.ivshs.dto.SumPowerConsumptionValueDtoV1(" +
 				DATE_FORMAT_FUNCTION + ", SUM(p.watt)) " +
-				"FROM PowerConsumptionValueV1 p " +
+				"FROM PowerConsumptionValue p " +
 				"WHERE p.sensor.deviceControl.client.id = :clientId " +
 				"AND p.timestamp BETWEEN :startedAt AND :endedAt " +
 				"GROUP BY " + DATE_FORMAT_FUNCTION + " " +
@@ -92,7 +92,7 @@ public class PowerConsumptionValueDaoV1 extends BaseTelemetryDaoV1<PowerConsumpt
 	public List<SumPowerConsumptionValueDtoV1> getSumHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
 		String jpql = "SELECT new com.iviet.ivshs.dto.SumPowerConsumptionValueDtoV1(" +
 				DATE_FORMAT_FUNCTION + ", SUM(p.watt)) " +
-				"FROM PowerConsumptionValueV1 p " +
+				"FROM PowerConsumptionValue p " +
 				"WHERE p.sensor.room.id = :roomId AND p.timestamp BETWEEN :startedAt AND :endedAt " +
 				"GROUP BY " + DATE_FORMAT_FUNCTION + " " +
 				"ORDER BY " + DATE_FORMAT_FUNCTION + " ASC";
@@ -105,7 +105,7 @@ public class PowerConsumptionValueDaoV1 extends BaseTelemetryDaoV1<PowerConsumpt
 
 	public void deleteBySensorIdAndTimestampBetween(Long sensorId, Instant startedAt, Instant endedAt) {
 			String jpql = """
-							DELETE FROM PowerConsumptionValueV1 v
+							DELETE FROM PowerConsumptionValue v
 							WHERE v.sensor.id = :sensorId
 							AND v.timestamp BETWEEN :startedAt AND :endedAt
 							""";
@@ -119,7 +119,7 @@ public class PowerConsumptionValueDaoV1 extends BaseTelemetryDaoV1<PowerConsumpt
 
 	public void deleteBySensorNaturalIdAndTimestampBetween(String sensorNaturalId, Instant startedAt, Instant endedAt) {
 			String jpql = """
-							DELETE FROM PowerConsumptionValueV1 v
+							DELETE FROM PowerConsumptionValue v
 							WHERE v.sensor.naturalId = :sensorNaturalId
 							AND v.timestamp BETWEEN :startedAt AND :endedAt
 							""";

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "power_consumption_value_v1", indexes = {
+@Table(name = "temperature_value_v1", indexes = {
     @Index(name = "idx_sensor_timestamp", columnList = "sensor_id, timestamp"),
     @Index(name = "idx_timestamp", columnList = "timestamp")
 })
@@ -21,10 +21,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PowerConsumptionValueV1 extends BaseTelemetryValue<PowerConsumptionV1> {
+public class TemperatureValue extends BaseTelemetryValue<Temperature> {
 
     private static final long serialVersionUID = 1L;
 
-    @Column(name = "watt")
-    private Double watt;
+    @Column(name = "temp_c")
+    private Double tempC;
 }

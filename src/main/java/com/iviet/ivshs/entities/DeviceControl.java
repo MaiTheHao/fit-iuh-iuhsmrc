@@ -26,7 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeviceControlV1 extends BaseAuditEntity {
+public class DeviceControl extends BaseAuditEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -45,18 +45,18 @@ public class DeviceControlV1 extends BaseAuditEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
-    private ClientV1 client;
+    private Client client;
 
     @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY)
-    private LightV1 light;
+    private Light light;
 
     @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY)
-    private TemperatureV1 temperature;
+    private Temperature temperature;
 
     @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY)
-    private PowerConsumptionV1 powerConsumption;
+    private PowerConsumption powerConsumption;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
-    private RoomV1 room;
+    private Room room;
 }
