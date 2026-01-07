@@ -23,7 +23,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SysRole extends BaseTranslatableEntity<SysRoleLan> {
+public class SysRole extends BaseAuditEntity {
 	
 	private static final long serialVersionUID = 1L;
 

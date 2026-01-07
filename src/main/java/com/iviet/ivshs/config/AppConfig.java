@@ -9,9 +9,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Description;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
-@Import({ SecurityConfig.class })
+@Import({ SecurityConfig.class, WebConfig.class })
 @PropertySource("classpath:application.properties")
 @EnableAspectJAutoProxy
 @EnableTransactionManagement
@@ -63,6 +65,16 @@ public class AppConfig implements EnvironmentAware {
         } catch (Exception e) {
             log.warn("JNDI not available. Application will use local properties.");
         }
+    }
+
+    // ============ MESSAGE & LOCALE ============
+    @Bean
+    @Description("Spring Message Resolver for i18n")
+    public ResourceBundleMessageSource messageSource() {
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasename("messages");
+        messageSource.setDefaultEncoding("UTF-8");
+        return messageSource;
     }
 
     @Bean

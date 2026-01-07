@@ -63,14 +63,23 @@ public final class I18nMessageConstant {
     // --- Error Pages (4xx, 5xx) ---
     public static final String ERROR_BACK_HOME = "error.back.home";
     public static final String ERROR_BACK_DASHBOARD = "error.back.dashboard";
+    public static final String ERROR_BACK = "error.back";
     public static final String ERROR_RETRY = "error.retry";
+    
     public static final String ERROR_401_TITLE = "error.401.title";
     public static final String ERROR_401_HEADING = "error.401.heading";
     public static final String ERROR_401_DESC = "error.401.desc";
     public static final String ERROR_401_LOGIN = "error.401.login";
+    
+    public static final String ERROR_403_TITLE = "error.403.title";
+    public static final String ERROR_403_HEADING = "error.403.heading";
+    public static final String ERROR_403_DESC = "error.403.desc";
+    public static final String ERROR_403_LOGIN = "error.403.login";
+    
     public static final String ERROR_404_TITLE = "error.404.title";
     public static final String ERROR_404_HEADING = "error.404.heading";
     public static final String ERROR_404_DESC = "error.404.desc";
+    
     public static final String ERROR_500_TITLE = "error.500.title";
     public static final String ERROR_500_HEADING = "error.500.heading";
     public static final String ERROR_500_DESC = "error.500.desc";

@@ -8,9 +8,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Description;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.lang.NonNull;
@@ -26,6 +24,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.springframework.context.MessageSource;
 import org.thymeleaf.spring6.ISpringTemplateEngine;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
@@ -58,15 +57,6 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     // ============ MESSAGE & LOCALE ============
     @Bean
-    @Description("Spring Message Resolver for i18n")
-    public ResourceBundleMessageSource messageSource() {
-        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasename("messages");
-        messageSource.setDefaultEncoding("UTF-8");
-        return messageSource;
-    }
-
-    @Bean
     public LocaleResolver localeResolver() {
         SessionLocaleResolver localeResolver = new SessionLocaleResolver();
         localeResolver.setDefaultLocale(Locale.of("vi", "VN"));
@@ -83,9 +73,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     // ============ THYMELEAF VIEW RESOLVERS ============
     @Bean
-    public ViewResolver htmlViewResolver() {
+    public ViewResolver htmlViewResolver(MessageSource messageSource) {
         ThymeleafViewResolver resolver = new ThymeleafViewResolver();
-        resolver.setTemplateEngine(templateEngine(htmlTemplateResolver()));
+        resolver.setTemplateEngine(templateEngine(htmlTemplateResolver(), messageSource));
         resolver.setContentType("text/html");
         resolver.setCharacterEncoding("UTF-8");
         resolver.setViewNames(new String[]{"*.html"});
@@ -93,9 +83,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     }
 
     @Bean
-    public ViewResolver javascriptViewResolver() {
+    public ViewResolver javascriptViewResolver(MessageSource messageSource) {
         ThymeleafViewResolver resolver = new ThymeleafViewResolver();
-        resolver.setTemplateEngine(templateEngine(javascriptTemplateResolver()));
+        resolver.setTemplateEngine(templateEngine(javascriptTemplateResolver(), messageSource));
         resolver.setContentType("application/javascript");
         resolver.setCharacterEncoding("UTF-8");
         resolver.setViewNames(new String[]{"*.js"});
@@ -103,9 +93,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     }
 
     @Bean
-    public ViewResolver plainViewResolver() {
+    public ViewResolver plainViewResolver(MessageSource messageSource) {
         ThymeleafViewResolver resolver = new ThymeleafViewResolver();
-        resolver.setTemplateEngine(templateEngine(plainTemplateResolver()));
+        resolver.setTemplateEngine(templateEngine(plainTemplateResolver(), messageSource));
         resolver.setContentType("text/plain");
         resolver.setCharacterEncoding("UTF-8");
         resolver.setViewNames(new String[]{"*.txt"});
@@ -113,12 +103,12 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     }
 
     // ============ THYMELEAF TEMPLATE RESOLVERS ============
-    private ISpringTemplateEngine templateEngine(ITemplateResolver templateResolver) {
+    private ISpringTemplateEngine templateEngine(ITemplateResolver templateResolver, MessageSource messageSource) {
         SpringTemplateEngine engine = new SpringTemplateEngine();
         engine.addDialect(new LayoutDialect());
         engine.addDialect(new SpringSecurityDialect());
         engine.setTemplateResolver(templateResolver);
-        engine.setTemplateEngineMessageSource(messageSource());
+        engine.setTemplateEngineMessageSource(messageSource);
         engine.setEnableSpringELCompiler(true);
         return engine;
     }
@@ -197,6 +187,6 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     @Override
     public void configureDefaultServletHandling(@NonNull DefaultServletHandlerConfigurer configurer) {
-        configurer.enable();
+        // configurer.enable();
     }
 }

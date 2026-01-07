@@ -46,7 +46,7 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	}
 
 	public List<AveragePowerConsumptionValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
-		String jpql = "SELECT new com.iviet.ivshs.dto.AveragePowerConsumptionValueDtoV1(" +
+		String jpql = "SELECT new com.iviet.ivshs.dto.AveragePowerConsumptionValueDto(" +
 				DATE_FORMAT_FUNCTION + ", AVG(p.watt), AVG(p.wattHour)) " +
 				"FROM PowerConsumptionValue p " +
 				"WHERE p.sensor.room.id = :roomId AND p.timestamp BETWEEN :startedAt AND :endedAt " +
@@ -60,7 +60,7 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	}
 
 	public List<AveragePowerConsumptionValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
-		String jpql = "SELECT new com.iviet.ivshs.dto.AveragePowerConsumptionValueDtoV1(" +
+		String jpql = "SELECT new com.iviet.ivshs.dto.AveragePowerConsumptionValueDto(" +
 				DATE_FORMAT_FUNCTION + ", AVG(p.watt), AVG(p.wattHour)) " +
 				"FROM PowerConsumptionValue p " +
 				"WHERE p.sensor.deviceControl.client.id = :clientId " +
@@ -75,7 +75,7 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	}
 
 	public List<SumPowerConsumptionValueDto> getSumHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
-		String jpql = "SELECT new com.iviet.ivshs.dto.SumPowerConsumptionValueDtoV1(" +
+		String jpql = "SELECT new com.iviet.ivshs.dto.SumPowerConsumptionValueDto(" +
 				DATE_FORMAT_FUNCTION + ", SUM(p.watt)) " +
 				"FROM PowerConsumptionValue p " +
 				"WHERE p.sensor.deviceControl.client.id = :clientId " +
@@ -90,7 +90,7 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	}
 
 	public List<SumPowerConsumptionValueDto> getSumHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
-		String jpql = "SELECT new com.iviet.ivshs.dto.SumPowerConsumptionValueDtoV1(" +
+		String jpql = "SELECT new com.iviet.ivshs.dto.SumPowerConsumptionValueDto(" +
 				DATE_FORMAT_FUNCTION + ", SUM(p.watt)) " +
 				"FROM PowerConsumptionValue p " +
 				"WHERE p.sensor.room.id = :roomId AND p.timestamp BETWEEN :startedAt AND :endedAt " +

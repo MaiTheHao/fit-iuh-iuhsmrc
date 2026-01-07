@@ -9,19 +9,19 @@ public interface SysRoleService {
     
     /**
      * Batch add functions vào group
-     * @return BatchOperationResultDtoV1 với thông tin kết quả
+     * @return BatchOperationResultDto với thông tin kết quả
      */
     BatchOperationResultDto addFunctionsToGroup(BatchAddFunctionsToGroupDto dto);
 
     /**
      * Batch remove functions khỏi group
-     * @return BatchOperationResultDtoV1 với thông tin kết quả
+     * @return BatchOperationResultDto với thông tin kết quả
      */
     BatchOperationResultDto removeFunctionsFromGroup(BatchRemoveFunctionsFromGroupDto dto);
 
     /**
      * Toggle functions cho group (add/remove dựa vào map)
-     * @return BatchOperationResultDtoV1 với thông tin kết quả
+     * @return BatchOperationResultDto với thông tin kết quả
      */
     BatchOperationResultDto toggleGroupFunctions(ToggleGroupFunctionsDto dto);
 
@@ -37,7 +37,7 @@ public interface SysRoleService {
 
     /**
      * Assign groups cho client
-     * @return BatchOperationResultDtoV1 với thông tin kết quả
+     * @return BatchOperationResultDto với thông tin kết quả
      */
     BatchOperationResultDto assignGroupsToClient(AssignGroupsToClientDto dto);
 

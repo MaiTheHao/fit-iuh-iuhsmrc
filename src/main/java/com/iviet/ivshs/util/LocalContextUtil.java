@@ -4,7 +4,10 @@ import lombok.experimental.UtilityClass;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -34,5 +37,51 @@ public class LocalContextUtil {
         return StringUtils.hasText(langCode) 
                 ? langCode.trim().toLowerCase() 
                 : getCurrentLangCode();
+    }
+
+    @NonNull
+    public Locale createLocaleFromLangCode(String langCode) {
+        String resolvedLang = resolveLangCode(langCode);
+        String country = mapLangToCountry(resolvedLang);
+        Locale locale = Locale.of(resolvedLang, country);
+
+        if (locale == null) locale = DEFAULT_LOCALE;
+
+        return locale;
+    }
+
+    private String mapLangToCountry(String langCode) {
+        return switch (langCode) {
+            case LANG_VI -> "VN";
+            case LANG_EN -> "US";
+            case "ja" -> "JP";
+            case "zh" -> "CN";
+            case "fr" -> "FR";
+            case "de" -> "DE";
+            case "es" -> "ES";
+            default -> langCode.toUpperCase();
+        };
+    }
+
+    public void setLocaleFromRequest(@NonNull HttpServletRequest request, @NonNull HttpSession session, Object localeResolver) {
+        String langParam = request.getParameter("lang");
+        
+        if (StringUtils.hasText(langParam)) {
+            String resolvedLang = resolveLangCode(langParam);
+            Locale locale = createLocaleFromLangCode(resolvedLang);
+            
+            if (localeResolver instanceof org.springframework.web.servlet.LocaleResolver) {
+                ((org.springframework.web.servlet.LocaleResolver) localeResolver).setLocale(request, null, locale);
+            }
+            LocaleContextHolder.setLocale(locale);
+            session.setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, locale);
+        } else {
+            Locale locale = DEFAULT_LOCALE;
+            Locale sessionLocale = (Locale) session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+            if (sessionLocale != null) {
+                locale = sessionLocale;
+            }
+            LocaleContextHolder.setLocale(locale);
+        }
     }
 }

@@ -35,7 +35,7 @@ public class DeviceControlServiceImpl implements DeviceControlService {
     private ClientDao clientDao;
     
     @Autowired
-    private RoomDao RoomDaoV1;
+    private RoomDao roomDao;
 
     @Override
     public DeviceControlDto getById(Long deviceControlId) {
@@ -56,7 +56,7 @@ public class DeviceControlServiceImpl implements DeviceControlService {
 
         Client client = clientDao.findById(dto.getClientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
         
-        Room room = RoomDaoV1.findById(dto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.getRoomId()));
+        Room room = roomDao.findById(dto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.getRoomId()));
 
         DeviceControl deviceControl = deviceControlMapper.toEntity(dto);
         deviceControl.setClient(client);
@@ -84,7 +84,7 @@ public class DeviceControlServiceImpl implements DeviceControlService {
         }
 
         if (dto.getRoomId() != null && !dto.getRoomId().equals(deviceControl.getRoom().getId())) {
-            Room room = RoomDaoV1.findById(dto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.getRoomId()));
+            Room room = roomDao.findById(dto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.getRoomId()));
             deviceControl.setRoom(room);
         }
 

@@ -31,7 +31,7 @@ public class SetupServiceImpl implements SetupService {
     private RoomService roomService;
 
     @Autowired
-    private SetupDao setupDaoV1;
+    private SetupDao setupDao;
 
     @Override
     public void setup(Long clientId) {
@@ -92,7 +92,7 @@ public class SetupServiceImpl implements SetupService {
         try {
             Room room = roomService.getEntityByCode(req.getRoomCode());
             
-            int processed = setupDaoV1.persistDeviceSetup(
+            int processed = setupDao.persistDeviceSetup(
                 req.getDevices(), 
                 client.getId(), 
                 room.getId()

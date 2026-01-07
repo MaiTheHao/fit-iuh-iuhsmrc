@@ -31,7 +31,7 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 
 	private final PowerConsumptionDao powerConsumptionDao;
 	private final LanguageDao languageDao;
-	private final RoomDao RoomDaoV1;
+	private final RoomDao roomDao;
 	private final DeviceControlDao deviceControlDao;
 	private final PowerConsumptionMapperV1 powerConsumptionMapper;
 
@@ -115,7 +115,7 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 			throw new BadRequestException("Device Control ID is required");
 		}
 
-		Room room = RoomDaoV1.findById(dto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found"));
+		Room room = roomDao.findById(dto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found"));
 
 		DeviceControl deviceControl = deviceControlDao.findById(dto.getDeviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found, cannot create power sensor"));
 		String langCode = dto.getLangCode() == null ?
