@@ -2,7 +2,6 @@ package com.iviet.ivshs.dao;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dto.ClientDto;
@@ -13,291 +12,144 @@ import com.iviet.ivshs.entities.SysGroup;
 
 @Repository
 public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
-    
-    public SysGroupDao() {
-        super(SysGroup.class);
-    }
 
-    // ======= Find by Group Code =======
-    
-    /**
-     * Tìm SysGroup entity theo groupCode
-     */
-    public Optional<SysGroup> findByCode(String groupCode) {
-        return findOne(root -> entityManager.getCriteriaBuilder()
-            .equal(root.get("groupCode"), groupCode));
-    }
+	private final String GROUP_DTO = SysGroupDto.class.getName();
+	private final String FUNC_DTO = SysFunctionDto.class.getName();
+	private final String CLIENT_DTO = ClientDto.class.getName();
 
-    /**
-     * Tìm SysGroup DTO theo groupCode với translation
-     */
-    public Optional<SysGroupDto> findByCode(String groupCode, String langCode) {
-        String dtoClassPath = SysGroupDto.class.getName();
+	public SysGroupDao() {
+		super(SysGroup.class);
+	}
 
-        String jpql = """
-                SELECT new %s(g.id, g.groupCode, glan.name, glan.description)
-                FROM SysGroup g
-                LEFT JOIN g.translations glan ON glan.langCode = :langCode
-                WHERE g.groupCode = :groupCode
-                """.formatted(dtoClassPath);
+	// =========================================================================
+	// 1. NHÓM QUYỀN (SYS_GROUP)
+	// =========================================================================
 
-        List<SysGroupDto> results = entityManager.createQuery(jpql, SysGroupDto.class)
-                .setParameter("groupCode", groupCode)
-                .setParameter("langCode", langCode)
-                .setMaxResults(1)
-                .getResultList();
+	public Optional<SysGroup> findEntityByCode(String groupCode) {
+		return findOne(root -> entityManager.getCriteriaBuilder().equal(root.get("groupCode"), groupCode));
+	}
 
-        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
-    }
+	public boolean existsByCode(String groupCode) {
+		return exists(root -> entityManager.getCriteriaBuilder().equal(root.get("groupCode"), groupCode));
+	}
 
-    /**
-     * Kiểm tra group code đã tồn tại chưa
-     */
-    public boolean existsByCode(String groupCode) {
-        return exists(root -> entityManager.getCriteriaBuilder()
-            .equal(root.get("groupCode"), groupCode));
-    }
+	public Optional<SysGroupDto> findByCode(String groupCode, String langCode) {
+		String jpql = "SELECT new %s(g.id, g.groupCode, glan.name, glan.description) FROM SysGroup g " +
+					  "LEFT JOIN g.translations glan ON glan.langCode = :langCode WHERE g.groupCode = :groupCode";
+		return entityManager.createQuery(String.format(jpql, GROUP_DTO), SysGroupDto.class)
+				.setParameter("groupCode", groupCode).setParameter("langCode", langCode)
+				.getResultList().stream().findFirst();
+	}
 
-    // ======= Find by ID =======
-    
-    /**
-     * Tìm SysGroup DTO theo ID với translation
-     */
-    public Optional<SysGroupDto> findById(Long groupId, String langCode) {
-        String dtoClassPath = SysGroupDto.class.getName();
+	public Optional<SysGroupDto> findById(Long groupId, String langCode) {
+		String jpql = "SELECT new %s(g.id, g.groupCode, glan.name, glan.description) FROM SysGroup g " +
+					  "LEFT JOIN g.translations glan ON glan.langCode = :langCode WHERE g.id = :groupId";
+		return entityManager.createQuery(String.format(jpql, GROUP_DTO), SysGroupDto.class)
+				.setParameter("groupId", groupId).setParameter("langCode", langCode)
+				.getResultList().stream().findFirst();
+	}
 
-        String jpql = """
-                SELECT new %s(g.id, g.groupCode, glan.name, glan.description)
-                FROM SysGroup g
-                LEFT JOIN g.translations glan ON glan.langCode = :langCode
-                WHERE g.id = :groupId
-                """.formatted(dtoClassPath);
-        
-        List<SysGroupDto> results = entityManager.createQuery(jpql, SysGroupDto.class)
-                .setParameter("groupId", groupId)
-                .setParameter("langCode", langCode)
-                .setMaxResults(1)
-                .getResultList();
+	public List<SysGroupDto> findAll(String langCode) {
+		return findAll(0, Integer.MAX_VALUE, langCode);
+	}
 
-        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
-    }
+	public List<SysGroupDto> findAll(int page, int size, String langCode) {
+		String jpql = "SELECT new %s(g.id, g.groupCode, glan.name, glan.description) FROM SysGroup g " +
+					  "LEFT JOIN g.translations glan ON glan.langCode = :langCode ORDER BY g.groupCode ASC";
+		return entityManager.createQuery(String.format(jpql, GROUP_DTO), SysGroupDto.class)
+				.setParameter("langCode", langCode).setFirstResult(page * size).setMaxResults(size).getResultList();
+	}
 
-    // ======= Find All Groups =======
-    
-    /**
-     * Lấy danh sách tất cả Groups với phân trang và translation
-     */
-    public List<SysGroupDto> findAll(int page, int size, String langCode) {
-        String dtoClassPath = SysGroupDto.class.getName();
+	// =========================================================================
+	// 2. CHỨC NĂNG (FUNCTIONS) CỦA NHÓM
+	// =========================================================================
 
-        String jpql = """
-                SELECT new %s(g.id, g.groupCode, glan.name, glan.description)
-                FROM SysGroup g
-                LEFT JOIN g.translations glan ON glan.langCode = :langCode
-                ORDER BY g.groupCode ASC
-                """.formatted(dtoClassPath);
+	public List<SysFunctionDto> findFunctionsByGroupId(Long groupId, String langCode) {
+		return findFunctionsByGroupId(groupId, langCode, 0, Integer.MAX_VALUE);
+	}
 
-        return entityManager.createQuery(jpql, SysGroupDto.class)
-                .setParameter("langCode", langCode)
-                .setFirstResult(page * size)
-                .setMaxResults(size)
-                .getResultList();
-    }
+	public List<SysFunctionDto> findFunctionsByGroupId(Long groupId, String langCode, int page, int size) {
+		String jpql = "SELECT new %s(f.id, f.functionCode, flan.name, flan.description) FROM SysGroup g " +
+					  "JOIN g.roles r ON r.isActive = true JOIN r.function f " +
+					  "LEFT JOIN f.translations flan ON flan.langCode = :langCode " +
+					  "WHERE g.id = :groupId ORDER BY f.functionCode ASC";
+		return entityManager.createQuery(String.format(jpql, FUNC_DTO), SysFunctionDto.class)
+				.setParameter("groupId", groupId).setParameter("langCode", langCode)
+				.setFirstResult(page * size).setMaxResults(size).getResultList();
+	}
 
-    /**
-     * Lấy tất cả Groups (không phân trang) với translation
-     */
-    public List<SysGroupDto> findAll(String langCode) {
-        String dtoClassPath = SysGroupDto.class.getName();
+	// =========================================================================
+	// 3. NGƯỜI DÙNG (CLIENTS) CỦA NHÓM
+	// =========================================================================
 
-        String jpql = """
-                SELECT new %s(g.id, g.groupCode, glan.name, glan.description)
-                FROM SysGroup g
-                LEFT JOIN g.translations glan ON glan.langCode = :langCode
-                ORDER BY g.groupCode ASC
-                """.formatted(dtoClassPath);
+	public List<ClientDto> findClientsByGroupId(Long groupId) {
+		return findClientsByGroupId(groupId, 0, Integer.MAX_VALUE);
+	}
 
-        return entityManager.createQuery(jpql, SysGroupDto.class)
-                .setParameter("langCode", langCode)
-                .getResultList();
-    }
+	public List<ClientDto> findClientsByGroupId(Long groupId, int page, int size) {
+		String jpql = "SELECT new %s(c.id, c.username, c.clientType, c.ipAddress, c.macAddress, c.avatarUrl, c.lastLoginAt) " +
+					  "FROM SysGroup g JOIN g.clients c WHERE g.id = :groupId ORDER BY c.username ASC";
+		return entityManager.createQuery(String.format(jpql, CLIENT_DTO), ClientDto.class)
+				.setParameter("groupId", groupId).setFirstResult(page * size).setMaxResults(size).getResultList();
+	}
 
-    // ======= Find Functions of Group =======
-    
-    /**
-     * Lấy danh sách Functions của một Group cụ thể
-     * Chỉ lấy các functions có isActive = true
-     */
-    public List<SysFunctionDto> findFunctionsByGroupId(Long groupId, String langCode) {
-        String dtoClassPath = SysFunctionDto.class.getName();
+	public List<Client> findClientEntitiesByGroupId(Long groupId) {
+		return findClientEntitiesByGroupId(groupId, 0, Integer.MAX_VALUE);
+	}
 
-        String jpql = """
-                SELECT new %s(f.id, f.functionCode, flan.name, flan.description)
-                FROM SysGroup g
-                JOIN g.roles r ON r.isActive = true
-                JOIN r.function f
-                LEFT JOIN f.translations flan ON flan.langCode = :langCode
-                WHERE g.id = :groupId
-                ORDER BY f.functionCode ASC
-                """.formatted(dtoClassPath);
+	public List<Client> findClientEntitiesByGroupId(Long groupId, int page, int size) {
+		String jpql = "SELECT c FROM SysGroup g JOIN g.clients c WHERE g.id = :groupId ORDER BY c.username ASC";
+		return entityManager.createQuery(jpql, Client.class)
+				.setParameter("groupId", groupId).setFirstResult(page * size).setMaxResults(size).getResultList();
+	}
 
-        return entityManager.createQuery(jpql, SysFunctionDto.class)
-                .setParameter("groupId", groupId)
-                .setParameter("langCode", langCode)
-                .getResultList();
-    }
+	// =========================================================================
+	// 4. TRUY VẤN THEO CLIENT (REVERSE LOOKUP)
+	// =========================================================================
 
-    /**
-     * Lấy danh sách Functions của một Group với phân trang
-     */
-    public List<SysFunctionDto> findFunctionsByGroupId(
-            Long groupId, String langCode, int page, int size) {
-        String dtoClassPath = SysFunctionDto.class.getName();
+	public List<SysGroupDto> findAllByClientId(Long clientId, String langCode) {
+		return findAllByClientId(clientId, langCode, 0, Integer.MAX_VALUE);
+	}
 
-        String jpql = """
-                SELECT new %s(f.id, f.functionCode, flan.name, flan.description)
-                FROM SysGroup g
-                JOIN g.roles r ON r.isActive = true
-                JOIN r.function f
-                LEFT JOIN f.translations flan ON flan.langCode = :langCode
-                WHERE g.id = :groupId
-                ORDER BY f.functionCode ASC
-                """.formatted(dtoClassPath);
+	public List<SysGroupDto> findAllByClientId(Long clientId, String langCode, int page, int size) {
+		String jpql = "SELECT new %s(g.id, g.groupCode, glan.name, glan.description) FROM Client c " +
+					  "JOIN c.groups g LEFT JOIN g.translations glan ON glan.langCode = :langCode " +
+					  "WHERE c.id = :clientId";
+		return entityManager.createQuery(String.format(jpql, GROUP_DTO), SysGroupDto.class)
+				.setParameter("clientId", clientId).setParameter("langCode", langCode)
+				.setFirstResult(page * size).setMaxResults(size).getResultList();
+	}
 
-        return entityManager.createQuery(jpql, SysFunctionDto.class)
-                .setParameter("groupId", groupId)
-                .setParameter("langCode", langCode)
-                .setFirstResult(page * size)
-                .setMaxResults(size)
-                .getResultList();
-    }
+	public List<SysGroup> findEntitiesByClientId(Long clientId) {
+		return findEntitiesByClientId(clientId, 0, Integer.MAX_VALUE);
+	}
 
-    // ======= Find Clients of Group =======
-    
-    /**
-     * Lấy danh sách Clients thuộc một Group cụ thể - trả về DTO
-     */
-    public List<ClientDto> findClientsByGroupId(Long groupId) {
-        String dtoClassPath = ClientDto.class.getName();
+	public List<SysGroup> findEntitiesByClientId(Long clientId, int page, int size) {
+		String jpql = "SELECT g FROM Client c JOIN c.groups g WHERE c.id = :clientId";
+		return entityManager.createQuery(jpql, SysGroup.class)
+				.setParameter("clientId", clientId).setFirstResult(page * size).setMaxResults(size).getResultList();
+	}
 
-        String jpql = """
-                SELECT new %s(
-                    c.id, c.username, c.clientType, 
-                    c.ipAddress, c.macAddress, c.avatarUrl, c.lastLoginAt
-                )
-                FROM SysGroup g
-                JOIN g.clients c
-                WHERE g.id = :groupId
-                ORDER BY c.username ASC
-                """.formatted(dtoClassPath);
+	// =========================================================================
+	// 5. THỐNG KÊ (COUNTING)
+	// =========================================================================
 
-        return entityManager.createQuery(jpql, ClientDto.class)
-                .setParameter("groupId", groupId)
-                .getResultList();
-    }
+	public long countAll() {
+		return entityManager.createQuery("SELECT COUNT(g) FROM SysGroup g", Long.class).getSingleResult();
+	}
 
-    /**
-     * Lấy danh sách Clients thuộc một Group với phân trang - trả về DTO
-     */
-    public List<ClientDto> findClientsByGroupId(Long groupId, int page, int size) {
-        String dtoClassPath = ClientDto.class.getName();
+	public long countFunctionsByGroupId(Long groupId) {
+		String jpql = "SELECT COUNT(f) FROM SysGroup g JOIN g.roles r ON r.isActive = true JOIN r.function f WHERE g.id = :groupId";
+		return entityManager.createQuery(jpql, Long.class).setParameter("groupId", groupId).getSingleResult();
+	}
 
-        String jpql = """
-                SELECT new %s(
-                    c.id, c.username, c.clientType, 
-                    c.ipAddress, c.macAddress, c.avatarUrl, c.lastLoginAt
-                )
-                FROM SysGroup g
-                JOIN g.clients c
-                WHERE g.id = :groupId
-                ORDER BY c.username ASC
-                """.formatted(dtoClassPath);
+	public long countClientsByGroupId(Long groupId) {
+		String jpql = "SELECT COUNT(c) FROM SysGroup g JOIN g.clients c WHERE g.id = :groupId";
+		return entityManager.createQuery(jpql, Long.class).setParameter("groupId", groupId).getSingleResult();
+	}
 
-        return entityManager.createQuery(jpql, ClientDto.class)
-                .setParameter("groupId", groupId)
-                .setFirstResult(page * size)
-                .setMaxResults(size)
-                .getResultList();
-    }
-
-    /**
-     * Lấy danh sách Clients thuộc một Group - trả về Entity
-     * Dùng khi cần thao tác với entity
-     */
-    public List<Client> findClientEntitiesByGroupId(Long groupId) {
-        String jpql = """
-                SELECT c
-                FROM SysGroup g
-                JOIN g.clients c
-                WHERE g.id = :groupId
-                ORDER BY c.username ASC
-                """;
-
-        return entityManager.createQuery(jpql, Client.class)
-                .setParameter("groupId", groupId)
-                .getResultList();
-    }
-
-    /**
-     * Lấy danh sách Clients thuộc một Group với phân trang - trả về Entity
-     */
-    public List<Client> findClientEntitiesByGroupId(Long groupId, int page, int size) {
-        String jpql = """
-                SELECT c
-                FROM SysGroup g
-                JOIN g.clients c
-                WHERE g.id = :groupId
-                ORDER BY c.username ASC
-                """;
-
-        return entityManager.createQuery(jpql, Client.class)
-                .setParameter("groupId", groupId)
-                .setFirstResult(page * size)
-                .setMaxResults(size)
-                .getResultList();
-    }
-
-    // ======= Count =======
-    
-    /**
-     * Đếm tổng số Groups
-     */
-    public long countAll() {
-        String jpql = "SELECT COUNT(g) FROM SysGroup g";
-        return entityManager.createQuery(jpql, Long.class)
-                .getSingleResult();
-    }
-
-    /**
-     * Đếm số Functions của một Group
-     */
-    public long countFunctionsByGroupId(Long groupId) {
-        String jpql = """
-                SELECT COUNT(f)
-                FROM SysGroup g
-                JOIN g.roles r ON r.isActive = true
-                JOIN r.function f
-                WHERE g.id = :groupId
-                """;
-        
-        return entityManager.createQuery(jpql, Long.class)
-                .setParameter("groupId", groupId)
-                .getSingleResult();
-    }
-
-    /**
-     * Đếm số Clients của một Group
-     */
-    public long countClientsByGroupId(Long groupId) {
-        String jpql = """
-                SELECT COUNT(c)
-                FROM SysGroup g
-                JOIN g.clients c
-                WHERE g.id = :groupId
-                """;
-        
-        return entityManager.createQuery(jpql, Long.class)
-                .setParameter("groupId", groupId)
-                .getSingleResult();
-    }
+	public Long countAllByClientId(Long clientId) {
+		String jpql = "SELECT COUNT(g) FROM Client c JOIN c.groups g WHERE c.id = :clientId";
+		return entityManager.createQuery(jpql, Long.class).setParameter("clientId", clientId).getSingleResult();
+	}
 }

@@ -2,6 +2,8 @@ package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.SysClientFunctionCacheDao;
 import com.iviet.ivshs.service.PermissionService;
+import com.iviet.ivshs.util.FunctionCodeHelper;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,5 +54,25 @@ public class PermissionServiceImpl implements PermissionService {
 	@Transactional(readOnly = true)
 	public long countPermissions(Long clientId) {
 		return cacheDao.countDistinctFunctionsByClient(clientId);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean canAccessFloor(Long clientId, String floorCode) {
+		Set<String> permissions = getPermissions(clientId);
+		if (permissions.contains(FunctionCodeHelper.buildFloorAccessCode("ALL_FLOORS"))) return true;
+
+		String specificFunc = FunctionCodeHelper.buildFloorAccessCode(floorCode);
+		return permissions.contains(specificFunc);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean canAccessRoom(Long clientId, String roomCode) {
+		Set<String> permissions = getPermissions(clientId);
+		if (permissions.contains(FunctionCodeHelper.buildRoomAccessCode("ALL_ROOMS"))) return true;
+
+		String specificFunc = FunctionCodeHelper.buildRoomAccessCode(roomCode);
+		return permissions.contains(specificFunc);
 	}
 }

@@ -12,4 +12,8 @@ public interface PermissionService {
     Set<String> getPermissions(Long clientId);
 
     long countPermissions(Long clientId);
+
+    boolean canAccessFloor(Long clientId, String floorCode);
+
+    boolean canAccessRoom(Long clientId, String roomCode);
 }

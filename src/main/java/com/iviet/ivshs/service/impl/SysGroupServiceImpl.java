@@ -200,11 +200,47 @@ public class SysGroupServiceImpl implements SysGroupService {
         return groupDao.countClientsByGroupId(groupId);
     }
 
+    @Override
+    public long countByClient(Long clientId) {
+        if (clientId == null) {
+            throw new BadRequestException("Client ID is required");
+        }
+        return groupDao.countAllByClientId(clientId);
+    }
+
     private void _checkDuplicate(String code, Long currentId) {
-        groupDao.findByCode(code).ifPresent(existing -> {
+        groupDao.findEntityByCode(code).ifPresent(existing -> {
             if (currentId == null || !existing.getId().equals(currentId)) {
                 throw new BadRequestException("Group code already exists: " + code);
             }
         });
+    }
+
+    @Override
+    public List<SysGroupDto> getAllByClientId(Long clientId) {
+        if (clientId == null) throw new BadRequestException("Client ID is required");
+        return groupDao.findAllByClientId(clientId, LocalContextUtil.getCurrentLangCode());
+    }
+
+    @Override
+    public PaginatedResponse<SysGroupDto> getAllByClientId(Long clientId, int page, int size) {
+        if (clientId == null) throw new BadRequestException("Client ID is required");
+        List<SysGroupDto> groups = groupDao.findAllByClientId(clientId, LocalContextUtil.getCurrentLangCode(), page, size);
+        long total = groupDao.countAllByClientId(clientId);
+        return new PaginatedResponse<>(groups, page, size, total);
+    }
+
+    @Override
+    public List<SysGroup> getEntitiesByClientId(Long clientId) {
+        if (clientId == null) throw new BadRequestException("Client ID is required");
+        return groupDao.findEntitiesByClientId(clientId);
+    }
+
+    @Override
+    public PaginatedResponse<SysGroup> getEntitiesByClientId(Long clientId, int page, int size) {
+        if (clientId == null) throw new BadRequestException("Client ID is required");
+        List<SysGroup> groups = groupDao.findEntitiesByClientId(clientId, page, size);
+        long total = groupDao.countAllByClientId(clientId);
+        return new PaginatedResponse<>(groups, page, size, total);
     }
 }

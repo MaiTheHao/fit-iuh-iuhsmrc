@@ -61,6 +61,14 @@ public class SysRoleController {
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
+    @PostMapping("/clients/groups/unassign")
+    public ResponseEntity<ApiResponse<Void>> unassignGroupsFromClient(
+            @RequestBody @Valid UnassignGroupsFromClientDto request) {
+        roleService.unassignGroupsFromClient(request);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Groups unassigned from client successfully"));
+    }
+
     @DeleteMapping("/clients/{clientId}/groups/{groupId}")
     public ResponseEntity<ApiResponse<Void>> unassignGroupFromClient(
             @PathVariable(name = "clientId") Long clientId,

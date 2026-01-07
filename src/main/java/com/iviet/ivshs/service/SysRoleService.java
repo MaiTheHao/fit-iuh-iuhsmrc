@@ -46,6 +46,8 @@ public interface SysRoleService {
      */
     void unassignGroupFromClient(Long clientId, Long groupId);
 
+    void unassignGroupsFromClient(UnassignGroupsFromClientDto dto);
+
     /**
      * Kiểm tra xem Group có Function hay không
      */

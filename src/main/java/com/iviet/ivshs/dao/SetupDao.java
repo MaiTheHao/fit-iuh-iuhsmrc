@@ -18,7 +18,7 @@ public class SetupDao extends BaseDao<SetupDao> {
 		super(SetupDao.class);
 	}
 
-	public int persistDeviceSetup(java.util.List<SetupRequest.DeviceConfig> devices, Long clientId, Long roomId) {
+	public int persistDeviceSetup(java.util.List<SetupRequest.BodyData.DeviceConfig> devices, Long clientId, Long roomId) {
 		if (devices == null || devices.isEmpty()) {
 			return 0;
 		}
@@ -28,7 +28,7 @@ public class SetupDao extends BaseDao<SetupDao> {
 
 		int processedDevices = 0;
 		for (int i = 0; i < devices.size(); i++) {
-			SetupRequest.DeviceConfig device = devices.get(i);
+			SetupRequest.BodyData.DeviceConfig device = devices.get(i);
 			
 			if (log.isDebugEnabled()) {
 				log.debug("[SETUP:DEVICE] index={}, name={}, category={}", 
@@ -54,7 +54,7 @@ public class SetupDao extends BaseDao<SetupDao> {
 		return processedDevices;
 	}
 
-	private void persistDevice(SetupRequest.DeviceConfig device, Client client, Room room) {
+	private void persistDevice(SetupRequest.BodyData.DeviceConfig device, Client client, Room room) {
 		if (log.isDebugEnabled()) {
 			log.debug("[SETUP:PERSIST] name={}, category={}", device.getName(), device.getCategory());
 		}
@@ -64,7 +64,7 @@ public class SetupDao extends BaseDao<SetupDao> {
 	}
 
 	private DeviceControl createAndPersistDeviceControl(
-		SetupRequest.DeviceConfig device, Room room, Client client) {
+		SetupRequest.BodyData.DeviceConfig device, Room room, Client client) {
 		
 		DeviceControl deviceControl = new DeviceControl();
 		deviceControl.setDeviceControlType(device.getControlType());
@@ -82,8 +82,8 @@ public class SetupDao extends BaseDao<SetupDao> {
 		return deviceControl;
 	}
 
-	private void createSensorEntity(SetupRequest.DeviceConfig device, Room room, 
-		DeviceControl deviceControl, Map<String, SetupRequest.DeviceConfig.TranslationDetail> translations) {
+	private void createSensorEntity(SetupRequest.BodyData.DeviceConfig device, Room room, 
+		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		switch (device.getCategory()) {
 			case LIGHT -> createLight(device, room, deviceControl, translations);
 			case TEMPERATURE -> createTemperature(device, room, deviceControl, translations);
@@ -91,8 +91,8 @@ public class SetupDao extends BaseDao<SetupDao> {
 		}
 	}
 
-	private void createLight(SetupRequest.DeviceConfig device, Room room, 
-		DeviceControl deviceControl, Map<String, SetupRequest.DeviceConfig.TranslationDetail> translations) {
+	private void createLight(SetupRequest.BodyData.DeviceConfig device, Room room, 
+		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		Light light = new Light();
 		light.setIsActive(device.isActive());
 		light.setRoom(room);
@@ -108,8 +108,8 @@ public class SetupDao extends BaseDao<SetupDao> {
 		}
 	}
 
-	private void createTemperature(SetupRequest.DeviceConfig device, Room room, 
-		DeviceControl deviceControl, Map<String, SetupRequest.DeviceConfig.TranslationDetail> translations) {
+	private void createTemperature(SetupRequest.BodyData.DeviceConfig device, Room room, 
+		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		Temperature temperature = new Temperature();
 		temperature.setIsActive(device.isActive());
 		temperature.setNaturalId(device.getNaturalId());
@@ -125,8 +125,8 @@ public class SetupDao extends BaseDao<SetupDao> {
 		}
 	}
 
-	private void createPowerConsumption(SetupRequest.DeviceConfig device, Room room, 
-		DeviceControl deviceControl, Map<String, SetupRequest.DeviceConfig.TranslationDetail> translations) {
+	private void createPowerConsumption(SetupRequest.BodyData.DeviceConfig device, Room room, 
+		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		PowerConsumption powerConsumption = new PowerConsumption();
 		powerConsumption.setIsActive(device.isActive());
 		powerConsumption.setNaturalId(device.getNaturalId());
@@ -146,7 +146,7 @@ public class SetupDao extends BaseDao<SetupDao> {
 		entityManager.persist(entity);
 	}
 
-	private void persistTranslations(Object entity, Map<String, SetupRequest.DeviceConfig.TranslationDetail> translations) {
+	private void persistTranslations(Object entity, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		if (translations == null || translations.isEmpty()) {
 			return;
 		}
@@ -174,7 +174,7 @@ public class SetupDao extends BaseDao<SetupDao> {
 	private void createLightTranslation(
 		Light light, 
 		String langCode, 
-		SetupRequest.DeviceConfig.TranslationDetail detail) {
+		SetupRequest.BodyData.DeviceConfig.TranslationDetail detail) {
 		
 		LightLan lightLan = new LightLan();
 		lightLan.setLangCode(langCode);
@@ -189,7 +189,7 @@ public class SetupDao extends BaseDao<SetupDao> {
 	private void createTemperatureTranslation(
 		Temperature temperature, 
 		String langCode, 
-		SetupRequest.DeviceConfig.TranslationDetail detail) {
+		SetupRequest.BodyData.DeviceConfig.TranslationDetail detail) {
 		
 		TemperatureLan temperatureLan = new TemperatureLan();
 		temperatureLan.setLangCode(langCode);
@@ -204,7 +204,7 @@ public class SetupDao extends BaseDao<SetupDao> {
 	private void createPowerConsumptionTranslation(
 		PowerConsumption powerConsumption, 
 		String langCode, 
-		SetupRequest.DeviceConfig.TranslationDetail detail) {
+		SetupRequest.BodyData.DeviceConfig.TranslationDetail detail) {
 		
 		PowerConsumptionLan powerConsumptionLan = new PowerConsumptionLan();
 		powerConsumptionLan.setLangCode(langCode);

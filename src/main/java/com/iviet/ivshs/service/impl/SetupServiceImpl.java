@@ -2,6 +2,7 @@ package com.iviet.ivshs.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.SetupDao;
@@ -34,6 +35,7 @@ public class SetupServiceImpl implements SetupService {
     private SetupDao setupDao;
 
     @Override
+    @Transactional
     public void setup(Long clientId) {
         long start = System.currentTimeMillis();
         log.info("[SETUP] Starting setup process for clientId: {}", clientId);
@@ -42,7 +44,7 @@ public class SetupServiceImpl implements SetupService {
 
         SetupRequest setupRequest = fetchSetupData(client);
 
-        executeDatabasePersistence(client, setupRequest);
+        executeDatabasePersistence(client, setupRequest.getData());
 
         log.info("[SETUP] Finished setup process for clientId: {} in {}ms", clientId, System.currentTimeMillis() - start);
     }
@@ -80,28 +82,35 @@ public class SetupServiceImpl implements SetupService {
     }
 
     private void validateData(SetupRequest req) {
-        if (req == null || req.getRoomCode() == null || req.getRoomCode().isBlank()) {
+        if (req == null) {
+            throw new BadRequestException("Invalid setup data: Request is null");
+        }
+        if (req.getData() == null) {
+            throw new BadRequestException("Invalid setup data: Data section is missing");
+        }
+        SetupRequest.BodyData body = req.getData();
+        if (body == null || body.getRoomCode() == null || body.getRoomCode().isBlank()) {
             throw new BadRequestException("Invalid setup data: Missing room code");
         }
-        if (req.getDevices() == null || req.getDevices().isEmpty()) {
+        if (body.getDevices() == null || body.getDevices().isEmpty()) {
             throw new BadRequestException("No devices found in setup data");
         }
     }
 
-    protected void executeDatabasePersistence(Client client, SetupRequest req) {
+    protected void executeDatabasePersistence(Client client, SetupRequest.BodyData body) {
         try {
-            Room room = roomService.getEntityByCode(req.getRoomCode());
+            Room room = roomService.getEntityByCode(body.getRoomCode());
             
             int processed = setupDao.persistDeviceSetup(
-                req.getDevices(), 
+                body.getDevices(), 
                 client.getId(), 
                 room.getId()
             );
 
-            log.info("[SETUP] Persisted {} devices for room {}", processed, req.getRoomCode());
+            log.info("[SETUP] Persisted {} devices for room {}", processed, body.getRoomCode());
 
         } catch (NotFoundException e) {
-            log.error("[SETUP] Room not found in system: {}", req.getRoomCode());
+            log.error("[SETUP] Room not found in system: {}", body.getRoomCode());
             throw e;
         } catch (Exception e) {
             log.error("[SETUP] Critical error during persistence: {}", e.getMessage());

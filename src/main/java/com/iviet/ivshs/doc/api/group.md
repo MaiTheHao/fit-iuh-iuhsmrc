@@ -261,9 +261,9 @@
 
 ---
 
-## GET /api/v1/groups/{groupId}/functions
+## GET /api/v1/groups/{groupId}/functions/all
 
-> Lấy danh sách Functions của một Group.
+> Lấy tất cả Functions của một Group (không phân trang).
 
 ### Path Parameters
 
@@ -297,9 +297,58 @@
 
 ---
 
-## GET /api/v1/groups/{groupId}/clients
+## GET /api/v1/groups/{groupId}/functions
 
-> Lấy danh sách Clients (Users) thuộc một Group.
+> Lấy danh sách Functions của một Group với phân trang.
+
+### Path Parameters
+
+| Tên     | Loại | Mô tả        | Bắt buộc |
+| :------ | :--- | :----------- | :------- |
+| groupId | Long | ID của Group | Có       |
+
+### Query Parameters
+
+| Tên  | Loại | Mô tả                         | Mặc định |
+| :--- | :--- | :---------------------------- | :------- |
+| page | int  | Trang hiện tại (bắt đầu từ 0) | 0        |
+| size | int  | Số lượng phần tử/trang        | 10       |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": {
+		"content": [
+			{
+				"id": 1,
+				"functionCode": "VIEW_DASHBOARD",
+				"name": "Xem dashboard",
+				"description": "Quyền xem trang dashboard"
+			},
+			{
+				"id": 2,
+				"functionCode": "EDIT_USER",
+				"name": "Chỉnh sửa người dùng",
+				"description": "Quyền chỉnh sửa thông tin người dùng"
+			}
+		],
+		"page": 0,
+		"size": 10,
+		"totalElements": 2,
+		"totalPages": 1
+	},
+	"timestamp": "2026-01-05T10:00:00Z"
+}
+```
+
+---
+
+## GET /api/v1/groups/{groupId}/clients/all
+
+> Lấy tất cả Clients (Users) thuộc một Group (không phân trang).
 
 ### Path Parameters
 
@@ -324,6 +373,52 @@
 			"lastLoginAt": "2026-01-05T09:30:00Z"
 		}
 	],
+	"timestamp": "2026-01-05T10:00:00Z"
+}
+```
+
+---
+
+## GET /api/v1/groups/{groupId}/clients
+
+> Lấy danh sách Clients (Users) thuộc một Group với phân trang.
+
+### Path Parameters
+
+| Tên     | Loại | Mô tả        | Bắt buộc |
+| :------ | :--- | :----------- | :------- |
+| groupId | Long | ID của Group | Có       |
+
+### Query Parameters
+
+| Tên  | Loại | Mô tả                         | Mặc định |
+| :--- | :--- | :---------------------------- | :------- |
+| page | int  | Trang hiện tại (bắt đầu từ 0) | 0        |
+| size | int  | Số lượng phần tử/trang        | 10       |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": {
+		"content": [
+			{
+				"id": 1,
+				"username": "admin",
+				"clientType": "USER",
+				"ipAddress": "192.168.1.100",
+				"macAddress": "00:11:22:33:44:55",
+				"avatarUrl": "/images/avatar1.jpg",
+				"lastLoginAt": "2026-01-05T09:30:00Z"
+			}
+		],
+		"page": 0,
+		"size": 10,
+		"totalElements": 1,
+		"totalPages": 1
+	},
 	"timestamp": "2026-01-05T10:00:00Z"
 }
 ```
@@ -375,6 +470,108 @@
 	"status": 200,
 	"message": "Success",
 	"data": 8,
+	"timestamp": "2026-01-05T10:00:00Z"
+}
+```
+
+---
+
+## GET /api/v1/clients/{clientId}/groups/all
+
+> Lấy tất cả Groups của một Client (không phân trang).
+
+### Path Parameters
+
+| Tên      | Loại | Mô tả         | Bắt buộc |
+| :------- | :--- | :------------ | :------- |
+| clientId | Long | ID của Client | Có       |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [
+		{
+			"id": 1,
+			"groupCode": "ADMIN",
+			"name": "Quản trị viên",
+			"description": "Nhóm quản trị hệ thống"
+		},
+		{
+			"id": 2,
+			"groupCode": "USER",
+			"name": "Người dùng",
+			"description": "Nhóm người dùng thông thường"
+		}
+	],
+	"timestamp": "2026-01-05T10:00:00Z"
+}
+```
+
+---
+
+## GET /api/v1/clients/{clientId}/groups
+
+> Lấy danh sách Groups của một Client với phân trang.
+
+### Path Parameters
+
+| Tên      | Loại | Mô tả         | Bắt buộc |
+| :------- | :--- | :------------ | :------- |
+| clientId | Long | ID của Client | Có       |
+
+### Query Parameters
+
+| Tên  | Loại | Mô tả                         | Mặc định |
+| :--- | :--- | :---------------------------- | :------- |
+| page | int  | Trang hiện tại (bắt đầu từ 0) | 0        |
+| size | int  | Số lượng phần tử/trang        | 10       |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": {
+		"content": [
+			{
+				"id": 1,
+				"groupCode": "ADMIN",
+				"name": "Quản trị viên",
+				"description": "Nhóm quản trị hệ thống"
+			},
+			{
+				"id": 2,
+				"groupCode": "USER",
+				"name": "Người dùng",
+				"description": "Nhóm người dùng thông thường"
+			}
+		],
+		"page": 0,
+		"size": 10,
+		"totalElements": 2,
+		"totalPages": 1
+	},
+	"timestamp": "2026-01-05T10:00:00Z"
+}
+```
+
+---
+
+## GET /api/v1/clients/{clientId}/groups/count
+
+> Đếm số Groups của một Client.
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": 15,
 	"timestamp": "2026-01-05T10:00:00Z"
 }
 ```

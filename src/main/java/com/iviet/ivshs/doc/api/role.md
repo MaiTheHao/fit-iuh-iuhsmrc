@@ -233,6 +233,41 @@
 
 ---
 
+## POST /api/v1/roles/clients/groups/unassign
+
+> Unassign nhiều Groups khỏi một Client.
+>
+> **Use case:** Admin bỏ nhiều groups khỏi user.
+
+### Request Body
+
+| Tên trường | Loại        | Bắt buộc | Mô tả               |
+| :--------- | :---------- | :------- | :------------------ |
+| clientId   | Long        | Có       | ID của Client       |
+| groupIds   | Array[Long] | Có       | Danh sách Group IDs |
+
+### Request Example
+
+```json
+{
+	"clientId": 5,
+	"groupIds": [1, 2]
+}
+```
+
+### Response (204 No Content)
+
+```json
+{
+	"status": 204,
+	"message": "Groups unassigned from client successfully",
+	"data": null,
+	"timestamp": "2026-01-05T10:00:00Z"
+}
+```
+
+---
+
 ## DELETE /api/v1/roles/clients/{clientId}/groups/{groupId}
 
 > Unassign một Group khỏi Client.

@@ -374,6 +374,45 @@ public class SysRoleServiceImpl implements SysRoleService {
     }
 
     @Override
+    public void unassignGroupsFromClient(UnassignGroupsFromClientDto dto) {
+        if (dto == null || dto.getClientId() == null || dto.getGroupIds() == null || dto.getGroupIds().isEmpty()) {
+            throw new BadRequestException("Invalid request data");
+        }
+
+        Client client = clientDao.findById(dto.getClientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
+
+        boolean hasChanges = false;
+
+        for (Long groupId : dto.getGroupIds()) {
+            try {
+                SysGroup group = groupDao.findById(groupId)
+                        .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
+
+                // Kiểm tra client có group không
+                if (!client.getGroups().contains(group)) {
+                    log.debug("Client {} does not have group {}", client.getId(), groupId);
+                    continue;
+                }
+
+                // Remove group khỏi client
+                client.getGroups().remove(group);
+                hasChanges = true;
+
+            } catch (Exception e) {
+                log.error("Error unassigning group {} from client {}", groupId, client.getId(), e);
+            }
+        }
+
+        if (hasChanges) {
+            clientDao.save(client);
+            for (Long groupId : dto.getGroupIds()) {
+                cacheService.clearCacheForClientGroup(client.getId(), groupId);
+            }
+            cacheService.rebuildCacheForClient(client.getId());
+        }
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public boolean hasFunction(Long groupId, String functionCode) {
         if (groupId == null || functionCode == null || functionCode.isBlank()) {
