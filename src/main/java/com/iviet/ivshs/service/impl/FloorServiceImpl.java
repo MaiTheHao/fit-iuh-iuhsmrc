@@ -4,15 +4,13 @@ import com.iviet.ivshs.dao.FloorDao;
 import com.iviet.ivshs.dao.LanguageDao;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.FloorLan;
-import com.iviet.ivshs.enumeration.SysFunctionEnum;
 import com.iviet.ivshs.entities.Floor;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.FloorMapper;
 import com.iviet.ivshs.service.FloorService;
+import com.iviet.ivshs.service.PermissionService;
 import com.iviet.ivshs.util.LocalContextUtil;
-import com.iviet.ivshs.util.RequestContextUtil;
-import com.iviet.ivshs.util.SecurityContextUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,13 +29,15 @@ public class FloorServiceImpl implements FloorService {
     private final FloorDao floorDao;
     private final LanguageDao languageDao;
     private final FloorMapper floorMapper;
+    private final PermissionService permissionService;
 
     @Override
     public PaginatedResponse<FloorDto> getList(int page, int size) {
         String langCode = LocalContextUtil.getCurrentLangCode();
         List<FloorDto> floors = floorDao.findAll(page, size, langCode);
 
-        removeIfNoAccess(floors);
+        Set<String> accessibleFloorCodes = permissionService.getAccessibleFloorCodes();
+        if (!accessibleFloorCodes.contains(PermissionService.ACCESS_ALL)) floors.removeIf(floor -> !accessibleFloorCodes.contains(floor.code()));
 
         return new PaginatedResponse<>(
                 floors,
@@ -48,21 +48,21 @@ public class FloorServiceImpl implements FloorService {
     @Override
     public FloorDto getById(Long id) {
         FloorDto floorDto = floorDao.findById(id, LocalContextUtil.getCurrentLangCode()).orElseThrow(() -> new NotFoundException("Floor not found with ID: " + id));
-        requireAccessToFloor(floorDto.code());
+        permissionService.requireAccessFloor(floorDto.code());
         return floorDto;
     }
 
     @Override
     public Floor getEntityById(Long id) {
         Floor floor = floorDao.findById(id).orElseThrow(() -> new NotFoundException("Floor not found with ID: " + id));
-        requireAccessToFloor(floor.getCode());
+        permissionService.requireAccessFloor(floor.getCode());
         return floor;
     }
 
     @Override
     @Transactional
     public FloorDto create(CreateFloorDto dto) {
-        requireManageFloorPermission();
+        permissionService.requireManageFloor();
 
         if (dto == null || !StringUtils.hasText(dto.code())) throw new BadRequestException("Data and Floor code are required");
         
@@ -90,7 +90,8 @@ public class FloorServiceImpl implements FloorService {
     @Override
     @Transactional
     public FloorDto update(Long id, UpdateFloorDto dto) {
-        requireManageFloorPermission();
+        permissionService.requireManageFloor();
+
         Floor floor = floorDao.findById(id).orElseThrow(() -> new NotFoundException("Floor not found"));
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found: " + langCode);
@@ -124,7 +125,8 @@ public class FloorServiceImpl implements FloorService {
     @Override
     @Transactional
     public void delete(Long id) {
-        requireManageFloorPermission();
+        permissionService.requireManageFloor();
+
         if (!floorDao.existsById(id)) throw new NotFoundException("Floor not found");
         floorDao.deleteById(id);
     }
@@ -135,30 +137,5 @@ public class FloorServiceImpl implements FloorService {
                 throw new BadRequestException("Floor code already exists: " + code);
             }
         });
-    }
-
-    // Các method author, sau này tách ra thành Class riêng để clean hơn
-    public void requireManageFloorPermission() {
-        if (RequestContextUtil.isHttpRequest() && !SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_ALL.getCode())) {
-            SecurityContextUtil.requireAllPermissions(
-                List.of(SysFunctionEnum.F_MANAGE_FLOOR.getCode()),
-                "Insufficient permissions to manage floor"
-            );
-        }
-    }
-
-    private void requireAccessToFloor(String floorCode) {
-        if (RequestContextUtil.isHttpRequest()) {
-            SecurityContextUtil.requireFloorAccess(floorCode);
-        }
-    }
-
-    private void removeIfNoAccess(List<FloorDto> floors) {
-        if (RequestContextUtil.isHttpRequest()) {
-            Set<String> accessibleFloorCodes = SecurityContextUtil.getAccessibleFloorCodes();
-            if (!accessibleFloorCodes.contains("ALL")) {
-                floors.removeIf(floor -> !accessibleFloorCodes.contains(floor.code()));
-            }
-        }
     }
 }

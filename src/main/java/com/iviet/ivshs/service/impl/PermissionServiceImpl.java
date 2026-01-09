@@ -1,125 +1,230 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.dao.SysClientFunctionCacheDao;
 import com.iviet.ivshs.enumeration.SysFunctionEnum;
 import com.iviet.ivshs.exception.domain.ForbiddenException;
 import com.iviet.ivshs.service.PermissionService;
-import com.iviet.ivshs.util.FunctionCodeHelper;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.iviet.ivshs.util.RequestContextUtil;
+import com.iviet.ivshs.util.SecurityContextUtil;
 
-import java.util.HashSet;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Service
-@Transactional
 public class PermissionServiceImpl implements PermissionService {
 
-	@PersistenceContext
-	private EntityManager entityManager;
+	@Override
+	public boolean canManageFloor() {
+        if (!RequestContextUtil.isHttpRequest()) return true;
 
-	@Autowired
-	private SysClientFunctionCacheDao cacheDao;
+        return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
+                SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_FLOOR.getCode());
+    }
 
 	@Override
-	@Transactional(readOnly = true)
-	public boolean hasPermission(Long clientId, String functionCode) {
-		if (functionCode == null || functionCode.isBlank()) return false;
-		return cacheDao.hasPermission(clientId, functionCode);
-	}
+    public void requireManageFloor() {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!canManageFloor()) {
+            throw new ForbiddenException("Insufficient permissions to manage floors");
+        }
+        log.debug("User {} granted permission to manage floors", SecurityContextUtil.getCurrentUsername());
+    }
 
 	@Override
-	@Transactional(readOnly = true)
-	public boolean hasPermissions(Long clientId, List<String> functionCodes) {
-		if (functionCodes == null || functionCodes.isEmpty()) return false;
-		for (String functionCode : functionCodes) {
-			if (!hasPermission(clientId, functionCode)) {
-				return false;
-			}
-		}
-		return true;
-	}
+    public boolean canManageRoom() {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+
+        return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
+                SecurityContextUtil.hasAllPermissions(List.of(
+                        SysFunctionEnum.F_MANAGE_FLOOR.getCode(),
+                        SysFunctionEnum.F_MANAGE_ROOM.getCode()
+                ));
+    }
 
 	@Override
-	@Transactional(readOnly = true)
-	public Set<String> getPermissions(Long clientId) {
-		List<String> functionCodes = cacheDao.getFunctionCodesByClient(clientId);
-		return new HashSet<>(functionCodes);
-	}
+    public void requireManageRoom() {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!canManageRoom()) {
+            throw new ForbiddenException("Insufficient permissions to manage rooms");
+        }
+        log.debug("User {} granted permission to manage rooms", SecurityContextUtil.getCurrentUsername());
+    }
 
 	@Override
-	@Transactional(readOnly = true)
-	public long countPermissions(Long clientId) {
-		return cacheDao.countDistinctFunctionsByClient(clientId);
-	}
+    public boolean canManageDevice() {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+
+        return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
+                SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_DEVICE.getCode());
+    }
 
 	@Override
-	@Transactional(readOnly = true)
-	public void checkAccessToFloor(Long clientId, String floorCode) {
-		Set<String> permissions = getPermissions(clientId);
-		if (permissions.contains(SysFunctionEnum.F_ACCESS_FLOOR_ALL.getCode())) return;
-		String specificFunc = FunctionCodeHelper.buildFloorAccessCode(floorCode);
-		if (!permissions.contains(specificFunc)) {
-			throw new ForbiddenException("Access to floor " + floorCode + " is denied");
-		}
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public void checkAccessToRoom(Long clientId, String roomCode) {
-		Set<String> permissions = getPermissions(clientId);
-		if (permissions.contains(SysFunctionEnum.F_ACCESS_ROOM_ALL.getCode())) return;
-		String specificFunc = FunctionCodeHelper.buildRoomAccessCode(roomCode);
-		if (!permissions.contains(specificFunc)) {
-			throw new ForbiddenException("Access to room " + roomCode + " is denied");
-		}
-	}
+    public void requireManageDevice() {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!canManageDevice()) {
+            throw new ForbiddenException("Insufficient permissions to manage devices");
+        }
+        log.debug("User {} granted permission to manage devices", SecurityContextUtil.getCurrentUsername());
+    }
 
 	@Override
-	@Transactional(readOnly = true)
-	public Set<String> getAccessFloorCodes(Long clientId) {
-		Set<String> permissions = getPermissions(clientId);
-		Set<String> floorCodes = new HashSet<>();
+    public boolean canManageClient() {
+        if (!RequestContextUtil.isHttpRequest()) return true;
 
-		if (permissions.contains(SysFunctionEnum.F_ACCESS_FLOOR_ALL.getCode())) {
-			floorCodes.add(PermissionService.ACCESS_ALL);
-			return floorCodes;
-		}
-
-		for (String funcCode : permissions) {
-			if (FunctionCodeHelper.isFloorAccessCode(funcCode)) {
-				String floorCode = FunctionCodeHelper.extractFloorCode(funcCode);
-				if (floorCode != null) {
-					floorCodes.add(floorCode);
-				}
-			}
-		}
-		return floorCodes;
-	}
+        return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
+                SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_CLIENT.getCode());
+    }
 
 	@Override
-	@Transactional(readOnly = true)
-	public Set<String> getAccessRoomCodes(Long clientId) {
-		Set<String> permissions = getPermissions(clientId);
-		Set<String> roomCodes = new HashSet<>();
+    public void requireManageClient() {
+        if (!RequestContextUtil.isHttpRequest()) return;
 
-		if (permissions.contains(SysFunctionEnum.F_ACCESS_ROOM_ALL.getCode())) {
-			roomCodes.add(PermissionService.ACCESS_ALL);
-			return roomCodes;
-		}
+        if (!canManageClient()) {
+            throw new ForbiddenException("Insufficient permissions to manage clients");
+        }
+        log.debug("User {} granted permission to manage clients", SecurityContextUtil.getCurrentUsername());
+    }
 
-		for (String funcCode : permissions) {
-			if (FunctionCodeHelper.isRoomAccessCode(funcCode)) {
-				String roomCode = FunctionCodeHelper.extractRoomCode(funcCode);
-				if (roomCode != null) {
-					roomCodes.add(roomCode);
-				}
-			}
-		}
-		return roomCodes;
-	}
+	@Override
+    public boolean canAccessFloor(String floorCode) {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (floorCode == null || floorCode.isBlank()) return false;
+
+        return SecurityContextUtil.hasFloorAccess(floorCode);
+    }
+
+	@Override
+    public void requireAccessFloor(String floorCode) {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!canAccessFloor(floorCode)) {
+            throw new ForbiddenException("Access to floor '" + floorCode + "' is denied");
+        }
+        log.debug("User {} granted access to floor '{}'", SecurityContextUtil.getCurrentUsername(), floorCode);
+    }
+
+	@Override
+    public boolean canAccessRoom(String roomCode) {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (roomCode == null || roomCode.isBlank()) return false;
+
+        return SecurityContextUtil.hasRoomAccess(roomCode);
+    }
+
+	@Override
+    public void requireAccessRoom(String roomCode) {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!canAccessRoom(roomCode)) {
+            throw new ForbiddenException("Access to room '" + roomCode + "' is denied");
+        }
+        log.debug("User {} granted access to room '{}'", SecurityContextUtil.getCurrentUsername(), roomCode);
+    }
+
+	@Override
+    public Set<String> getAccessibleFloorCodes() {
+        if (!RequestContextUtil.isHttpRequest()) return Set.of(ACCESS_ALL);
+
+        return SecurityContextUtil.getAccessibleFloorCodes();
+    }
+
+	@Override
+    public Set<String> getAccessibleRoomCodes() {
+        if (!RequestContextUtil.isHttpRequest()) return Set.of(ACCESS_ALL);
+
+        return SecurityContextUtil.getAccessibleRoomCodes();
+    }
+
+	@Override
+    public boolean hasAccessToAllFloors(Set<String> floorCodes) {
+        if (floorCodes == null || floorCodes.isEmpty() || !RequestContextUtil.isHttpRequest()) return true;
+
+        Set<String> accessible = getAccessibleFloorCodes();
+        return accessible.contains(ACCESS_ALL) || accessible.containsAll(floorCodes);
+    }
+
+	@Override
+    public boolean hasAccessToAllRooms(Set<String> roomCodes) {
+        if (roomCodes == null || roomCodes.isEmpty() || !RequestContextUtil.isHttpRequest()) return true;
+
+        Set<String> accessible = getAccessibleRoomCodes();
+        return accessible.contains(ACCESS_ALL) || accessible.containsAll(roomCodes);
+    }
+
+	@Override
+    public boolean hasPermission(String functionCode) {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (functionCode == null || functionCode.isBlank()) return false;
+
+        return SecurityContextUtil.hasPermission(functionCode);
+    }
+
+	@Override
+    public boolean hasAllPermissions(List<String> functionCodes) {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (functionCodes == null || functionCodes.isEmpty()) return false;
+
+        return SecurityContextUtil.hasAllPermissions(functionCodes);
+    }
+
+	@Override
+    public boolean hasAnyPermission(List<String> functionCodes) {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (functionCodes == null || functionCodes.isEmpty()) return false;
+
+        return SecurityContextUtil.hasAnyPermission(functionCodes);
+    }
+
+	@Override
+    public void requirePermission(String functionCode, String message) {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!hasPermission(functionCode)) {
+            throw new ForbiddenException(message != null ? message : "Permission denied");
+        }
+        log.debug("User {} granted permission '{}'", SecurityContextUtil.getCurrentUsername(), functionCode);
+    }
+
+	@Override
+    public void requireAllPermissions(List<String> functionCodes, String message) {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!hasAllPermissions(functionCodes)) {
+            throw new ForbiddenException(message != null ? message : "Insufficient permissions");
+        }
+        log.debug("User {} granted all permissions", SecurityContextUtil.getCurrentUsername());
+    }
+
+	@Override
+    public void requireAnyPermission(List<String> functionCodes, String message) {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!hasAnyPermission(functionCodes)) {
+            throw new ForbiddenException(message != null ? message : "Insufficient permissions");
+        }
+        log.debug("User {} granted one of required permissions", SecurityContextUtil.getCurrentUsername());
+    }
+
+	@Override
+    public Long getCurrentUserId() {
+        return SecurityContextUtil.getCurrentClientId();
+    }
+
+	@Override
+    public String getCurrentUsername() {
+        return SecurityContextUtil.getCurrentUsername();
+    }
+
+	@Override
+    public Set<String> getCurrentPermissions() {
+        if (!RequestContextUtil.isHttpRequest()) return Set.of();
+
+        return SecurityContextUtil.getCurrentFunctions();
+    }
 }

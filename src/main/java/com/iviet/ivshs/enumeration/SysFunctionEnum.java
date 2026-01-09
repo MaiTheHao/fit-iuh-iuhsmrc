@@ -1,15 +1,21 @@
 package com.iviet.ivshs.enumeration;
 
+/**
+ * System Function Enumeration
+ * 
+ * Enum này định nghĩa các chứng năng hệ thống chung cho việc phân quyền truy cập.
+ */
 public enum SysFunctionEnum {
+	// ========== MANAGEMENT FUNCTIONS ==========
 	F_MANAGE_CLIENT("F_MANAGE_CLIENT"),
 	F_MANAGE_FLOOR("F_MANAGE_FLOOR"),
 	F_MANAGE_ROOM("F_MANAGE_ROOM"),
 	F_MANAGE_DEVICE("F_MANAGE_DEVICE"),
 	F_MANAGE_ALL("F_MANAGE_ALL"),
+	
+	// ========== sACCESS FUNCTIONS ==========
 	F_ACCESS_FLOOR_ALL("F_ACCESS_FLOOR_ALL"),
-	F_ACCESS_ROOM_ALL("F_ACCESS_ROOM_ALL"),
-	F_ACCESS_FLOOR_F00("F_ACCESS_FLOOR_F00"),
-	F_ACCESS_ROOM_R_MAIN_SERVER("F_ACCESS_ROOM_R-Main-Server");
+	F_ACCESS_ROOM_ALL("F_ACCESS_ROOM_ALL");
 
 	private String code;
 	

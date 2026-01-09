@@ -1,25 +1,61 @@
 package com.iviet.ivshs.service;
 
+import com.iviet.ivshs.enumeration.SysFunctionEnum;
 import java.util.List;
 import java.util.Set;
 
 public interface PermissionService {
 
     public static final String ACCESS_ALL = "ALL";
+    public static final String MANAGE_ALL_PERMISSION = SysFunctionEnum.F_MANAGE_ALL.getCode();
 
-    boolean hasPermission(Long clientId, String functionCode);
+    boolean canManageFloor();
 
-    boolean hasPermissions(Long clientId, List<String> functionCodes);
+    void requireManageFloor();
 
-    Set<String> getPermissions(Long clientId);
+    boolean canManageRoom();
 
-    long countPermissions(Long clientId);
+    void requireManageRoom();
 
-    void checkAccessToFloor(Long clientId, String floorCode);
+    boolean canManageDevice();
 
-    void checkAccessToRoom(Long clientId, String roomCode);
-    
-    Set<String> getAccessFloorCodes(Long clientId);
+    void requireManageDevice();
 
-    Set<String> getAccessRoomCodes(Long clientId);
+    boolean canManageClient();
+
+    void requireManageClient();
+
+    boolean canAccessFloor(String floorCode);
+
+    void requireAccessFloor(String floorCode);
+
+    boolean canAccessRoom(String roomCode);
+
+    void requireAccessRoom(String roomCode);
+
+    Set<String> getAccessibleFloorCodes();
+
+    Set<String> getAccessibleRoomCodes();
+
+    boolean hasAccessToAllFloors(Set<String> floorCodes);
+
+    boolean hasAccessToAllRooms(Set<String> roomCodes);
+
+    boolean hasPermission(String functionCode);
+
+    boolean hasAllPermissions(List<String> functionCodes);
+
+    boolean hasAnyPermission(List<String> functionCodes);
+
+    void requirePermission(String functionCode, String message);
+
+    void requireAllPermissions(List<String> functionCodes, String message);
+
+    void requireAnyPermission(List<String> functionCodes, String message);
+
+    Long getCurrentUserId();
+
+    String getCurrentUsername();
+
+    Set<String> getCurrentPermissions();
 }

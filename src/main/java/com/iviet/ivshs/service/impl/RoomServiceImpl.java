@@ -6,16 +6,14 @@ import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.Floor;
 import com.iviet.ivshs.entities.RoomLan;
-import com.iviet.ivshs.enumeration.SysFunctionEnum;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.RoomMapper;
 import com.iviet.ivshs.service.FloorService;
 import com.iviet.ivshs.service.RoomService;
+import com.iviet.ivshs.service.PermissionService;
 import com.iviet.ivshs.util.LocalContextUtil;
-import com.iviet.ivshs.util.RequestContextUtil;
-import com.iviet.ivshs.util.SecurityContextUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +36,7 @@ public class RoomServiceImpl implements RoomService {
     private final FloorService floorService;
     private final LanguageDao languageDao;
     private final RoomMapper roomMapper;
+    private final PermissionService permissionService;
 
     @Override
     public PaginatedResponse<RoomDto> getListByFloor(Long floorId, int page, int size) {
@@ -45,7 +44,9 @@ public class RoomServiceImpl implements RoomService {
 
         String langCode = LocalContextUtil.getCurrentLangCode();
         List<RoomDto> rooms = roomDao.findAllByFloorId(floorId, page, size, langCode);
-        removeIfNoAccess(rooms);
+       
+        Set<String> accessibleRoomCodes = permissionService.getAccessibleRoomCodes();
+        if (!accessibleRoomCodes.contains(PermissionService.ACCESS_ALL)) rooms.removeIf(room -> !accessibleRoomCodes.contains(room.code()));
 
         long total = roomDao.countByFloorId(floorId);
         return new PaginatedResponse<>(rooms, page, size, total);
@@ -54,7 +55,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public RoomDto getById(Long roomId) {
         RoomDto roomDto = roomDao.findById(roomId, LocalContextUtil.getCurrentLangCode()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
-        requireAccessToRoom(roomDto.code());
+        permissionService.requireAccessRoom(roomDto.code());
         return roomDto;
     }
 
@@ -63,7 +64,7 @@ public class RoomServiceImpl implements RoomService {
     public RoomDto create(Long floorId, CreateRoomDto dto) {
         Floor floor = floorService.getEntityById(floorId);
 
-        requireManageRoomPermission();
+        permissionService.requireManageRoom();
 
         if (dto == null || !StringUtils.hasText(dto.code())) {
             throw new BadRequestException("Room data and code are required");
@@ -95,9 +96,9 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public RoomDto update(Long roomId, UpdateRoomDto dto) {
-        requireManageRoomPermission();
-        Room room = roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
+        permissionService.requireManageRoom();
 
+        Room room = roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) {
             throw new NotFoundException("Language not found: " + langCode);
@@ -139,7 +140,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public void delete(Long roomId) {
-        requireManageRoomPermission();
+        permissionService.requireManageRoom();
 
         if (!roomDao.existsById(roomId)) throw new NotFoundException("Room not found");
         
@@ -157,50 +158,25 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Room getEntityById(Long roomId) {
         Room room = roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
-        requireAccessToRoom(room.getCode());
+        permissionService.requireAccessRoom(room.getCode());
         return room;
     }
 
     @Override
     public RoomDto getByCode(String roomCode) {
-        if (roomCode == null || roomCode.isBlank()) {
-            throw new BadRequestException("Room code is required");
-        }
-        return roomDao.findByCode(roomCode, LocalContextUtil.getCurrentLangCode())
-                .orElseThrow(() -> new NotFoundException("Room not found with code: " + roomCode));
+        if (roomCode == null || roomCode.isBlank()) throw new BadRequestException("Room code is required");
+        
+        RoomDto roomDto = roomDao.findByCode(roomCode, LocalContextUtil.getCurrentLangCode()).orElseThrow(() -> new NotFoundException("Room not found with code: " + roomCode));
+        permissionService.requireAccessRoom(roomDto.code());
+        return roomDto;
     }
 
     @Override
     public Room getEntityByCode(String roomCode) {
-        if (roomCode == null || roomCode.isBlank()) {
-            throw new BadRequestException("Room code is required");
-        }
-        return roomDao.findByCode(roomCode)
-                .orElseThrow(() -> new NotFoundException("Room not found with code: " + roomCode));
-    }
-
-    // Các method author, sau này tách ra thành Class riêng để clean hơn
-    private void requireManageRoomPermission() {
-        if (RequestContextUtil.isHttpRequest() && !SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_ALL.getCode())) {
-            SecurityContextUtil.requireAllPermissions(
-                List.of(SysFunctionEnum.F_MANAGE_FLOOR.getCode(), SysFunctionEnum.F_MANAGE_ROOM.getCode()),
-                "Insufficient permissions to manage room"
-            );
-        }
-    }
-
-    private void requireAccessToRoom(String roomCode) {
-        if (RequestContextUtil.isHttpRequest()) {
-            SecurityContextUtil.requireRoomAccess(roomCode);
-        }
-    }
-
-    private void removeIfNoAccess(List<RoomDto> rooms) {
-        if (RequestContextUtil.isHttpRequest()) {
-            Set<String> accessibleRoomCodes = SecurityContextUtil.getAccessibleRoomCodes();
-            if (!accessibleRoomCodes.contains("ALL")) {
-                rooms.removeIf(room -> !accessibleRoomCodes.contains(room.code()));
-            }
-        }
+        if (roomCode == null || roomCode.isBlank()) throw new BadRequestException("Room code is required");
+        
+        Room room = roomDao.findByCode(roomCode).orElseThrow(() -> new NotFoundException("Room not found with code: " + roomCode));
+        permissionService.requireAccessRoom(room.getCode());
+        return room;
     }
 }
