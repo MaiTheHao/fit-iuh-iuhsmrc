@@ -137,7 +137,6 @@ public class SysGroupServiceImpl implements SysGroupService {
             );
         }
         
-        // Xóa group (cascade sẽ xóa roles và translations)
         groupDao.deleteById(id);
     }
 

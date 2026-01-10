@@ -139,7 +139,6 @@ public class SysRoleServiceImpl implements SysRoleService {
             }
         }
 
-        // Rebuild cache 1 lần duy nhất sau khi hoàn tất tất cả DB operations
         if (hasChanges) {
             cacheService.clearCacheForGroup(dto.getGroupId());
             cacheService.rebuildCacheForGroup(dto.getGroupId());
@@ -217,7 +216,6 @@ public class SysRoleServiceImpl implements SysRoleService {
             }
         }
 
-        // Rebuild cache 1 lần duy nhất sau khi hoàn tất tất cả DB operations
         if (hasChanges) {
             cacheService.clearCacheForGroup(group.getId());
             cacheService.rebuildCacheForGroup(group.getId());
@@ -327,7 +325,6 @@ public class SysRoleServiceImpl implements SysRoleService {
 
         clientDao.save(client);
 
-        // Rebuild cache cho client sau khi assign groups
         cacheService.rebuildCacheForClient(client.getId());
 
         String message = String.format(
@@ -359,16 +356,13 @@ public class SysRoleServiceImpl implements SysRoleService {
         SysGroup group = groupDao.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
-        // Kiểm tra client có group không
         if (!client.getGroups().contains(group)) {
             throw new NotFoundException("Client does not have this group");
         }
 
-        // Remove group khỏi client
         client.getGroups().remove(group);
         clientDao.save(client);
 
-        // Clear cache cho client-group và rebuild
         cacheService.clearCacheForClientGroup(clientId, groupId);
         cacheService.rebuildCacheForClient(clientId);
     }

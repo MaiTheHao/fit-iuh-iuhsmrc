@@ -14,17 +14,8 @@ import lombok.extern.jackson.Jacksonized;
 public class HealthCheckResponseDto {
     private int status;
     private String message;
-    private Data data;
+    private List<DeviceDto> data;
     private String timestamp;
-
-    @Builder
-    @lombok.Data
-    @Jacksonized
-    public static class Data {
-        private String roomCode;
-        // private String ipAddress;
-        private List<DeviceDto> devices;
-    }
 
     @Builder
     @lombok.Data

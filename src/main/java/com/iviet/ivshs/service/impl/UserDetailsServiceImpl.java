@@ -45,7 +45,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("User not found: " + username);
         });
 
-        if (client.getClientType() != ClientType.USER) throw new InvalidClientTypeException("Client type is not USER");
+        // if (client.getClientType() != ClientType.USER) throw new InvalidClientTypeException("Client type is not USER");
 
         return buildUserDetails(username, client);
     }

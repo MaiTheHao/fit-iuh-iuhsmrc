@@ -161,12 +161,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
             return 0;
         }
 
-        if (dto.getData() == null) {
-            log.debug("[HEALTH-SCORE] Response data is null - invalid response format");
-            return 0;
-        }
-
-        List<DeviceDto> devices = dto.getData().getDevices();
+        List<DeviceDto> devices = dto.getData();
         
         if (devices == null) {
             log.debug("[HEALTH-SCORE] Devices list is null - response format issue");
