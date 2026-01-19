@@ -20,6 +20,14 @@ public final class UrlConstant {
     private static final String PATH_POWER = "/power-consumption/%s";
     private static final String PATH_BATCH_TELEMETRY = "/telemetry";
 
+    // AC Control Endpoints
+    private static final String PATH_AC_POWER = "/ac/%s/power";
+    private static final String PATH_AC_TEMP_UP = "/ac/%s/temp_up";
+    private static final String PATH_AC_TEMP_DOWN = "/ac/%s/temp_down";
+    private static final String PATH_AC_MODE = "/ac/%s/mode";
+    private static final String PATH_AC_FAN = "/ac/%s/fan";
+    private static final String PATH_AC_SWING = "/ac/%s/swing";
+
     // --- Public API Methods ---
 
     public static String getSetupUrlV1(String ip) {
@@ -44,6 +52,31 @@ public final class UrlConstant {
 
     public static String getControlUrlV1(String ip, String naturalId) {
         return build(ip, BASE_PATH_V1, String.format(PATH_CONTROL, naturalId));
+    }
+
+    // AC Control Methods
+    public static String getAcPowerUrlV1(String ip, String naturalId) {
+        return build(ip, BASE_PATH_V1, String.format(PATH_AC_POWER, naturalId));
+    }
+
+    public static String getAcTempUpUrlV1(String ip, String naturalId) {
+        return build(ip, BASE_PATH_V1, String.format(PATH_AC_TEMP_UP, naturalId));
+    }
+
+    public static String getAcTempDownUrlV1(String ip, String naturalId) {
+        return build(ip, BASE_PATH_V1, String.format(PATH_AC_TEMP_DOWN, naturalId));
+    }
+
+    public static String getAcModeUrlV1(String ip, String naturalId) {
+        return build(ip, BASE_PATH_V1, String.format(PATH_AC_MODE, naturalId));
+    }
+
+    public static String getAcFanUrlV1(String ip, String naturalId) {
+        return build(ip, BASE_PATH_V1, String.format(PATH_AC_FAN, naturalId));
+    }
+
+    public static String getAcSwingUrlV1(String ip, String naturalId) {
+        return build(ip, BASE_PATH_V1, String.format(PATH_AC_SWING, naturalId));
     }
 
     // --- Utils ---

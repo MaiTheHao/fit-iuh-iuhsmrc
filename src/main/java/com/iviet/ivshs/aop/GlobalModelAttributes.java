@@ -1,4 +1,4 @@
-package com.iviet.ivshs.web;
+package com.iviet.ivshs.aop;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.ControllerAdvice;

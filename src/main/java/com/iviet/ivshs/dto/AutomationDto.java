@@ -1,11 +1,9 @@
 package com.iviet.ivshs.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
-import com.iviet.ivshs.enumeration.JobActionType;
-import com.iviet.ivshs.enumeration.JobTargetType;
-
+import com.iviet.ivshs.entities.Automation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,20 +18,34 @@ public class AutomationDto {
     private String cronExpression;
     private Boolean isActive;
     private String description;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private List<AutomationActionDto> actions;
+    private Instant createdAt;
+    private Instant updatedAt;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class AutomationActionDto {
-        private Long id;
-        private JobTargetType targetType;
-        private Long targetId;
-        private JobActionType actionType;
-        private String parameterValue;
-        private Integer executionOrder;
-        private String targetName;
+    public static AutomationDto fromEntity(Automation entity) {
+        AutomationDto dto = new AutomationDto();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setCronExpression(entity.getCronExpression());
+        dto.setIsActive(entity.getIsActive());
+        dto.setDescription(entity.getDescription());
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
+        return dto;
+    }
+
+    public static List<AutomationDto> fromEntities(List<Automation> entities) {
+        return entities.stream()
+            .map(AutomationDto::fromEntity)
+            .toList();
+    }
+
+    public static Automation toEntity(AutomationDto dto) {
+        Automation automation = new Automation();
+        automation.setId(dto.getId());
+        automation.setName(dto.getName());
+        automation.setCronExpression(dto.getCronExpression());
+        automation.setIsActive(dto.getIsActive());
+        automation.setDescription(dto.getDescription());
+        return automation;
     }
 }

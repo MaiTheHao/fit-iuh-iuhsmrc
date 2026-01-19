@@ -1,393 +1,153 @@
-# Automation Module
+# Automation API Documentation
 
-## Automation API Documentation (v1)
+## 1. Automation Management (Cha)
 
----
+### GET /api/v1/automations
 
-## GET /api/v1/automations
+> Lấy danh sách tất cả các kịch bản tự động hóa (phân trang). Nội dung không bao gồm danh sách actions.
 
-> Lấy danh sách tất cả các kịch bản tự động hóa (phân trang).
-
-#### Tham số Truy vấn (Query Parameters)
-
-| Tên  | Loại | Mô tả                           | Mặc định |
+**Query Parameters:**
+| Tên | Loại | Mô tả | Mặc định |
 | :--- | :--- | :------------------------------ | :------- |
-| page | int  | Trang hiện tại (bắt đầu từ 0)   | 0        |
-| size | int  | Số lượng phần tử trên mỗi trang | 20       |
+| page | int | Trang hiện tại (bắt đầu từ 0) | 0 |
+| size | int | Số lượng phần tử trên mỗi trang | 20 |
 
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": {
-		"content": [
-			{
-				"id": 1,
-				"name": "Tắt đèn buổi tối",
-				"cronExpression": "0 18 * * ?",
-				"isActive": true,
-				"description": "Tự động tắt đèn vào lúc 18h hàng ngày",
-				"createdAt": "2024-06-07T09:00:00Z",
-				"updatedAt": "2024-06-07T09:00:00Z",
-				"actions": [
-					{
-						"id": 1,
-						"targetType": "LIGHT",
-						"targetId": 5,
-						"actionType": "OFF",
-						"parameterValue": null,
-						"executionOrder": 0,
-						"targetName": "Đèn phòng họp"
-					}
-				]
-			}
-		],
-		"page": 0,
-		"size": 20,
-		"totalElements": 1,
-		"totalPages": 1
-	},
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
+**Response (200 OK):** `PaginatedResponse<AutomationDto>`
 
 ---
 
-## GET /api/v1/automations/{id}
+### GET /api/v1/automations/{id}
 
 > Lấy thông tin chi tiết của một kịch bản tự động hóa theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên | Loại | Mô tả                   | Bắt buộc |
+**Path Parameters:**
+| Tên | Loại | Mô tả | Bắt buộc |
 | :-- | :--- | :---------------------- | :------- |
-| id  | Long | ID của kịch bản cần lấy | Có       |
+| id | Long | ID của kịch bản cần lấy | Có |
 
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": {
-		"id": 1,
-		"name": "Tắt đèn buổi tối",
-		"cronExpression": "0 18 * * ?",
-		"isActive": true,
-		"description": "Tự động tắt đèn vào lúc 18h hàng ngày",
-		"createdAt": "2024-06-07T09:00:00Z",
-		"updatedAt": "2024-06-07T09:00:00Z",
-		"actions": [
-			{
-				"id": 1,
-				"targetType": "LIGHT",
-				"targetId": 5,
-				"actionType": "OFF",
-				"parameterValue": null,
-				"executionOrder": 0,
-				"targetName": "Đèn phòng họp"
-			}
-		]
-	},
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
+**Response (200 OK):** `AutomationDto`
 
 ---
 
-## POST /api/v1/automations
+### POST /api/v1/automations
 
 > Tạo mới một kịch bản tự động hóa.
 
-#### Request Body Fields
+**Request Body (CreateAutomationDto):**
+| Tên trường | Loại | Mô tả |
+| :------------- | :------ | :--------------------------------------------- |
+| name | string | Tên kịch bản (Bắt buộc) |
+| cronExpression | string | Biểu thức Cron (Bắt buộc, ví dụ: "0 18 \* \* ?") |
+| isActive | boolean | Trạng thái kích hoạt (Mặc định: true) |
+| description | string | Mô tả kịch bản |
 
-| Tên trường     | Loại    | Bắt buộc | Mô tả                                                   |
-| :------------- | :------ | :------- | :------------------------------------------------------ |
-| name           | string  | Có       | Tên kịch bản (không được để trống)                      |
-| cronExpression | string  | Có       | Biểu thức Cron xác định lịch chạy (vd: "0 18 \* \* ?")  |
-| isActive       | boolean | Không    | Trạng thái kích hoạt (mặc định: true)                   |
-| description    | string  | Không    | Mô tả kịch bản (tối đa 255 ký tự)                       |
-| actions        | array   | Có       | Danh sách hành động cần thực hiện (không được để trống) |
-
-#### Request Body - Actions Fields
-
-| Tên trường     | Loại   | Bắt buộc | Mô tả                                          |
-| :------------- | :----- | :------- | :--------------------------------------------- |
-| targetType     | enum   | Có       | Loại mục tiêu: LIGHT                           |
-| targetId       | Long   | Có       | ID của mục tiêu                                |
-| actionType     | enum   | Có       | Loại hành động: ON, OFF, SET_VALUE, etc.       |
-| parameterValue | string | Không    | Giá trị tham số (dùng cho hành động SET_VALUE) |
-| executionOrder | int    | Không    | Thứ tự thực hiện hành động (mặc định: 0)       |
-
-#### Ví dụ Request Body
-
-```json
-{
-	"name": "Tắt đèn buổi tối",
-	"cronExpression": "0 18 * * ?",
-	"isActive": true,
-	"description": "Tự động tắt đèn vào lúc 18h hàng ngày",
-	"actions": [
-		{
-			"targetType": "LIGHT",
-			"targetId": 5,
-			"actionType": "OFF",
-			"parameterValue": null,
-			"executionOrder": 0
-		},
-		{
-			"targetType": "LIGHT",
-			"targetId": 6,
-			"actionType": "OFF",
-			"parameterValue": null,
-			"executionOrder": 1
-		}
-	]
-}
-```
-
-#### Ví dụ Response (201 Created)
-
-```json
-{
-	"status": 201,
-	"message": "Created successfully",
-	"data": {
-		"id": 1,
-		"name": "Tắt đèn buổi tối",
-		"cronExpression": "0 18 * * ?",
-		"isActive": true,
-		"description": "Tự động tắt đèn vào lúc 18h hàng ngày",
-		"createdAt": "2024-06-07T09:00:00Z",
-		"updatedAt": "2024-06-07T09:00:00Z",
-		"actions": [
-			{
-				"id": 1,
-				"targetType": "LIGHT",
-				"targetId": 5,
-				"actionType": "OFF",
-				"parameterValue": null,
-				"executionOrder": 0,
-				"targetName": "Đèn phòng họp"
-			},
-			{
-				"id": 2,
-				"targetType": "LIGHT",
-				"targetId": 6,
-				"actionType": "OFF",
-				"parameterValue": null,
-				"executionOrder": 1,
-				"targetName": "Đèn hành lang"
-			}
-		]
-	},
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
+**Response (201 Created):** `AutomationDto`
 
 ---
 
-## PUT /api/v1/automations/{id}
+### PUT /api/v1/automations/{id}
 
-> Cập nhật thông tin kịch bản tự động hóa theo ID.
+> Cập nhật thông tin kịch bản (Tên, Cron, Mô tả...). _Lưu ý: API này không cập nhật actions._
 
-#### Tham số Đường dẫn (Path Parameters)
+**Request Body (UpdateAutomationDto):** Tương tự CreateAutomationDto.
 
-| Tên | Loại | Mô tả                    | Bắt buộc |
-| :-- | :--- | :----------------------- | :------- |
-| id  | Long | ID kịch bản cần cập nhật | Có       |
-
-#### Request Body Fields
-
-| Tên trường     | Loại    | Bắt buộc | Mô tả                              |
-| :------------- | :------ | :------- | :--------------------------------- |
-| name           | string  | Có       | Tên kịch bản (không được để trống) |
-| cronExpression | string  | Có       | Biểu thức Cron xác định lịch chạy  |
-| isActive       | boolean | Không    | Trạng thái kích hoạt               |
-| description    | string  | Không    | Mô tả kịch bản (tối đa 255 ký tự)  |
-| actions        | array   | Không    | Danh sách hành động cần thực hiện  |
-
-#### Ví dụ Request Body
-
-```json
-{
-	"name": "Tắt đèn buổi tối - Đã sửa",
-	"cronExpression": "0 19 * * ?",
-	"isActive": true,
-	"description": "Tự động tắt đèn vào lúc 19h hàng ngày",
-	"actions": [
-		{
-			"targetType": "LIGHT",
-			"targetId": 5,
-			"actionType": "OFF",
-			"parameterValue": null,
-			"executionOrder": 0
-		}
-	]
-}
-```
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": {
-		"id": 1,
-		"name": "Tắt đèn buổi tối - Đã sửa",
-		"cronExpression": "0 19 * * ?",
-		"isActive": true,
-		"description": "Tự động tắt đèn vào lúc 19h hàng ngày",
-		"createdAt": "2024-06-07T09:00:00Z",
-		"updatedAt": "2024-06-07T10:00:00Z",
-		"actions": [
-			{
-				"id": 1,
-				"targetType": "LIGHT",
-				"targetId": 5,
-				"actionType": "OFF",
-				"parameterValue": null,
-				"executionOrder": 0,
-				"targetName": "Đèn phòng họp"
-			}
-		]
-	},
-	"timestamp": "2024-06-07T10:00:00Z"
-}
-```
+**Response (200 OK):** `AutomationDto`
 
 ---
 
-## DELETE /api/v1/automations/{id}
+### DELETE /api/v1/automations/{id}
 
-> Xóa kịch bản tự động hóa theo ID.
+> Xóa kịch bản tự động hóa. Xóa Automation sẽ xóa tất cả actions con của nó.
 
-#### Tham số Đường dẫn (Path Parameters)
-
-| Tên | Loại | Mô tả               | Bắt buộc |
-| :-- | :--- | :------------------ | :------- |
-| id  | Long | ID kịch bản cần xóa | Có       |
-
-#### Ví dụ Response (204 No Content)
-
-```json
-{
-	"status": 204,
-	"message": "Deleted successfully",
-	"data": null,
-	"timestamp": "2024-06-07T10:00:00Z"
-}
-```
+**Response (204 No Content)**
 
 ---
 
-## GET /api/v1/automations/active
+### GET /api/v1/automations/active
 
-> Lấy danh sách tất cả các kịch bản tự động hóa đang hoạt động (không phân trang).
+> Lấy danh sách tất cả các kịch bản đang ở trạng thái hoạt động.
 
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": [
-		{
-			"id": 1,
-			"name": "Tắt đèn buổi tối",
-			"cronExpression": "0 18 * * ?",
-			"isActive": true,
-			"description": "Tự động tắt đèn vào lúc 18h hàng ngày",
-			"createdAt": "2024-06-07T09:00:00Z",
-			"updatedAt": "2024-06-07T09:00:00Z",
-			"actions": [
-				{
-					"id": 1,
-					"targetType": "LIGHT",
-					"targetId": 5,
-					"actionType": "OFF",
-					"parameterValue": null,
-					"executionOrder": 0,
-					"targetName": "Đèn phòng họp"
-				}
-			]
-		}
-	],
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
+**Response (200 OK):** `List<AutomationDto>`
 
 ---
 
-## PATCH /api/v1/automations/{id}/toggle
+## 2. Action Management (Con)
 
-> Bật/tắt kích hoạt kịch bản tự động hóa.
+### GET /api/v1/automations/{id}/actions
 
-#### Tham số Đường dẫn (Path Parameters)
+> Lấy danh sách các hành động thuộc về một kịch bản cụ thể.
 
-| Tên | Loại | Mô tả               | Bắt buộc |
-| :-- | :--- | :------------------ | :------- |
-| id  | Long | ID kịch bản cần sửa | Có       |
+**Path Parameters:**
+| Tên | Loại | Mô tả | Bắt buộc |
+| :-- | :--- | :---------------- | :------- |
+| id | Long | ID của Automation | Có |
 
-#### Tham số Truy vấn (Query Parameters)
-
-| Tên      | Loại    | Mô tả                    | Bắt buộc |
-| :------- | :------ | :----------------------- | :------- |
-| isActive | boolean | Trạng thái kích hoạt mới | Có       |
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Automation status updated successfully",
-	"data": null,
-	"timestamp": "2024-06-07T10:00:00Z"
-}
-```
+**Response (200 OK):** `List<AutomationActionDto>` (Có kèm `targetName` để hiển thị).
 
 ---
 
-## POST /api/v1/automations/{id}/execute
+### POST /api/v1/automations/{id}/actions
 
-> Thực thi ngay lập tức một kịch bản tự động hóa mà không cần chờ lịch Cron.
+> Thêm một hành động mới vào kịch bản.
 
-#### Tham số Đường dẫn (Path Parameters)
+**Request Body (CreateAutomationActionDto):**
+| Tên trường | Loại | Mô tả |
+| :------------- | :----- | :--------------------------------------------- |
+| targetType | enum | Loại mục tiêu: LIGHT |
+| targetId | Long | ID của thiết bị mục tiêu |
+| actionType | enum | Loại hành động: ON, OFF, SET_VALUE |
+| parameterValue | string | Tham số (ví dụ: độ sáng 0-100) |
+| executionOrder | int | Thứ tự thực hiện |
 
-| Tên | Loại | Mô tả                    | Bắt buộc |
-| :-- | :--- | :----------------------- | :------- |
-| id  | Long | ID kịch bản cần thực thi | Có       |
-
-#### Ví dụ Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Automation executed successfully",
-	"data": null,
-	"timestamp": "2024-06-07T10:00:00Z"
-}
-```
+**Response (201 Created):** `AutomationActionDto`
 
 ---
 
-## POST /api/v1/automations/reload
+### PUT /api/v1/automations/actions/{actionId}
 
-> Tải lại tất cả các kịch bản tự động hóa (thường dùng sau khi cập nhật hoặc thêm mới).
+> Cập nhật thông tin một hành động hiện có.
 
-#### Ví dụ Response (200 OK)
+**Path Parameters:**
+| Tên | Loại | Mô tả | Bắt buộc |
+| :------- | :--- | :--------------- | :------- |
+| actionId | Long | ID của hành động | Có |
 
-```json
-{
-	"status": 200,
-	"message": "All automations reloaded successfully",
-	"data": null,
-	"timestamp": "2024-06-07T10:00:00Z"
-}
-```
+**Request Body (UpdateAutomationActionDto):** Tương tự ActionDto.
+
+**Response (200 OK):** `AutomationActionDto`
+
+---
+
+### DELETE /api/v1/automations/actions/{actionId}
+
+> Xóa một hành động khỏi kịch bản.
+
+**Response (204 No Content)**
+
+---
+
+## 3. System / Control Endpoints
+
+### PATCH /api/v1/automations/{id}/status
+
+> Bật hoặc tắt trạng thái hoạt động của kịch bản.
+
+**Query Parameters:**
+| Tên | Loại | Mô tả | Bắt buộc |
+| :------- | :------ | :------------------------- | :------- |
+| isActive | boolean | Trạng thái mới (true/false) | Có |
+
+---
+
+### POST /api/v1/automations/{id}/execute
+
+> Thực thi ngay lập tức kịch bản tự động hóa (Manual Trigger) mà không cần chờ lịch Cron.
+
+---
+
+### POST /api/v1/automations/reload-job
+
+> Tải lại hệ thống Scheduler (Quartz Jobs). Dùng khi cần đồng bộ lại toàn bộ lịch trình.
 
 ---
 
@@ -395,99 +155,35 @@
 
 ### AutomationDto
 
-Đối tượng đầy đủ thông tin của một kịch bản tự động hóa.
-
 ```json
 {
 	"id": 1,
 	"name": "Tắt đèn buổi tối",
 	"cronExpression": "0 18 * * ?",
 	"isActive": true,
-	"description": "Tự động tắt đèn vào lúc 18h hàng ngày",
+	"description": "Tự động tắt đèn vào lúc 18h",
 	"createdAt": "2024-06-07T09:00:00Z",
-	"updatedAt": "2024-06-07T09:00:00Z",
-	"actions": [
-		{
-			"id": 1,
-			"targetType": "LIGHT",
-			"targetId": 5,
-			"actionType": "OFF",
-			"parameterValue": null,
-			"executionOrder": 0,
-			"targetName": "Đèn phòng họp"
-		}
-	]
+	"updatedAt": "2024-06-07T09:00:00Z"
 }
 ```
 
-### PaginatedResponse
-
-Đối tượng phản hồi phân trang.
+### AutomationActionDto
 
 ```json
 {
-	"content": [],
-	"page": 0,
-	"size": 20,
-	"totalElements": 0,
-	"totalPages": 0
+	"id": 1,
+	"targetType": "LIGHT",
+	"targetId": 5,
+	"actionType": "OFF",
+	"parameterValue": null,
+	"executionOrder": 0,
+	"targetName": "Đèn phòng khách"
 }
 ```
 
-### ApiResponse
+### Enum Values
 
-Cấu trúc phản hồi chung cho tất cả các API.
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": {},
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
-#### Các mã trạng thái thường gặp:
-
-| Mã  | Ý nghĩa                        |
-| :-- | :----------------------------- |
-| 200 | Thành công - OK                |
-| 201 | Thành công - Tạo mới           |
-| 204 | Thành công - Không có nội dung |
-| 400 | Lỗi - Yêu cầu không hợp lệ     |
-| 401 | Lỗi - Chưa xác thực            |
-| 403 | Lỗi - Không có quyền           |
-| 404 | Lỗi - Không tìm thấy           |
-| 500 | Lỗi - Lỗi máy chủ nội bộ       |
-
----
-
-## Enum Values
-
-### JobTargetType
-
-```
-- LIGHT: Thiết bị đèn
-```
-
-### JobActionType
-
-```
-- ON: Bật thiết bị
-- OFF: Tắt thiết bị
-```
-
----
-
-## Cron Expression Examples
-
-| Biểu thức      | Ý nghĩa                         |
-| :------------- | :------------------------------ |
-| 0 18 \* \* ?   | Hàng ngày lúc 18:00             |
-| 0 9,18 \* \* ? | Hàng ngày lúc 09:00 và 18:00    |
-| 0 _/6 _ \* ?   | Mỗi 6 giờ                       |
-| 0 0 \* \* 1    | Hàng tuần vào thứ Hai lúc 00:00 |
-| 0 0 1 \* ?     | Hàng tháng vào ngày 1 lúc 00:00 |
-| _/30 _ \* \* ? | Mỗi 30 phút                     |
+- **JobTargetType**: `LIGHT`
+- **JobActionType**: `ON`, `OFF`, `SET_VALUE`
 
 ---

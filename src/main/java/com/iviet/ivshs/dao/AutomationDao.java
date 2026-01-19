@@ -16,6 +16,12 @@ public class AutomationDao extends BaseAuditEntityDao<Automation> {
         super(Automation.class);
     }
 
+    public List<Automation> findAllActive() {
+        String jpql = "SELECT a FROM Automation a WHERE a.isActive = true ORDER BY a.id";
+        return entityManager.createQuery(jpql, Automation.class)
+                .getResultList();
+    }
+
     public Optional<Automation> findByIdWithActions(Long automationId) {
         String jpql = """
                 SELECT DISTINCT a FROM Automation a

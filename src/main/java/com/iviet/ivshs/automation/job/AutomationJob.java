@@ -1,4 +1,4 @@
-package com.iviet.ivshs.job;
+package com.iviet.ivshs.automation.job;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -13,24 +13,24 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class AutomationJob implements Job {
-	
+    
     @Autowired
     private AutomationService automationService;
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         Long automationId = context.getJobDetail().getJobDataMap().getLong("id");
+        long start = System.currentTimeMillis();
         
-        log.info(">>> AutomationJob triggered for ID: {} on thread: {}", 
-                automationId, Thread.currentThread().getName());
+        log.info("[AUTOMATION-JOB] Starting execution for ID: {}", automationId);
         
         try {
             automationService.executeAutomationLogic(automationId);
+            log.info("[AUTOMATION-JOB] Finished execution for ID: {} in {}ms", 
+                    automationId, System.currentTimeMillis() - start);
         } catch (Exception e) {
-            log.error("❌ Error executing automation ID {}: {}", automationId, e.getMessage(), e);
-            throw new JobExecutionException("Failed to execute automation: " + e.getMessage(), e);
+            log.error("[AUTOMATION-JOB] Execution failed for ID {}: {}", automationId, e.getMessage());
+            throw new JobExecutionException(e.getMessage(), e);
         }
-        
-        log.info("✅ AutomationJob completed for ID: {}", automationId);
     }
 }

@@ -1,8 +1,9 @@
 package com.iviet.ivshs.util;
 
+import com.iviet.ivshs.automation.job.AutomationJob;
 import com.iviet.ivshs.entities.Automation;
 import com.iviet.ivshs.exception.domain.InternalServerErrorException;
-import com.iviet.ivshs.job.AutomationJob;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;

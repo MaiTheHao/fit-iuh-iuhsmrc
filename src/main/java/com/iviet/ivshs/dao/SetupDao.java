@@ -2,6 +2,9 @@ package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.*;
+import com.iviet.ivshs.enumeration.AcMode;
+import com.iviet.ivshs.enumeration.AcPower;
+import com.iviet.ivshs.enumeration.AcSwing;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -88,9 +91,11 @@ public class SetupDao extends BaseDao<SetupDao> {
 			case LIGHT -> createLight(device, room, deviceControl, translations);
 			case TEMPERATURE -> createTemperature(device, room, deviceControl, translations);
 			case POWER_CONSUMPTION -> createPowerConsumption(device, room, deviceControl, translations);
+			case AIR_CONDITION -> createAirCondition(device, room, deviceControl, translations);
 		}
 	}
 
+	// --- LIGHT ---
 	private void createLight(SetupRequest.BodyData.DeviceConfig device, Room room, 
 		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		Light light = new Light();
@@ -101,13 +106,10 @@ public class SetupDao extends BaseDao<SetupDao> {
 		persistEntity(light);
 		persistTranslations(light, translations);
 		
-		if (log.isDebugEnabled()) {
-			log.debug("[SETUP:LIGHT] created: id={}, naturalId={}, translations={}", 
-				light.getId(), light.getNaturalId(), 
-				translations != null ? translations.size() : 0);
-		}
+		if (log.isDebugEnabled()) log.debug("[SETUP:LIGHT] created: id={}", light.getId());
 	}
 
+	// --- TEMPERATURE ---
 	private void createTemperature(SetupRequest.BodyData.DeviceConfig device, Room room, 
 		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		Temperature temperature = new Temperature();
@@ -118,13 +120,10 @@ public class SetupDao extends BaseDao<SetupDao> {
 		persistEntity(temperature);
 		persistTranslations(temperature, translations);
 		
-		if (log.isDebugEnabled()) {
-			log.debug("[SETUP:TEMP] created: id={}, naturalId={}, translations={}", 
-				temperature.getId(), temperature.getNaturalId(), 
-				translations != null ? translations.size() : 0);
-		}
+		if (log.isDebugEnabled()) log.debug("[SETUP:TEMP] created: id={}", temperature.getId());
 	}
 
+	// --- POWER CONSUMPTION ---
 	private void createPowerConsumption(SetupRequest.BodyData.DeviceConfig device, Room room, 
 		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		PowerConsumption powerConsumption = new PowerConsumption();
@@ -135,11 +134,27 @@ public class SetupDao extends BaseDao<SetupDao> {
 		persistEntity(powerConsumption);
 		persistTranslations(powerConsumption, translations);
 		
-		if (log.isDebugEnabled()) {
-			log.debug("[SETUP:POWER] created: id={}, naturalId={}, translations={}", 
-				powerConsumption.getId(), powerConsumption.getNaturalId(), 
-				translations != null ? translations.size() : 0);
-		}
+		if (log.isDebugEnabled()) log.debug("[SETUP:POWER] created: id={}", powerConsumption.getId());
+	}
+
+	private void createAirCondition(SetupRequest.BodyData.DeviceConfig device, Room room, 
+		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
+		AirCondition ac = new AirCondition();
+		ac.setIsActive(device.isActive());
+		ac.setRoom(room);
+		ac.setDeviceControl(deviceControl);
+		ac.setNaturalId(device.getNaturalId());
+		
+		ac.setPower(AcPower.OFF);
+		ac.setTemperature(26);
+		ac.setMode(AcMode.COOL);
+		ac.setFanSpeed(1);
+		ac.setSwing(AcSwing.OFF);
+
+		persistEntity(ac);
+		persistTranslations(ac, translations);
+		
+		if (log.isDebugEnabled()) log.debug("[SETUP:AC] created: id={}", ac.getId());
 	}
 
 	private <T> void persistEntity(T entity) {
@@ -151,11 +166,6 @@ public class SetupDao extends BaseDao<SetupDao> {
 			return;
 		}
 		
-		if (log.isDebugEnabled()) {
-			log.debug("[SETUP:TRANS_START] entityType={}, count={}", 
-				entity.getClass().getSimpleName(), translations.size());
-		}
-
 		translations.forEach((langCode, detail) -> {
 			if (entity instanceof Light light) {
 				createLightTranslation(light, langCode, detail);
@@ -163,56 +173,49 @@ public class SetupDao extends BaseDao<SetupDao> {
 				createTemperatureTranslation(temperature, langCode, detail);
 			} else if (entity instanceof PowerConsumption powerConsumption) {
 				createPowerConsumptionTranslation(powerConsumption, langCode, detail);
+			} else if (entity instanceof AirCondition ac) { // Mapping cho AC
+				createAirConditionTranslation(ac, langCode, detail);
 			}
 		});
-		
-		if (log.isDebugEnabled()) {
-			log.debug("[SETUP:TRANS_END] entityType={}", entity.getClass().getSimpleName());
-		}
 	}
 
-	private void createLightTranslation(
-		Light light, 
-		String langCode, 
-		SetupRequest.BodyData.DeviceConfig.TranslationDetail detail) {
-		
+	private void createLightTranslation(Light light, String langCode, SetupRequest.BodyData.DeviceConfig.TranslationDetail detail) {
 		LightLan lightLan = new LightLan();
 		lightLan.setLangCode(langCode);
 		lightLan.setName(detail.getName());
 		lightLan.setDescription(detail.getDescription());
 		lightLan.setOwner(light);
-		
 		light.getTranslations().add(lightLan);
 		entityManager.persist(lightLan);
 	}
 
-	private void createTemperatureTranslation(
-		Temperature temperature, 
-		String langCode, 
-		SetupRequest.BodyData.DeviceConfig.TranslationDetail detail) {
-		
+	private void createTemperatureTranslation(Temperature temperature, String langCode, SetupRequest.BodyData.DeviceConfig.TranslationDetail detail) {
 		TemperatureLan temperatureLan = new TemperatureLan();
 		temperatureLan.setLangCode(langCode);
 		temperatureLan.setName(detail.getName());
 		temperatureLan.setDescription(detail.getDescription());
 		temperatureLan.setOwner(temperature);
-		
 		temperature.getTranslations().add(temperatureLan);
 		entityManager.persist(temperatureLan);
 	}
 
-	private void createPowerConsumptionTranslation(
-		PowerConsumption powerConsumption, 
-		String langCode, 
-		SetupRequest.BodyData.DeviceConfig.TranslationDetail detail) {
-		
+	private void createPowerConsumptionTranslation(PowerConsumption powerConsumption, String langCode, SetupRequest.BodyData.DeviceConfig.TranslationDetail detail) {
 		PowerConsumptionLan powerConsumptionLan = new PowerConsumptionLan();
 		powerConsumptionLan.setLangCode(langCode);
 		powerConsumptionLan.setName(detail.getName());
 		powerConsumptionLan.setDescription(detail.getDescription());
 		powerConsumptionLan.setOwner(powerConsumption);
-		
 		powerConsumption.getTranslations().add(powerConsumptionLan);
 		entityManager.persist(powerConsumptionLan);
+	}
+
+	private void createAirConditionTranslation(AirCondition ac, String langCode, SetupRequest.BodyData.DeviceConfig.TranslationDetail detail) {
+		AirConditionLan acLan = new AirConditionLan();
+		acLan.setLangCode(langCode);
+		acLan.setName(detail.getName());
+		acLan.setDescription(detail.getDescription());
+		acLan.setOwner(ac);
+		ac.getTranslations().add(acLan);
+		entityManager.persist(acLan);
 	}
 }
