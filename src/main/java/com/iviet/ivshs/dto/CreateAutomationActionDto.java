@@ -3,7 +3,6 @@ package com.iviet.ivshs.dto;
 import com.iviet.ivshs.enumeration.JobActionType;
 import com.iviet.ivshs.enumeration.JobTargetType;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,7 +25,6 @@ public class CreateAutomationActionDto {
 	@NotNull(message = "Action type is required")
 	private JobActionType actionType;
 
-	@NotBlank(message = "Parameter value is required")
 	private String parameterValue;
 
 	@NotNull(message = "Execution order is required")
